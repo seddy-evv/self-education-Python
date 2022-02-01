@@ -18,5 +18,8 @@ def binary_search(numbers, item):
 
 
 my_list = [1, 3, 5, 7, 9, 11, 22, 56, 79, 98]
-print(binary_search(my_list, 7))
-print(binary_search(my_list, 10))
+
+
+if __name__ == '__main__':
+    print(binary_search(my_list, 7))
+    print(binary_search(my_list, 10))
