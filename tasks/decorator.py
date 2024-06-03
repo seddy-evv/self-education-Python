@@ -30,10 +30,27 @@ def dec(func):
 def function():
     pass
 
+# We can replace the expression above with
+# function = dec(function)
+# and then call the function like below
+# function()
+# because we redefined the variable name function to call the decorator dec
+
 
 @dec
 def function_new():
     pass
+
+
+# In some cases, we need to create a function without attributes or with one special attribute and pass it as
+# an argument. If within this function we also need to pass arguments, then we can use the solution below
+# and pass normalize_wrap(some_arg) instead of normalize, because normalize_wrap returns normalize func.
+
+def normalize_wrap(arg):
+    def normalize(pdf):
+        v = pdf.v - arg
+        return pdf.assign(v=(v - v.mean()) / v.std())
+    return normalize
 
 
 if __name__ == '__main__':
