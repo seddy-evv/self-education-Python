@@ -16,7 +16,17 @@ def calculate_letters(text):
     template = "in string {} cursive letters and {} lowercase letters"
     print(template.format(upper, lower))
 
-
+    # additional method
+    upper = 0
+    lower = 0
+    for element in text:
+        if element.isalpha() and element.isupper():
+            upper += 1
+        elif element.isalpha() and element.islower():
+            lower += 1
+    template = "in string {} cursive letters and {} lowercase letters"
+    print(template.format(upper, lower))
+    
 if __name__ == '__main__':
     sentence = ("Walking, running, cycling and "
                 "playing football are some kinds "
