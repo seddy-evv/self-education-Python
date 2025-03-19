@@ -70,3 +70,50 @@ print(df['Name'])
 # Example:
 print(df.iloc[0:2])
 
+
+# Data Exploration
+
+data = {'Name': ['Alice', 'Bob', 'Charlie'],
+        'Age': [25, 30, 35],
+        'City': ['New York', 'Los Angeles', 'Chicago']}
+df = pd.DataFrame(data)
+
+# 1. df.head(n): Returns the first n rows of the DataFrame (default is 5 rows).
+
+# Example:
+print(df.head(1))
+
+# 2. df.tail(n): Returns the last n rows of the DataFrame (default is 5 rows).
+
+# Example:
+print(df.tail(1))
+
+# 3. df.info(): Provides an overview of the DataFrame, including column types and non-null counts.
+
+# Example:
+print(df.info())
+
+# 4. df.describe(): Provides summary statistics for numeric columns.
+
+# Example:
+print(df.describe())
+
+# 5. df.shape: Returns the dimensions of the DataFrame (rows, columns).
+
+# Example:
+print(df.shape)
+
+# 6. df.columns: Lists all column names.
+
+# Example:
+print(df.columns)
+
+# 7. df.index: Displays the index (labels) of the DataFrame.
+
+# Example:
+print(df.index)
+
+# 8. df.dtypes: Lists the data types of each column.
+
+# Example:
+print(df.dtypes)
