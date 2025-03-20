@@ -113,6 +113,43 @@ print(df.columns)
 # Example:
 print(df.index)
 
+
+# Data Cleaning
+
+df_with_na = pd.DataFrame({'Name': ['Alice', 'Bob', None], 'Age': [25, None, 35]})
+
+# 1. df.dropna(): Removes rows or columns with missing values.
+
+# Example:
+print(df_with_na.dropna())
+
+# 2. df.fillna(value): Fills missing values with a specified value.
+
+# Example:
+print(df_with_na.fillna('Unknown'))
+
+# 3. df.isnull(): Returns a DataFrame of boolean values indicating missing data.
+
+# Example:
+print(df_with_na.isnull())
+
+# 4. df.notnull(): Returns a DataFrame of boolean values for non-missing data.
+
+# Example:
+print(df_with_na.notnull())
+
+# 5. df.drop(columns='column_name'): Drops a specific column.
+
+# Example:
+print(df_with_na.drop(columns='Name'))
+
+# 6. df.rename(columns={'old_name': 'new_name'}): Renames one or more columns.
+
+# Example:
+renamed_df = df_with_na.rename(columns={'Name': 'Full Name', 'Age': 'Years'})
+print(renamed_df)
+
+
 # 8. df.dtypes: Lists the data types of each column.
 
 # Example:
