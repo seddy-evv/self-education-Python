@@ -3,7 +3,8 @@
 
 import pandas as pd
 
-# Data Creation
+# DATA CREATION
+print('\n', 'DATA CREATION', '\n')
 
 # 1. pd.DataFrame(data): Creates a DataFrame from a dictionary, list, or another structure. A DataFrame is
 # a two-dimensional, tabular data structure with labeled axes (rows and columns).
@@ -23,6 +24,7 @@ print(age_series)
 
 
 # I/O Functions (Data Input/Output)
+print('\n', 'I/O Functions (Data Input/Output)', '\n')
 
 # 1. pd.read_csv(filepath): Reads data from a CSV file and loads it into a DataFrame.
 # 2. pd.to_csv(filepath): Writes the DataFrame to a CSV file.
@@ -34,6 +36,7 @@ print(age_series)
 
 
 # Indexing and Selection
+print('\n', 'Indexing and Selection', '\n')
 
 data = {'Name': ['Alice', 'Bob', 'Charlie'],
         'Age': [25, 30, 35],
@@ -72,6 +75,7 @@ print(df.iloc[0:2])
 
 
 # Data Exploration
+print('\n', 'Data Exploration', '\n')
 
 data = {'Name': ['Alice', 'Bob', 'Charlie'],
         'Age': [25, 30, 35],
@@ -113,14 +117,22 @@ print(df.columns)
 # Example:
 print(df.index)
 
+# 8. df.dtypes: Lists the data types of each column.
+
+# Example:
+print(df.dtypes)
+
 
 # Data Cleaning
+print('\n', 'Data Cleaning', '\n')
 
 df_with_na = pd.DataFrame({'Name': ['Alice', 'Bob', None], 'Age': [25, None, 35]})
 
-# 1. df.dropna(): Removes rows or columns with missing values.
+# 1. df.dropna(): Removes rows or columns with missing values (None, NA, NULL).
+# df.dropna(inplace=True) - whether to modify the DataFrame than creating a new one (you don't need a new variable)
 
 # Example:
+
 print(df_with_na.dropna())
 
 # 2. df.fillna(value): Fills missing values with a specified value.
@@ -150,7 +162,75 @@ renamed_df = df_with_na.rename(columns={'Name': 'Full Name', 'Age': 'Years'})
 print(renamed_df)
 
 
-# 8. df.dtypes: Lists the data types of each column.
+# Data Manipulation
+print('\n', 'Data Manipulation', '\n')
+
+data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex'],
+        'Age': [45, 25, 33, 36],
+        'City': ['New York', 'Los Angeles', 'Chicago', 'New York']}
+df = pd.DataFrame(data)
+
+# 1. df.sort_values(by='column_name'): Sorts the DataFrame by a specific column.
 
 # Example:
-print(df.dtypes)
+print(df.sort_values(by='Age'))
+
+# 2. df.groupby('column_name'): Groups data by a specific column for aggregation.
+# 3. df.agg({'column': 'function'}): Provides aggregate operations (e.g., sum, mean, max).
+
+# Example:
+grouped = df.groupby('City').agg({'Age': 'mean'})
+print(grouped)
+
+# Example:
+# In some cases we may encounter a situation where grouping from a dataframe creates a series,
+# in this case command reset_index() will create a dataframe by adding an index.
+
+data = {'Age': [45, 25, 33, 36],
+        'City': ['New York', 'Los Angeles', 'Chicago', 'New York']}
+df_gr = pd.DataFrame(data)
+
+# The result will be the same for these two statements, but the structure will be different.
+df_group = df_gr.groupby(['City']).agg({'Age': ['sum']})
+series = df_gr.groupby(['City'])['Age'].sum()
+df_from_series = series.reset_index()
+
+print(df_group)
+print(series)
+print(df_from_series)
+
+# 4. df.merge(other_df, on='key'): Merges two DataFrames on a specified key column.
+
+# Example:
+df2 = pd.DataFrame({'Name': ['Alice', 'Bob'], 'Salary': [50000, 60000]})
+merged = df.merge(df2, on='Name')
+print(merged)
+
+# 5. df.join(other_df): Joins two DataFrames on their indexes.
+
+# Example:
+df3 = pd.DataFrame({'Salary': [50000, 60000, 70000, 80000]})
+joined = df.join(df3)
+print(joined)
+
+# 6. pd.concat([df1, df2]): Concatenates two or more DataFrames along rows or columns.
+
+# Example:
+df_concat = pd.concat([df, df2], axis=1)
+print(df_concat)
+
+# 7. df._append(df2): Append rows of other to the end of caller, returning a new object.
+# Columns in other that are not in the caller are added as new columns, for existing rows values will be NULL.
+
+df_append = df._append(df2)
+print(df_append)
+
+# 8. df.pivot_table(values, index, columns): Creates a pivot table for data summarization.
+
+# Example:
+df4 = pd.DataFrame({'foo': ['one', 'one', 'one', 'two', 'two', 'two'],
+                   'bar': ['A', 'B', 'C', 'A', 'B', 'C'],
+                   'baz': [1, 2, 3, 4, 5, 6],
+                   'zoo': ['x', 'y', 'z', 'q', 'w', 't']})
+
+print(df4.pivot(index='foo', columns='bar', values='baz'))
