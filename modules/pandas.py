@@ -234,3 +234,79 @@ df4 = pd.DataFrame({'foo': ['one', 'one', 'one', 'two', 'two', 'two'],
                    'zoo': ['x', 'y', 'z', 'q', 'w', 't']})
 
 print(df4.pivot(index='foo', columns='bar', values='baz'))
+
+# Data Transformation
+print('\n', 'Data Transformation', '\n')
+
+data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex'],
+        'Age': [45, 25, 33, 36],
+        'City': ['New York', 'Los Angeles', 'Chicago', 'New York']}
+df = pd.DataFrame(data)
+age_series = pd.Series([25, 30, 35], name='Age')
+
+# 1. df.apply(function): Applies a function to rows or columns.
+
+# Example:
+df['Age in Months'] = df['Age'].apply(lambda x: x * 12)
+print(df)
+# df['Age in Months'] - adds a new column with calculated values
+
+# 2. df.map(function): Applies element-wise functions to a Series.
+
+# Example:
+age_series = age_series.map(lambda x: x * 10)
+print(age_series)
+
+# 3. df.replace(to_replace, value): Replaces specific values in the DataFrame.
+
+# Example:
+df['City'] = df['City'].replace('New York', 'NYC')
+print(df)
+
+# 4. df.drop_duplicates(): Removes full duplicate rows.
+
+# Example:
+df_with_duplicates = pd.DataFrame({'Name': ['Alice', 'Bob', 'Alice'], 'Age': [25, 30, 25]})
+print(df_with_duplicates.drop_duplicates())
+
+# 5. df.astype(dtype): Changes the data type of all columns.
+# 6. df.astype({'col1': dtype}): Changes the data type of the col1 column.
+# 7. df['col1] = df['col1'].astype(dtype): The additional way to change the data type of the col1 column.
+
+# Example:
+
+print(df_with_duplicates.astype('string').dtypes)
+print(df_with_duplicates.astype({'Age': 'string'}).dtypes)
+df_with_duplicates['Age'] = df_with_duplicates['Age'].astype('string')
+print(df_with_duplicates.dtypes)
+
+# 8. df['new_column'] = 'const' - Creates a new column 'new_column' with the 'const' value for all rows.
+
+# Example:
+df['new_column'] = 'const'
+print(df)
+
+# 9. df[['id', 'type']] = df['type_id'].str.split(“*”, expand=True) - Splits the column into two new ones.
+
+# Example:
+data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex'],
+        'type_id': ['A*1', 'B*2', 'C*3', 'D*4']}
+df = pd.DataFrame(data)
+df[['id', 'type']] = df['type_id'].str.split('*', expand=True)
+print(df)
+
+# 10.  df['column_name'].round()
+
+# Example:
+data = {'Name': ['Alice', 'Bob'],
+        'salary': [100.1, 200.5]}
+df = pd.DataFrame(data)
+
+df['salary'] = df['salary'].round()
+print(df)
+
+# 11. df[df[column_name < value]] - filters df by values in the column column_name
+
+# Example:
+df = df[df['salary'] < 150]
+print(df)
