@@ -310,3 +310,54 @@ print(df)
 # Example:
 df = df[df['salary'] < 150]
 print(df)
+
+
+# Statistical Functions
+print('\n', 'Statistical Functions', '\n')
+
+data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex'],
+        'Age': [45, 25, 33, 36],
+        'City': ['New York', 'Los Angeles', 'Chicago', 'New York']}
+df = pd.DataFrame(data)
+age_series = pd.Series([25, 30, 35], name='Age')
+
+# 1. df.mean(): Calculates the mean of each column.
+
+# Example:
+print(df['Age'].mean())
+
+# 2. df.median(): Calculates the median of each column.
+
+# Example:
+print(df['Age'].median())
+
+# 3. df.sum(): Returns the sum of values in each column.
+
+# Example:
+print(df['Age'].sum())
+
+# 4. df.min() / df.max(): Calculates the minimum/maximum value for each column.
+
+# Example:
+print(df['Age'].min(), df['Age'].max())
+
+# 5. df.corr(): Returns the correlation between columns.
+
+# Example:
+df_stats = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+print(df_stats.corr())
+
+# 6. df.count(): Counts non-NA/null values for each column.
+# 7. df.shape[0]: Counts the number of df rows.
+# 8. series.shape[0]: ounts the number of Series rows.
+
+# Example:
+print(df.count())
+print(df.shape[0])
+print(age_series.shape[0])
+
+# 9. df['column_name'].value_counts() - counts unique values in the column, result is Series so reset_index() for df
+
+# Example:
+counts = df['City'].value_counts()
+print(type(counts))
