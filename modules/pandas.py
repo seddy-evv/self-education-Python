@@ -361,3 +361,43 @@ print(age_series.shape[0])
 # Example:
 counts = df['City'].value_counts()
 print(type(counts))
+
+
+# Visualization
+print('\n', 'Visualization', '\n')
+
+# 1. df.plot(): Creates basic plots using matplotlib (line, bar, histogram, etc.).
+# 2. df.hist(column): Creates a histogram for a specific column.
+# 3. df.boxplot(column): Generates a box plot.
+
+
+# Advanced Functions
+print('Advanced Functions')
+
+# 1. df.pivot(index, columns, values): Reshapes data by pivoting.
+
+# Example:
+data = {'Name': ['Alice', 'Alice', 'Bob', 'Bob'],
+        'Category': ['A', 'B', 'A', 'B'],
+        'Score': [90, 85, 80, 95]}
+df_advanced = pd.DataFrame(data)
+pivot_table = df_advanced.pivot_table(values='Score', index='Name', columns='Category')
+print(pivot_table)
+
+# 2. df.melt(): Unpivots a DataFrame from a wide format to a long format.
+
+# Example:
+melted = df_advanced.melt(id_vars=['Name'], value_vars=['Score'])
+print(melted)
+
+# 3. df.sample(n): Randomly samples n rows from the DataFrame.
+
+# Example:
+print(df_advanced.sample(2))
+
+# 4. df['column_name'].sample(n): Randomly samples n values as Series from the DataFrame column column_name.
+
+# Example:
+print(df_advanced['Score'].sample(n=2))
+# We can use random_state=1 to ensure the reproducibility of the examples
+print(df_advanced['Score'].sample(n=2, random_state=1))
