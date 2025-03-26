@@ -401,3 +401,37 @@ print(df_advanced.sample(2))
 print(df_advanced['Score'].sample(n=2))
 # We can use random_state=1 to ensure the reproducibility of the examples
 print(df_advanced['Score'].sample(n=2, random_state=1))
+
+
+# Miscellaneous
+print('\n', 'Miscellaneous', '\n')
+
+df = get_pd_df()
+series = pd.Series([1, 2, 3, 4], name='foo',
+                   index=pd.Index(['a', 'b', 'c', 'd'], name='idx'))
+
+# 1. pd.get_dummies(data): Converts categorical data into dummy/indicator variables.
+
+# Example:
+df_dummy = pd.get_dummies(df['City'])
+print(df_dummy)
+
+# 2. df.set_index('column_name'): Sets one column as the index.
+
+# Example:
+df_indexed = df.set_index('Name')
+print(df_indexed)
+
+# 3. df.reset_index(): Resets the index to default integer numbering.
+#    df.reset_index(drop=True) - We can use the drop parameter to avoid the old index being added as column, default False
+#    df.reset_index(inplace=True) - whether to modify the DataFrame than creating a new one
+#    series.reset_index(): Resets the index to default integer numbering for Series. Without drop=True returns
+#    DataFrame instead of Series.
+
+# Example:
+reset_df = df_indexed.reset_index()
+print(reset_df)
+reset_df_without_Name = df_indexed.reset_index(drop=True)
+print(reset_df_without_Name)
+reset_df_from_series = series.reset_index()
+print(reset_df_from_series)
