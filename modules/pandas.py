@@ -435,3 +435,32 @@ reset_df_without_Name = df_indexed.reset_index(drop=True)
 print(reset_df_without_Name)
 reset_df_from_series = series.reset_index()
 print(reset_df_from_series)
+
+
+# Categorical data
+print('\n', 'Categorical data', '\n')
+
+# Working with categorical data in pandas is highly efficient due to its Categorical data type. Categorical
+# data is a type of variable that represents a fixed number of possible values like labels or groups (e.g.,
+# gender, colors, grades). These variables can be either ordered or unordered. Categorical data reduces memory
+# usage and improves computation performance compared to using strings.
+
+
+# Example:
+# Categorical variables are faster for grouping. For example:
+df = pd.DataFrame({
+    'Color': ['red', 'blue', 'green', 'red', 'blue'],
+    'Value': [10, 20, 30, 40, 50]
+})
+df['Color'] = df['Color'].astype('category')
+
+grouped = df.groupby(['Color'], observed=True)['Value'].sum()
+print(grouped)
+
+# Categorical data uses less memory compared to object types (strings). You can compare memory usage like this:
+df = pd.DataFrame({'Color': ['red', 'blue', 'green', 'red', 'blue']})
+
+print(df.memory_usage(deep=True))  # Memory usage with object type
+
+df['Color'] = df['Color'].astype('category')
+print(df.memory_usage(deep=True))  # Memory usage after conversion to category
