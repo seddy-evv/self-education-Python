@@ -3,23 +3,35 @@
 
 import pandas as pd
 
-# DATA CREATION
-print('\n', 'DATA CREATION', '\n')
+
+def get_pd_df():
+    data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex'],
+            'Age': [45, 25, 33, 36],
+            'City': ['New York', 'Los Angeles', 'Chicago', 'New York']}
+    df = pd.DataFrame(data)
+
+    return df
+
+
+def get_age_series():
+
+    return pd.Series([25, 30, 35], name='Age')
+
+
+# Data Creation
+print('\n', 'Data Creation', '\n')
 
 # 1. pd.DataFrame(data): Creates a DataFrame from a dictionary, list, or another structure. A DataFrame is
 # a two-dimensional, tabular data structure with labeled axes (rows and columns).
 
 # Example:
-data = {'Name': ['Alice', 'Bob', 'Charlie'],
-        'Age': [25, 30, 35],
-        'City': ['New York', 'Los Angeles', 'Chicago']}
-df = pd.DataFrame(data)
+df = get_pd_df()
 print(df)
 
 # 2. pd.Series(data): Creates a one-dimensional labeled array (like a column in a DataFrame).
 
 # Example:
-age_series = pd.Series([25, 30, 35], name='Age')
+age_series = get_age_series()
 print(age_series)
 
 
@@ -38,20 +50,46 @@ print('\n', 'I/O Functions (Data Input/Output)', '\n')
 # Indexing and Selection
 print('\n', 'Indexing and Selection', '\n')
 
-data = {'Name': ['Alice', 'Bob', 'Charlie'],
-        'Age': [25, 30, 35],
-        'City': ['New York', 'Los Angeles', 'Chicago']}
-df = pd.DataFrame(data)
+df = get_pd_df()
 
 # 1. .loc[]: Access rows/columns by labels or boolean conditions.
 
 # Example:
-print(df.loc[0, 'Age'])  # Age of the first row (25)
+df_loc = pd.DataFrame([[1, 2,  3], [4, 5, 6], [7, 8, 9]],
+                      index=['cobra', 'viper', 'sidewinder'],
+                      columns=['max_speed', 'shield', 'wheel'])
+print(df)
+
+# returns Series with specified index
+df_2 = df_loc.loc['viper']
+print(type(df_2))
+print(df_2)
+
+# returns DataFrame with specified indexes
+df_3 = df_loc.loc[['viper', 'sidewinder'], ['max_speed', 'wheel']]
+print(type(df_3))
+print(df_3)
+
+# returns Dataframe with specified columns
+df_4 = df_loc.loc[:, ['max_speed', 'wheel']]
+print(type(df_4))
+print(df_4)
+
+# returns value with specified column and index
+df_5 = df_loc.loc['cobra', 'shield']
+print(type(df_5))
+print(df_5)
+
+# returns Series with specified slice with labels for now and single label for column
+df_6 = df_loc.loc['cobra': 'viper', 'max_speed']
+print(type(df_6))
+print(df_6)
 
 # 2. .iloc[]: Access rows/columns by integer positions.
 
 # Example:
 print(df.iloc[1])  # Second row
+print(df.iloc[0]['Name'])  # Access a single value in first row and Name column.
 
 # 3. .at[]: Access a single value by row/column labels.
 
@@ -63,12 +101,21 @@ print(df.at[1, "Name"])
 # Example:
 print(df.iat[1, 0])  # 1 - row, 0 - column
 
-# 5. df['column_name']: Select a specific column.
+# 5. df['column_name']: Selects a specific column as Series.
 
 # Example:
 print(df['Name'])
 
-# 6. df.iloc[start:end]: Slice rows or columns.
+# 6. df[['column_name']]: Selects a specific column as Dataframe
+
+print(df[['Name']])
+
+# 7. df.squeeze('columns'): Squeezes DataFrames with a single column or a single row to a Series
+
+# Example:
+print(df[['Name']].squeeze('columns'))
+
+# 8. df.iloc[start:end]: Slice rows or columns.
 
 # Example:
 print(df.iloc[0:2])
@@ -77,10 +124,7 @@ print(df.iloc[0:2])
 # Data Exploration
 print('\n', 'Data Exploration', '\n')
 
-data = {'Name': ['Alice', 'Bob', 'Charlie'],
-        'Age': [25, 30, 35],
-        'City': ['New York', 'Los Angeles', 'Chicago']}
-df = pd.DataFrame(data)
+df = get_pd_df()
 
 # 1. df.head(n): Returns the first n rows of the DataFrame (default is 5 rows).
 
@@ -92,7 +136,7 @@ print(df.head(1))
 # Example:
 print(df.tail(1))
 
-# 3. df.info(): Provides an overview of the DataFrame, including column types and non-null counts.
+# 3. df.info(): Provides an overview of the DataFrame, including schema, column types and non-null counts.
 
 # Example:
 print(df.info())
@@ -122,6 +166,14 @@ print(df.index)
 # Example:
 print(df.dtypes)
 
+# 9. df.empty: Checks that the dataframe is empty or not, and returns True or False
+
+print(df.empty)
+
+# 10. df.memory_usage(): Returns the memory usage of each column in bytes.
+
+print(df.memory_usage())
+
 
 # Data Cleaning
 print('\n', 'Data Cleaning', '\n')
@@ -129,7 +181,7 @@ print('\n', 'Data Cleaning', '\n')
 df_with_na = pd.DataFrame({'Name': ['Alice', 'Bob', None], 'Age': [25, None, 35]})
 
 # 1. df.dropna(): Removes rows or columns with missing values (None, NA, NULL).
-# df.dropna(inplace=True) - whether to modify the DataFrame than creating a new one (you don't need a new variable)
+#    df.dropna(inplace=True) - whether to modify the DataFrame than creating a new one (you don't need a new variable)
 
 # Example:
 
@@ -150,25 +202,31 @@ print(df_with_na.isnull())
 # Example:
 print(df_with_na.notnull())
 
-# 5. df.drop(columns='column_name'): Drops a specific column.
+# 5. df.drop(columns='column_name'): Drops a specific column, in some cases we have to specify axis
 
 # Example:
 print(df_with_na.drop(columns='Name'))
+print(df_with_na.drop(['Name'], axis=1))
 
-# 6. df.rename(columns={'old_name': 'new_name'}): Renames one or more columns.
+# 6. df.drop([0, 1]): drops a row by index
+
+# Example:
+print(df_with_na.drop([0]))
+
+# 7. df.rename(columns={'old_name': 'new_name'}): Renames one or more columns.
 
 # Example:
 renamed_df = df_with_na.rename(columns={'Name': 'Full Name', 'Age': 'Years'})
+print(renamed_df)
+# Additional method how to change column names:
+renamed_df.columns = ['Full Name New', 'Years New']
 print(renamed_df)
 
 
 # Data Manipulation
 print('\n', 'Data Manipulation', '\n')
 
-data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex'],
-        'Age': [45, 25, 33, 36],
-        'City': ['New York', 'Los Angeles', 'Chicago', 'New York']}
-df = pd.DataFrame(data)
+df = get_pd_df()
 
 # 1. df.sort_values(by='column_name'): Sorts the DataFrame by a specific column.
 
@@ -201,10 +259,25 @@ print(df_from_series)
 
 # 4. df.merge(other_df, on='key'): Merges two DataFrames on a specified key column.
 
-# Example:
+# Example1:
 df2 = pd.DataFrame({'Name': ['Alice', 'Bob'], 'Salary': [50000, 60000]})
 merged = df.merge(df2, on='Name')
 print(merged)
+
+# Example2:
+# left merge (in this case, all columns from df2 will be in the result, except for those with matching names
+# you need to specify them in the merge condition)
+merged_left = df.merge(df2, on='Name', how='left')
+print(merged_left)
+
+# Example3:
+# if the column names for the merge are different, you can do as below and then drop the unnecessary ones and fill
+# in null for the left join
+df2 = pd.DataFrame({'name_column': ['Alice', 'Bob'], 'Salary': [50000, 60000]})
+merged_left = df.merge(df2, left_on=['Name'], right_on=['name_column'], how='left')
+merged_left = merged_left.drop(['name_column'], axis=1)
+merged_left['Salary'] = merged_left['Salary'].fillna(0)
+print(merged_left)
 
 # 5. df.join(other_df): Joins two DataFrames on their indexes.
 
@@ -229,20 +302,18 @@ print(df_append)
 
 # Example:
 df4 = pd.DataFrame({'foo': ['one', 'one', 'one', 'two', 'two', 'two'],
-                   'bar': ['A', 'B', 'C', 'A', 'B', 'C'],
-                   'baz': [1, 2, 3, 4, 5, 6],
-                   'zoo': ['x', 'y', 'z', 'q', 'w', 't']})
+                    'bar': ['A', 'B', 'C', 'A', 'B', 'C'],
+                    'baz': [1, 2, 3, 4, 5, 6],
+                    'zoo': ['x', 'y', 'z', 'q', 'w', 't']})
 
 print(df4.pivot(index='foo', columns='bar', values='baz'))
+
 
 # Data Transformation
 print('\n', 'Data Transformation', '\n')
 
-data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex'],
-        'Age': [45, 25, 33, 36],
-        'City': ['New York', 'Los Angeles', 'Chicago', 'New York']}
-df = pd.DataFrame(data)
-age_series = pd.Series([25, 30, 35], name='Age')
+df = get_pd_df()
+age_series = get_age_series()
 
 # 1. df.apply(function): Applies a function to rows or columns.
 
@@ -295,7 +366,7 @@ df = pd.DataFrame(data)
 df[['id', 'type']] = df['type_id'].str.split('*', expand=True)
 print(df)
 
-# 10.  df['column_name'].round()
+# 10. df['column_name'].round()
 
 # Example:
 data = {'Name': ['Alice', 'Bob'],
@@ -306,20 +377,32 @@ df['salary'] = df['salary'].round()
 print(df)
 
 # 11. df[df[column_name < value]] - filters df by values in the column column_name
+#     df[df[column_name].isin(['1', '2', '3'])]  - filters values in a column by inclusion in an array
+#     df.query("column_name not in ('', '4', '5')") - filters values with query
+#     df_with_na[df_with_na['Name'].isnull()] - selects only rows with null values in the particular column
 
 # Example:
-df = df[df['salary'] < 150]
-print(df)
+data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex', 'Jimmy'],
+        'Age': [45, 25, 33, 36, None],
+        'City': ['New York', 'Los Angeles', 'Chicago', 'New York', 'Boston']}
+df = pd.DataFrame(data)
+df_age = df[df['Age'] < 35]
+print(df_age)
+df_age = df[(df['Age'] < 40) & (df['Name'] != 'Charlie')]
+print(df_age)
+df_city = df[df['City'].isin(['New York', 'Los Angeles'])]
+print(df_city)
+df_query = df.query("Name not in ('', 'Bob')")
+print(df_query)
+df_nulls = df[df['Age'].isnull()]
+print(df_nulls)
 
 
 # Statistical Functions
 print('\n', 'Statistical Functions', '\n')
 
-data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex'],
-        'Age': [45, 25, 33, 36],
-        'City': ['New York', 'Los Angeles', 'Chicago', 'New York']}
-df = pd.DataFrame(data)
-age_series = pd.Series([25, 30, 35], name='Age')
+df = get_pd_df()
+age_series = get_age_series()
 
 # 1. df.mean(): Calculates the mean of each column.
 
@@ -349,7 +432,7 @@ print(df_stats.corr())
 
 # 6. df.count(): Counts non-NA/null values for each column.
 # 7. df.shape[0]: Counts the number of df rows.
-# 8. series.shape[0]: ounts the number of Series rows.
+# 8. series.shape[0]: Counts the number of Series rows.
 
 # Example:
 print(df.count())
@@ -361,6 +444,12 @@ print(age_series.shape[0])
 # Example:
 counts = df['City'].value_counts()
 print(type(counts))
+
+# 10. df['column_name'].unique() - returns unique values based on the column name
+
+# Example:
+unique = df['City'].unique()
+print(unique)
 
 
 # Visualization
@@ -401,6 +490,55 @@ print(df_advanced.sample(2))
 print(df_advanced['Score'].sample(n=2))
 # We can use random_state=1 to ensure the reproducibility of the examples
 print(df_advanced['Score'].sample(n=2, random_state=1))
+
+
+# Datetime Handling
+print('\n', 'Datetime Handling', '\n')
+
+# 1. pd.to_datetime(series): Converts a column or Series to datetime format.
+
+# Example:
+
+df_date = pd.DataFrame({'Date': ['2023-01-01', '2023-02-01', '2023-03-01']})
+df_date['Date'] = pd.to_datetime(df_date['Date'])
+print(df_date)
+print(df_date.dtypes)
+
+# 2. df['date_column'].dt.year: Extracts the year from a datetime column.
+# 3. df['date_column'].dt.month: Extracts the month from a datetime column.
+# 4. df['date_column'].dt.day: Extracts the day from a datetime column.
+
+# Example:
+
+df_date['Year'] = df_date['Date'].dt.year
+df_date['Month'] = df_date['Date'].dt.month
+df_date['Day'] = df_date['Date'].dt.day
+print(df_date)
+
+# 5. df.resample(rule): Convenience method for frequency conversion and resampling of time series, asfreq() - is needed
+# to choose intervals, we can replace asfreq() with agregation function, fillna(0) - is needed to fill NaN
+
+# Example1:
+start_time = '2024-01-01'
+end_time = '2024-01-08'
+future = pd.DataFrame([[start_time, 0], [end_time, 0]], columns=['time', 'value'])
+future['time'] = pd.to_datetime(future['time'])
+# sets df column as index
+future = future.set_index('time')
+print('future before resample:')
+print(future)
+future = future.resample('d').asfreq().fillna(0)
+print('future after resample:')
+print(future)
+
+# Example2:
+# an example to create pandas DatetimeIndex
+index = pd.date_range('1/1/2000', periods=9, freq='min')
+series = pd.Series(range(9), index=index)
+sum_series = series.resample('3min').sum().fillna(0)
+print(sum_series)
+interval_series = series.resample('3min').asfreq()
+print(interval_series)
 
 
 # Miscellaneous
@@ -444,7 +582,6 @@ print('\n', 'Categorical data', '\n')
 # data is a type of variable that represents a fixed number of possible values like labels or groups (e.g.,
 # gender, colors, grades). These variables can be either ordered or unordered. Categorical data reduces memory
 # usage and improves computation performance compared to using strings.
-
 
 # Example:
 # Categorical variables are faster for grouping. For example:
