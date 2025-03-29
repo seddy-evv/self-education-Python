@@ -1,21 +1,12 @@
 # Python pandas is a powerful library for data manipulation, analysis, and visualization. It provides a range
-# of functions to work with data efficiently. Here's a description of the main pandas functions:
+# of functions to work with data efficiently.
+#
+# Series – can be thought of as a column of a DataFrame
+# Index – can be not only a number
+#
+# Here's a description of the main pandas functions:
 
 import pandas as pd
-
-
-def get_pd_df():
-    data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex'],
-            'Age': [45, 25, 33, 36],
-            'City': ['New York', 'Los Angeles', 'Chicago', 'New York']}
-    df = pd.DataFrame(data)
-
-    return df
-
-
-def get_age_series():
-
-    return pd.Series([25, 30, 35], name='Age')
 
 
 # Data Creation
@@ -25,12 +16,26 @@ print('\n', 'Data Creation', '\n')
 # a two-dimensional, tabular data structure with labeled axes (rows and columns).
 
 # Example:
+def get_pd_df():
+    data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex'],
+            'Age': [45, 25, 33, 36],
+            'City': ['New York', 'Los Angeles', 'Chicago', 'New York']}
+    df = pd.DataFrame(data)
+
+    return df
+
+
 df = get_pd_df()
 print(df)
 
 # 2. pd.Series(data): Creates a one-dimensional labeled array (like a column in a DataFrame).
 
 # Example:
+def get_age_series():
+
+    return pd.Series([25, 30, 35], name='Age')
+
+
 age_series = get_age_series()
 print(age_series)
 
@@ -88,7 +93,7 @@ print(df_6)
 # 2. .iloc[]: Access rows/columns by integer positions.
 
 # Example:
-print(df.iloc[1])  # Second row
+print(df.iloc[1])  # Second row as Series
 print(df.iloc[0]['Name'])  # Access a single value in first row and Name column.
 
 # 3. .at[]: Access a single value by row/column labels.
@@ -118,7 +123,7 @@ print(df[['Name']].squeeze('columns'))
 # 8. df.iloc[start:end]: Slice rows or columns.
 
 # Example:
-print(df.iloc[0:2])
+print(df.iloc[0:2])   # Returns row 0 and 1 as DataFrame
 
 
 # Data Exploration
@@ -203,6 +208,7 @@ print(df_with_na.isnull())
 print(df_with_na.notnull())
 
 # 5. df.drop(columns='column_name'): Drops a specific column, in some cases we have to specify axis
+#    axis=0 - rows, axis=1 - columns
 
 # Example:
 print(df_with_na.drop(columns='Name'))
@@ -218,7 +224,7 @@ print(df_with_na.drop([0]))
 # Example:
 renamed_df = df_with_na.rename(columns={'Name': 'Full Name', 'Age': 'Years'})
 print(renamed_df)
-# Additional method how to change column names:
+# Additional method how to change column names, the initial DataFrame has 2 columns:
 renamed_df.columns = ['Full Name New', 'Years New']
 print(renamed_df)
 
@@ -279,17 +285,17 @@ merged_left = merged_left.drop(['name_column'], axis=1)
 merged_left['Salary'] = merged_left['Salary'].fillna(0)
 print(merged_left)
 
-# 5. df.join(other_df): Joins two DataFrames on their indexes.
+# 5. df.join(other_df): Joins two DataFrames on their indexes (works like left join/merge by indexes).
 
 # Example:
-df3 = pd.DataFrame({'Salary': [50000, 60000, 70000, 80000]})
+df3 = pd.DataFrame({'Salary': [50000, 60000, 70000]})
 joined = df.join(df3)
 print(joined)
 
 # 6. pd.concat([df1, df2]): Concatenates two or more DataFrames along rows or columns.
 
 # Example:
-df_concat = pd.concat([df, df2], axis=1)
+df_concat = pd.concat([df, df3], axis=1)  # works like join but instead NaN zero value (0)
 print(df_concat)
 
 # 7. df._append(df2): Append rows of other to the end of caller, returning a new object.
@@ -404,22 +410,22 @@ print('\n', 'Statistical Functions', '\n')
 df = get_pd_df()
 age_series = get_age_series()
 
-# 1. df.mean(): Calculates the mean of each column.
+# 1. df.mean(): Calculates the mean of each column, returns single value
 
 # Example:
 print(df['Age'].mean())
 
-# 2. df.median(): Calculates the median of each column.
+# 2. df.median(): Calculates the median of each column, returns single value
 
 # Example:
 print(df['Age'].median())
 
-# 3. df.sum(): Returns the sum of values in each column.
+# 3. df.sum(): Returns the sum of values in each column, returns single value
 
 # Example:
 print(df['Age'].sum())
 
-# 4. df.min() / df.max(): Calculates the minimum/maximum value for each column.
+# 4. df.min() / df.max(): Calculates the minimum/maximum value for each column, returns single value per function
 
 # Example:
 print(df['Age'].min(), df['Age'].max())
@@ -430,7 +436,7 @@ print(df['Age'].min(), df['Age'].max())
 df_stats = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
 print(df_stats.corr())
 
-# 6. df.count(): Counts non-NA/null values for each column.
+# 6. df.count(): Counts non-NA/null values for each column, result as Series
 # 7. df.shape[0]: Counts the number of df rows.
 # 8. series.shape[0]: Counts the number of Series rows.
 
@@ -443,9 +449,9 @@ print(age_series.shape[0])
 
 # Example:
 counts = df['City'].value_counts()
-print(type(counts))
+print(counts)
 
-# 10. df['column_name'].unique() - returns unique values based on the column name
+# 10. df['column_name'].unique() - returns unique values based on the column name, returns numpy.ndarray
 
 # Example:
 unique = df['City'].unique()
