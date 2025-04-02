@@ -72,6 +72,8 @@ try:
             print(line)
 except:
     print("no file")
+
+
 # reassign variables
 a = 1
 b = 2
