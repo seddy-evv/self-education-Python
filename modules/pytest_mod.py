@@ -53,7 +53,8 @@ class TestMathOperations:
         with pytest.raises(ZeroDivisionError, match="Division by zero is not allowed"):
             self.divide(4, 0)
 
-    def hello_world(self):
+    @staticmethod
+    def hello_world():
         print("Hello, World!")
 
     # Pytest allows you to verify printed or logged output using the "capsys" fixture.
