@@ -12,8 +12,12 @@
 # -m <marker>: Run tests with a specific marker.
 # --maxfail=n: Stop after n failures.
 # --disable-warnings: Suppress warnings.
+#
+# The method (test) names must start with "test"
 import pytest
 from unittest.mock import MagicMock
+from unittest.mock import patch
+import requests
 
 
 class TestMathOperations:
@@ -24,8 +28,8 @@ class TestMathOperations:
         assert [1, 2] == [1, 2]  # List equality
         assert 2 != 3  # Not equal assertion
 
-    # Fixtures allow you to set up reusable components that tests can use.
-    @pytest.fixture
+    # Fixtures allow you to set up reusable components that tests can use in the attributes.
+    @pytest.fixture()
     def sample_data(self):
         return {"name": "Alice", "age": 30}
 
@@ -61,6 +65,7 @@ class TestMathOperations:
     def test_capsys(self, capsys):
         self.hello_world()
         captured = capsys.readouterr()
+
         assert captured.out == "Hello, World!\n"
 
     @staticmethod
@@ -71,4 +76,41 @@ class TestMathOperations:
     def test_fetch_data(self):
         mock_api = MagicMock()
         mock_api.get.return_value = {"data": "test"}
+
         assert self.fetch_data(mock_api) == {"data": "test"}
+
+    @staticmethod
+    def get_data(api_url):
+        # Makes an HTTP GET request to fetch data (real implementation)
+        response = requests.get(api_url)
+        return response.json()
+
+    def test_get_data_with_patch(self):
+        # You can extend the testing with "patch" to mock external calls or dependencies like APIs,
+        # databases, or file systems.
+        with patch('requests.get') as mock_get:
+            # Define what the mock should return
+            mock_get.return_value.json.return_value = {"data": "mocked_data"}
+
+            # Call the function being tested
+            result = self.get_data("http://fakeurl.com/api1")
+
+            # Assert
+            assert result == {"data": "mocked_data"}
+            mock_get.assert_called_once_with("http://fakeurl.com/api1")  # Ensure `get` was called once
+
+    # The additional example with @patch decorator
+    @patch('requests.get')  # Mock `requests.get`
+    def test_get_data_with_patch_decorator(self, mock_get):
+        # It is a good practice to separate a test within a method with an empty line into three logical sections
+        # Arrange, Act, Assert
+
+        # Arrange
+        mock_get.return_value.json.return_value = {"data": "mocked_data"}
+
+        # Act
+        result = self.get_data("http://fakeurl.com/api2")
+
+        # Assert
+        assert result == {"data": "mocked_data"}  # Ensure function returns mocked data
+        mock_get.assert_called_once_with("http://fakeurl.com/api2")  # Ensure correct call
