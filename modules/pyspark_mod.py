@@ -3,8 +3,10 @@
 # Below is a description and examples of some of the main PySpark functions:
 
 from pyspark.sql import SparkSession, Row
-from pyspark.sql.functions import col, when, sum, max, concat, lit, expr
+from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create_map, to_date, to_timestamp, \
+    concat_ws, coalesce
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
+import pandas as pd
 
 # Create SparkSession
 spark = SparkSession.builder.appName("PySpark Examples").master("local").getOrCreate()
@@ -121,7 +123,6 @@ df.show()
 
 # Additional methods to create DataFrame
 # from a Pandas DataFrame
-import pandas as pd
 pandas_df = pd.DataFrame({"Name": ["Alice", "Bob", "Charlie"], "Age": [28, 25, 30]})
 df = spark.createDataFrame(pandas_df)
 df.show()
@@ -183,6 +184,18 @@ df.show()
 # |Charlie| 30|
 # +-------+---+
 
+# describe() - Computes basic statistics for numeric and string columns.
+df.describe().show()
+# +-------+-------+------------------+
+# |summary|   Name|               Age|
+# +-------+-------+------------------+
+# |  count|      3|                 3|
+# |   mean|   null|27.666666666666668|
+# | stddev|   null|2.5166114784235836|
+# |    min|  Alice|                25|
+# |    max|Charlie|                30|
+# +-------+-------+------------------+
+
 # Select Columns
 # We can specify the colum name in two ways
 df.select("Name").show()
@@ -203,6 +216,16 @@ df.filter(df.Age > 26).show()
 # +-------+---+
 # |  Alice| 28|
 # |Charlie| 30|
+# +-------+---+
+
+# Order rows
+df.orderBy(df["Age"].desc()).show()
+# +-------+---+
+# |   Name|Age|
+# +-------+---+
+# |Charlie| 30|
+# |  Alice| 28|
+# |    Bob| 25|
 # +-------+---+
 
 # Add New Column
@@ -259,6 +282,62 @@ df1.drop("Name", "Age").show()
 # | Oracle|
 # +-------+
 
+# Drop rows with null values
+df_null = spark.createDataFrame([(None, None), ("1", None), (None, 2), ("3", 3)], ("a", "b"))
+df_null.dropna().show()  # Drop rows that have at least one null value
+# +---+---+
+# |  a|  b|
+# +---+---+
+# |  3|  3|
+# +---+---+
+df_null.dropna(subset=["a"]).show()  # Drop rows that have null values in specific cols
+# +---+----+
+# |  a|   b|
+# +---+----+
+# |  1|null|
+# |  3|   3|
+# +---+----+
+df_null.dropna(how="all").show()  # Drop rows that have null values in all columns
+# +----+----+
+# |   a|   b|
+# +----+----+
+# |   1|null|
+# |null|   2|
+# |   3|   3|
+# +----+----+
+
+# Fill null rows with a specified value.
+# If the data type of the value does not match the data type of the column, the value will remain null.
+df_null.fillna(-1).show()  # Fill all null values with a specified value
+# +----+---+
+# |   a|  b|
+# +----+---+
+# |null| -1|
+# |   1| -1|
+# |null|  2|
+# |   3|  3|
+# +----+---+
+df_null.fillna({"a": "unknown", "b": -1}).show()  # Fill all null values with a specified value in specific columns
+# +-------+---+
+# |      a|  b|
+# +-------+---+
+# |unknown| -1|
+# |      1| -1|
+# |unknown|  2|
+# |      3|  3|
+# +-------+---+
+
+# Replace all occurrences of value with new specified value
+df_null.replace("1", "2", subset=["a"]).show()
+# +----+----+
+# |   a|   b|
+# +----+----+
+# |null|null|
+# |   2|null|
+# |null|   2|
+# |   3|   3|
+# +----+----+
+
 # Limit rows
 df1.limit(1).show()
 # +-----+---+-------+
@@ -266,6 +345,14 @@ df1.limit(1).show()
 # +-----+---+-------+
 # |Alice| 28| Amazon|
 # +-----+---+-------+
+
+# Repartition and coalesce
+# repartition() - Returns a new DataFrame partitioned by the given partitioning expressions.
+# The resulting DataFrame is hash partitioned. The size of partitions can be greater or less than the original.
+# coalesce() - Returns a new DataFrame that has exactly numPartitions partitions. If a larger number of partitions
+# is requested, it will stay at the current number of partitions.
+print(df.repartition(3).rdd.getNumPartitions())  # 3
+print(df.coalesce(1).rdd.getNumPartitions())  # 1
 
 # Union
 data = [("Alex", 38, "Microsoft"), ("John", 35, "Netflix")]
