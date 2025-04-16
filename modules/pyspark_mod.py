@@ -372,8 +372,41 @@ df1.union(df2).show()
 # PySpark SQL
 
 # Register Temp View and Execute SQL
-df.createOrReplaceTempView("people")
+data = [("Alice", 28), ("Bob", 25), ("Charlie", 30)]
+df_sql = spark.createDataFrame(data, schema=["Name", "Age"])
+df_sql.createOrReplaceTempView("people")
+
+data = [("Alice", "New York"), ("Bob", "San Francisco"), ]
+df_sql = spark.createDataFrame(data, schema=["Name", "City"])
+df_sql.createOrReplaceTempView("cities")
+
 spark.sql("SELECT Name, Age FROM people WHERE Age > 26").show()
+# +-------+---+
+# |   Name|Age|
+# +-------+---+
+# |  Alice| 28|
+# |Charlie| 30|
+# +-------+---+
+
+# Aggreagation
+spark.sql("SELECT Max(Age), AVG(Age) AS Max_Age FROM people").show()
+# +--------+------------------+
+# |max(Age)|           Max_Age|
+# +--------+------------------+
+# |      30|27.666666666666668|
+# +--------+------------------+
+
+# Join
+spark.sql("SELECT p.Name, c.City FROM people p INNER JOIN cities c ON p.Name = c.Name").show()
+# +-----+-------------+
+# | Name|         City|
+# +-----+-------------+
+# |Alice|     New York|
+# |  Bob|San Francisco|
+# +-----+-------------+
+
+# Subquery
+spark.sql("SELECT * FROM people WHERE Age > (SELECT AVG(AGE) FROM people)").show()
 # +-------+---+
 # |   Name|Age|
 # +-------+---+
