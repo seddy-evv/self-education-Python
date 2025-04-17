@@ -414,7 +414,6 @@ spark.sql("SELECT * FROM people WHERE Age > (SELECT AVG(AGE) FROM people)").show
 # |Charlie| 30|
 # +-------+---+
 
-
 # PySpark DataFrame Joins
 
 data1 = [("Alice", 28), ("Bob", 25)]
@@ -486,4 +485,49 @@ df.withColumn("Name", when(df.Name == "Alice", "Alicia").otherwise(df.Name)).sho
 # +-------+---+
 
 # expr() - Parses the expression string into the column that it represents. Expression defined in string.
-df.select("name", expr("length(name)").alias("lenght of the name")).show()
+# to_date() - Converts a Column into pyspark.sql.types.DateType using the optionally specified format.
+# Equivalent to col.cast("date").
+# to_timestamp() - Converts a Column into pyspark.sql.types.TimestampType using the optionally specified format.
+data = [("Alice", 28, '1997-02-28 10:30:00'), ("Bob", 25, '2000-02-28 10:30:00'), ("Charlie", 30, '2005-02-28 10:30:00')]
+df_data = spark.createDataFrame(data, schema=["Name", "Age", "Date"])
+df_data.select("Name", expr("length(name)").alias("lenght of the name"), to_date("Date"), to_timestamp("Date"),
+               col("Date").cast("date")).show()
+# +-------+------------------+-------------+-------------------+----------+
+# |   Name|lenght of the name|to_date(Date)| to_timestamp(Date)|      Date|
+# +-------+------------------+-------------+-------------------+----------+
+# |  Alice|                 5|   1997-02-28|1997-02-28 10:30:00|1997-02-28|
+# |    Bob|                 3|   2000-02-28|2000-02-28 10:30:00|2000-02-28|
+# |Charlie|                 7|   2005-02-28|2005-02-28 10:30:00|2005-02-28|
+# +-------+------------------+-------------+-------------------+----------+
+
+# create_map() - The create_map() function in Apache Spark is popularly used to convert the selected or all the
+# concat_ws() - Concatenates multiple input string columns together into a single string column, using the given separator.
+# DataFrame columns to the MapType, similar to the Python Dictionary (Dict) object.
+df.select(create_map('Name', 'Age').alias("map"), concat_ws(' is ', 'Name', 'Age').alias('concat string')).show()
+# +---------------+-------------+
+# |            map|concat string|
+# +---------------+-------------+
+# |  {Alice -> 28}|  Alice is 28|
+# |    {Bob -> 25}|    Bob is 25|
+# |{Charlie -> 30}|Charlie is 30|
+# +---------------+-------------+
+
+# coalesce() - Returns the first column that is not null or the default value
+df_null = spark.createDataFrame([(None, None), (1, None), (None, 2)], ("a", "b"))
+df_null.select(coalesce(df_null["a"], df_null["b"])).show()
+# +--------------+
+# |coalesce(a, b)|
+# +--------------+
+# |          null|
+# |             1|
+# |             2|
+# +--------------+
+
+df_null.select('*', coalesce(df_null["a"], lit(0.0))).show()
+# +----+----+----------------+
+# |   a|   b|coalesce(a, 0.0)|
+# +----+----+----------------+
+# |null|null|             0.0|
+# |   1|null|             1.0|
+# |null|   2|             0.0|
+# +----+----+----------------+
