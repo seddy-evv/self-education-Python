@@ -531,3 +531,84 @@ df_null.select('*', coalesce(df_null["a"], lit(0.0))).show()
 # |   1|null|             1.0|
 # |null|   2|             0.0|
 # +----+----+----------------+
+
+# Window Functions
+data = (("James", "Sales", 3000),
+        ("Michael", "Sales", 4600),
+        ("Maria", "Finance", 3000),
+        ("Scott", "Finance", 3300),
+        ("Jen", "Finance", 3300),
+        ("Saif", "Sales", 4100)
+        )
+schema = ["employee_name", "department", "salary"]
+df_window = spark.createDataFrame(data=data, schema=schema)
+df_window.show()
+# +-------------+----------+------+
+# |employee_name|department|salary|
+# +-------------+----------+------+
+# |        James|     Sales|  3000|
+# |      Michael|     Sales|  4600|
+# |        Maria|   Finance|  3000|
+# |        Scott|   Finance|  3300|
+# |          Jen|   Finance|  3300|
+# |         Saif|     Sales|  4100|
+# +-------------+----------+------+
+
+window_spec = Window.partitionBy("department").orderBy(df_window["salary"].desc())
+
+# row_number, rank, dense_rank, percent_rank
+df_window.withColumn("row_number", row_number().over(window_spec)).show()
+# +-------------+----------+------+----------+
+# |employee_name|department|salary|row_number|
+# +-------------+----------+------+----------+
+# |        Scott|   Finance|  3300|         1|
+# |          Jen|   Finance|  3300|         2|
+# |        Maria|   Finance|  3000|         3|
+# |      Michael|     Sales|  4600|         1|
+# |         Saif|     Sales|  4100|         2|
+# |        James|     Sales|  3000|         3|
+# +-------------+----------+------+----------+
+
+df_window.select('*', row_number().over(window_spec).alias("row_number")).filter(col("row_number") == 1).show()
+# +-------------+----------+------+----------+
+# |employee_name|department|salary|row_number|
+# +-------------+----------+------+----------+
+# |        Scott|   Finance|  3300|         1|
+# |      Michael|     Sales|  4600|         1|
+# +-------------+----------+------+----------+
+
+df_window.withColumn("rank", rank().over(window_spec)).show()
+# +-------------+----------+------+----+
+# |employee_name|department|salary|rank|
+# +-------------+----------+------+----+
+# |        Scott|   Finance|  3300|   1|
+# |          Jen|   Finance|  3300|   1|
+# |        Maria|   Finance|  3000|   3|
+# |      Michael|     Sales|  4600|   1|
+# |         Saif|     Sales|  4100|   2|
+# |        James|     Sales|  3000|   3|
+# +-------------+----------+------+----+
+
+df_window.withColumn("dense_rank", dense_rank().over(window_spec)).show()
+# +-------------+----------+------+----------+
+# |employee_name|department|salary|dense_rank|
+# +-------------+----------+------+----------+
+# |        Scott|   Finance|  3300|         1|
+# |          Jen|   Finance|  3300|         1|
+# |        Maria|   Finance|  3000|         2|
+# |      Michael|     Sales|  4600|         1|
+# |         Saif|     Sales|  4100|         2|
+# |        James|     Sales|  3000|         3|
+# +-------------+----------+------+----------+
+
+df_window.withColumn("percent_rank", percent_rank().over(window_spec)).show()
+# +-------------+----------+------+------------+
+# |employee_name|department|salary|percent_rank|
+# +-------------+----------+------+------------+
+# |        Scott|   Finance|  3300|         0.0|
+# |          Jen|   Finance|  3300|         0.0|
+# |        Maria|   Finance|  3000|         1.0|
+# |      Michael|     Sales|  4600|         0.0|
+# |         Saif|     Sales|  4100|         0.5|
+# |        James|     Sales|  3000|         1.0|
+# +-------------+----------+------+------------+
