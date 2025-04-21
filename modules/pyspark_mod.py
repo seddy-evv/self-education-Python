@@ -4,8 +4,9 @@
 
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create_map, to_date, to_timestamp, \
-    concat_ws, coalesce
+    concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
+from pyspark.sql.window import Window
 import pandas as pd
 
 # Create SparkSession
@@ -532,6 +533,7 @@ df_null.select('*', coalesce(df_null["a"], lit(0.0))).show()
 # |null|   2|             0.0|
 # +----+----+----------------+
 
+
 # Window Functions
 data = (("James", "Sales", 3000),
         ("Michael", "Sales", 4600),
@@ -556,7 +558,7 @@ df_window.show()
 
 window_spec = Window.partitionBy("department").orderBy(df_window["salary"].desc())
 
-# row_number, rank, dense_rank, percent_rank
+# row_number, rank, dense_rank, percent_rank, ntile
 df_window.withColumn("row_number", row_number().over(window_spec)).show()
 # +-------------+----------+------+----------+
 # |employee_name|department|salary|row_number|
@@ -612,3 +614,72 @@ df_window.withColumn("percent_rank", percent_rank().over(window_spec)).show()
 # |         Saif|     Sales|  4100|         0.5|
 # |        James|     Sales|  3000|         1.0|
 # +-------------+----------+------+------------+
+
+df.withColumn("ntile", ntile(2).over(window_spec)).show()
+# +-------------+----------+------+-----+
+# |employee_name|department|salary|ntile|
+# +-------------+----------+------+-----+
+# |        Scott|   Finance|  3300|    1|
+# |          Jen|   Finance|  3300|    1|
+# |        Maria|   Finance|  3000|    2|
+# |      Michael|     Sales|  4600|    1|
+# |         Saif|     Sales|  4100|    1|
+# |        James|     Sales|  3000|    2|
+# +-------------+----------+------+-----+
+
+# cume_dist, lag, lead
+df.withColumn("cume_dist", cume_dist().over(window_spec)).show()
+# +-------------+----------+------+------------------+
+# |employee_name|department|salary|         cume_dist|
+# +-------------+----------+------+------------------+
+# |        Scott|   Finance|  3300|0.6666666666666666|
+# |          Jen|   Finance|  3300|0.6666666666666666|
+# |        Maria|   Finance|  3000|               1.0|
+# |      Michael|     Sales|  4600|0.3333333333333333|
+# |         Saif|     Sales|  4100|0.6666666666666666|
+# |        James|     Sales|  3000|               1.0|
+# +-------------+----------+------+------------------+
+
+df.withColumn("lag", lag("salary", 2).over(window_spec)).show()
+# +-------------+----------+------+----+
+# |employee_name|department|salary| lag|
+# +-------------+----------+------+----+
+# |        Scott|   Finance|  3300|null|
+# |          Jen|   Finance|  3300|null|
+# |        Maria|   Finance|  3000|3300|
+# |      Michael|     Sales|  4600|null|
+# |         Saif|     Sales|  4100|null|
+# |        James|     Sales|  3000|4600|
+# +-------------+----------+------+----+
+
+df.withColumn("lead", lead("salary", 2).over(window_spec)).show()
+# +-------------+----------+------+----+
+# |employee_name|department|salary|lead|
+# +-------------+----------+------+----+
+# |        Scott|   Finance|  3300|3000|
+# |          Jen|   Finance|  3300|null|
+# |        Maria|   Finance|  3000|null|
+# |      Michael|     Sales|  4600|3000|
+# |         Saif|     Sales|  4100|null|
+# |        James|     Sales|  3000|null|
+# +-------------+----------+------+----+
+
+# avg, sum, min, max
+window_spec_agg = Window.partitionBy("department")
+
+df.withColumn("avg", avg(col("salary")).over(window_spec_agg)) \
+  .withColumn("sum", sum(col("salary")).over(window_spec_agg)) \
+  .withColumn("min", min(col("salary")).over(window_spec_agg)) \
+  .withColumn("max", max(col("salary")).over(window_spec_agg)) \
+  .select("department", "avg", "sum", "min", "max") \
+  .show()
+# +----------+------+-----+----+----+
+# |department|   avg|  sum| min| max|
+# +----------+------+-----+----+----+
+# |   Finance|3200.0| 9600|3000|3300|
+# |   Finance|3200.0| 9600|3000|3300|
+# |   Finance|3200.0| 9600|3000|3300|
+# |     Sales|3900.0|11700|3000|4600|
+# |     Sales|3900.0|11700|3000|4600|
+# |     Sales|3900.0|11700|3000|4600|
+# +----------+------+-----+----+----+
