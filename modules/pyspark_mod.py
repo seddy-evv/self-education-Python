@@ -4,10 +4,12 @@
 
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create_map, to_date, to_timestamp, \
-    concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min
+    concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
+    current_date
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 from pyspark.sql.window import Window
 import pandas as pd
+import time
 
 # Create SparkSession
 spark = SparkSession.builder.appName("PySpark Examples").master("local").getOrCreate()
@@ -210,14 +212,23 @@ df.select(df.Name).show()
 # |Charlie|
 # +-------+
 
-# Filter Rows
-df.filter(df.Age > 26).show()
-# +-------+---+
-# |   Name|Age|
-# +-------+---+
-# |  Alice| 28|
-# |Charlie| 30|
-# +-------+---+
+# select distinct
+df.select("Name").distinct()
+# +-------+
+# |   Name|
+# +-------+
+# |  Alice|
+# |    Bob|
+# |Charlie|
+# +-------+
+
+# Filter Rows, & - and, | - or, ~ - not, don't forget brackets!
+df.filter((df.Age > 26) & (df.Age != 30)).show()
+# +-----+---+
+# | Name|Age|
+# +-----+---+
+# |Alice| 28|
+# +-----+---+
 
 # Order rows
 df.orderBy(df["Age"].desc()).show()
@@ -270,6 +281,13 @@ aggregated_df.show()
 # |    Bob|      7000|       4000|
 # |Charlie|      4000|       4000|
 # +-------+----------+-----------+
+
+df3.agg(max("Salary"), sum("Salary"), avg("Salary")).show()
+# +-----------+-----------+-----------+
+# |max(Salary)|sum(Salary)|avg(Salary)|
+# +-----------+-----------+-----------+
+# |       4000|      13000|     3250.0|
+# +-----------+-----------+-----------+
 
 # Drop columns
 data = [("Alice", 28, "Amazon"), ("Bob", 25, "Google"), ("Charlie", 30, "Oracle")]
@@ -328,6 +346,24 @@ df_null.fillna({"a": "unknown", "b": -1}).show()  # Fill all null values with a 
 # |      3|  3|
 # +-------+---+
 
+# select all rows with nulls
+df_null.filter(col("b").isNull()).show()
+# +----+----+
+# |   a|   b|
+# +----+----+
+# |null|null|
+# |   1|null|
+# +----+----+
+
+# select all rows without nulls
+df_null.filter(col("b").isNotNull()).show()
+# +----+---+
+# |   a|  b|
+# +----+---+
+# |null|  2|
+# |   3|  3|
+# +----+---+
+
 # Replace all occurrences of value with new specified value
 df_null.replace("1", "2", subset=["a"]).show()
 # +----+----+
@@ -355,7 +391,7 @@ df1.limit(1).show()
 print(df.repartition(3).rdd.getNumPartitions())  # 3
 print(df.coalesce(1).rdd.getNumPartitions())  # 1
 
-# Union
+# Union, how to add new rows to existing Dataframe
 data = [("Alex", 38, "Microsoft"), ("John", 35, "Netflix")]
 df2 = spark.createDataFrame(data, schema=["Name", "Age", "Company"])
 df1.union(df2).show()
@@ -445,18 +481,34 @@ left_join.show()
 
 
 # PySpark File I/O
+current_time = time.time()
 
 # Write DataFrame as CSV
-df.write.csv("output.csv", header=True)
+df.write.csv(f"/output-{current_time}.csv", header=True)
 
-# Read CSV File
-df = spark.read.csv("output.csv", header=True, inferSchema=True)
+# Read CSV File with the schema
+df = spark.read.csv(f"/output-{current_time}.csv", header=True, inferSchema=True)
 df.show()
 
 # Read and Write Parquet
-df.write.parquet("output.parquet")
-df_parquet = spark.read.parquet("output.parquet")
+df.write.parquet(f"/output-{current_time}.parquet")
+df_parquet = spark.read.parquet(f"/output-{current_time}.parquet")
 df_parquet.show()
+
+# Read and write JSON
+df.write.format("json").save(f"/output-{current_time}.json")
+df_json = spark.read.format("json").load(f"/output-{current_time}.json")
+df_json.show()
+
+# Read and write AVRO
+df.write.format("avro").save(f"/output-{current_time}.avro")
+df_avro = spark.read.format("avro").load(f"/output-{current_time}.avro")
+df_avro.show()
+
+# Read and write XML (need to ensure spark-xml package is available)
+df.write.format("com.databricks.spark.xml").options(rowTag='book').save(f"/output-{current_time}.xml")
+df_xml = spark.read.format("com.databricks.spark.xml").options(rowTag='book').load(f"/output-{current_time}.xml")
+df_xml.show()
 
 
 # PySpark Functions Module
@@ -489,17 +541,18 @@ df.withColumn("Name", when(df.Name == "Alice", "Alicia").otherwise(df.Name)).sho
 # to_date() - Converts a Column into pyspark.sql.types.DateType using the optionally specified format.
 # Equivalent to col.cast("date").
 # to_timestamp() - Converts a Column into pyspark.sql.types.TimestampType using the optionally specified format.
+# current_date() - get current date
 data = [("Alice", 28, '1997-02-28 10:30:00'), ("Bob", 25, '2000-02-28 10:30:00'), ("Charlie", 30, '2005-02-28 10:30:00')]
 df_data = spark.createDataFrame(data, schema=["Name", "Age", "Date"])
 df_data.select("Name", expr("length(name)").alias("lenght of the name"), to_date("Date"), to_timestamp("Date"),
-               col("Date").cast("date")).show()
-# +-------+------------------+-------------+-------------------+----------+
-# |   Name|lenght of the name|to_date(Date)| to_timestamp(Date)|      Date|
-# +-------+------------------+-------------+-------------------+----------+
-# |  Alice|                 5|   1997-02-28|1997-02-28 10:30:00|1997-02-28|
-# |    Bob|                 3|   2000-02-28|2000-02-28 10:30:00|2000-02-28|
-# |Charlie|                 7|   2005-02-28|2005-02-28 10:30:00|2005-02-28|
-# +-------+------------------+-------------+-------------------+----------+
+               col("Date").cast("date"), current_date()).show()
+# +-------+------------------+-------------+-------------------+----------+--------------+
+# |   Name|lenght of the name|to_date(Date)| to_timestamp(Date)|      Date|current_date()|
+# +-------+------------------+-------------+-------------------+----------+--------------+
+# |  Alice|                 5|   1997-02-28|1997-02-28 10:30:00|1997-02-28|    2025-04-22|
+# |    Bob|                 3|   2000-02-28|2000-02-28 10:30:00|2000-02-28|    2025-04-22|
+# |Charlie|                 7|   2005-02-28|2005-02-28 10:30:00|2005-02-28|    2025-04-22|
+# +-------+------------------+-------------+-------------------+----------+--------------+
 
 # create_map() - The create_map() function in Apache Spark is popularly used to convert the selected or all the
 # concat_ws() - Concatenates multiple input string columns together into a single string column, using the given separator.
@@ -533,6 +586,20 @@ df_null.select('*', coalesce(df_null["a"], lit(0.0))).show()
 # |null|   2|             0.0|
 # +----+----+----------------+
 
+# udf() - create and use an udf, user memory is in use
+def increment_age(age):
+    return age + 1
+
+increment_age_udf = udf(increment_age, IntegerType())
+
+df.withColumn("IncrementAge", increment_age_udf(df["Age"])).show()
+# +-------+---+------------+
+# |   Name|Age|IncrementAge|
+# +-------+---+------------+
+# |  Alice| 28|          29|
+# |    Bob| 25|          26|
+# |Charlie| 30|          31|
+# +-------+---+------------+
 
 # Window Functions
 data = (("James", "Sales", 3000),
