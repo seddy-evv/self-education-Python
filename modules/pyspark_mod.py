@@ -14,6 +14,73 @@ import time
 # Create SparkSession
 spark = SparkSession.builder.appName("PySpark Examples").master("local").getOrCreate()
 
+def get_pyspark_df():
+    data = [("Alice", 28), ("Bob", 25), ("Charlie", 30)]
+    df = spark.createDataFrame(data, schema=["Name", "Age"])
+
+    return df
+
+def get_pyspark_df1():
+    data = [("Alice", 28, "Amazon"), ("Bob", 25, "Google"), ("Charlie", 30, "Oracle")]
+    df1 = spark.createDataFrame(data, schema=["Name", "Age", "Company"])
+
+    return df1
+
+def get_pyspark_df2():
+    data = [("Alex", 38, "Microsoft"), ("John", 35, "Netflix")]
+    df2 = spark.createDataFrame(data, schema=["Name", "Age", "Company"])
+
+    return df2
+
+def get_pyspark_df3():
+    data = [("Alice", 2000), ("Bob", 3000), ("Charlie", 4000), ("Bob", 4000)]
+    df3 = spark.createDataFrame(data, schema=["Name", "Salary"])
+
+    return df3
+
+def get_pyspark_df_cities():
+    data = [("Alice", "New York"), ("Bob", "San Francisco")]
+    df_cities = spark.createDataFrame(data, schema=["Name", "City"])
+
+    return df_cities
+
+def get_pyspark_df_null():
+    data = [(None, None), ("1", None), (None, 2), ("3", 3)]
+    df_null = spark.createDataFrame(data, ("a", "b"))
+
+    return df_null
+
+def get_pyspark_df_join1():
+    data1 = [("Alice", 28), ("Bob", 25)]
+    df_join1 = spark.createDataFrame(data1, ["Name", "Age"])
+
+    return df_join1
+
+def get_pyspark_df_join2():
+    data2 = [("Alice", "F"), ("Bob", "M"), ("Charlie", "M")]
+    df_join2 = spark.createDataFrame(data2, ["Name", "Gender"])
+
+    return df_join2
+
+def get_pyspark_df_date():
+    data = [("Alice", 28, '1997-02-28 10:30:00'), ("Bob", 25, '2000-02-28 10:30:00'),
+            ("Charlie", 30, '2005-02-28 10:30:00')]
+    df_date = spark.createDataFrame(data, schema=["Name", "Age", "Date"])
+
+    return df_date
+
+def get_pyspark_df_window():
+    data = (("James", "Sales", 3000),
+            ("Michael", "Sales", 4600),
+            ("Maria", "Finance", 3000),
+            ("Scott", "Finance", 3300),
+            ("Jen", "Finance", 3300),
+            ("Saif", "Sales", 4100)
+            )
+    schema = ["employee_name", "department", "salary"]
+    df_window = spark.createDataFrame(data=data, schema=schema)
+
+    return df_window
 
 # PySpark RDD Operations
 
@@ -164,8 +231,7 @@ df.show()
 
 # Basic PySpark DataFrame Operations
 
-data = [("Alice", 28), ("Bob", 25), ("Charlie", 30)]
-df = spark.createDataFrame(data, schema=["Name", "Age"])
+df = get_pyspark_df()
 
 # Collect: Retrieve all data
 data = df.collect()
@@ -270,8 +336,7 @@ df.groupBy("Age").count().show()
 # | 28|    1|
 # +---+-----+
 
-data = [("Alice", 2000), ("Bob", 3000), ("Charlie", 4000), ("Bob", 4000)]
-df3 = spark.createDataFrame(data, schema=["Name", "Salary"])
+df3 = get_pyspark_df3()
 aggregated_df = df3.groupBy("Name").agg(sum("Salary").alias("Salary sum"), max("Salary"))
 aggregated_df.show()
 # +-------+----------+-----------+
@@ -290,8 +355,7 @@ df3.agg(max("Salary"), sum("Salary"), avg("Salary")).show()
 # +-----------+-----------+-----------+
 
 # Drop columns
-data = [("Alice", 28, "Amazon"), ("Bob", 25, "Google"), ("Charlie", 30, "Oracle")]
-df1 = spark.createDataFrame(data, schema=["Name", "Age", "Company"])
+df1 = get_pyspark_df1()
 df1.drop("Name", "Age").show()
 # +-------+
 # |Company|
@@ -301,8 +365,16 @@ df1.drop("Name", "Age").show()
 # | Oracle|
 # +-------+
 
+# Limit rows
+df1.limit(1).show()
+# +-----+---+-------+
+# | Name|Age|Company|
+# +-----+---+-------+
+# |Alice| 28| Amazon|
+# +-----+---+-------+
+
 # Drop rows with null values
-df_null = spark.createDataFrame([(None, None), ("1", None), (None, 2), ("3", 3)], ("a", "b"))
+df_null = get_pyspark_df_null()
 df_null.dropna().show()  # Drop rows that have at least one null value
 # +---+---+
 # |  a|  b|
@@ -375,14 +447,6 @@ df_null.replace("1", "2", subset=["a"]).show()
 # |   3|   3|
 # +----+----+
 
-# Limit rows
-df1.limit(1).show()
-# +-----+---+-------+
-# | Name|Age|Company|
-# +-----+---+-------+
-# |Alice| 28| Amazon|
-# +-----+---+-------+
-
 # Repartition and coalesce
 # repartition() - Returns a new DataFrame partitioned by the given partitioning expressions.
 # The resulting DataFrame is hash partitioned. The size of partitions can be greater or less than the original.
@@ -392,8 +456,7 @@ print(df.repartition(3).rdd.getNumPartitions())  # 3
 print(df.coalesce(1).rdd.getNumPartitions())  # 1
 
 # Union, how to add new rows to existing Dataframe
-data = [("Alex", 38, "Microsoft"), ("John", 35, "Netflix")]
-df2 = spark.createDataFrame(data, schema=["Name", "Age", "Company"])
+df2 = get_pyspark_df2()
 df1.union(df2).show()
 # +-------+---+---------+
 # |   Name|Age|  Company|
@@ -409,13 +472,11 @@ df1.union(df2).show()
 # PySpark SQL
 
 # Register Temp View and Execute SQL
-data = [("Alice", 28), ("Bob", 25), ("Charlie", 30)]
-df_sql = spark.createDataFrame(data, schema=["Name", "Age"])
-df_sql.createOrReplaceTempView("people")
+df_people = get_pyspark_df()
+df_people.createOrReplaceTempView("people")
 
-data = [("Alice", "New York"), ("Bob", "San Francisco"), ]
-df_sql = spark.createDataFrame(data, schema=["Name", "City"])
-df_sql.createOrReplaceTempView("cities")
+df_cities = get_pyspark_df_cities()
+df_cities.createOrReplaceTempView("cities")
 
 spark.sql("SELECT Name, Age FROM people WHERE Age > 26").show()
 # +-------+---+
@@ -453,10 +514,8 @@ spark.sql("SELECT * FROM people WHERE Age > (SELECT AVG(AGE) FROM people)").show
 
 # PySpark DataFrame Joins
 
-data1 = [("Alice", 28), ("Bob", 25)]
-data2 = [("Alice", "F"), ("Bob", "M"), ("Charlie", "M")]
-df1 = spark.createDataFrame(data1, ["Name", "Age"])
-df2 = spark.createDataFrame(data2, ["Name", "Gender"])
+df1 = get_pyspark_df_join1()
+df2 = get_pyspark_df_join2()
 
 # Inner Join
 inner_join = df1.join(df2, on="Name", how="inner")
@@ -482,6 +541,7 @@ left_join.show()
 
 # PySpark File I/O
 current_time = time.time()
+df = get_pyspark_df()
 
 # Write DataFrame as CSV
 df.write.csv(f"/output-{current_time}.csv", header=True)
@@ -512,6 +572,7 @@ df_xml.show()
 
 
 # PySpark Functions Module
+df = get_pyspark_df()
 
 # concat() - concatenates multiple input columns together into a single column
 # lit() - creates a Column of literal value. Often used with withColumn() expression,
@@ -542,9 +603,8 @@ df.withColumn("Name", when(df.Name == "Alice", "Alicia").otherwise(df.Name)).sho
 # Equivalent to col.cast("date").
 # to_timestamp() - Converts a Column into pyspark.sql.types.TimestampType using the optionally specified format.
 # current_date() - get current date
-data = [("Alice", 28, '1997-02-28 10:30:00'), ("Bob", 25, '2000-02-28 10:30:00'), ("Charlie", 30, '2005-02-28 10:30:00')]
-df_data = spark.createDataFrame(data, schema=["Name", "Age", "Date"])
-df_data.select("Name", expr("length(name)").alias("lenght of the name"), to_date("Date"), to_timestamp("Date"),
+df_date = get_pyspark_df_date()
+df_date.select("Name", expr("length(name)").alias("lenght of the name"), to_date("Date"), to_timestamp("Date"),
                col("Date").cast("date"), current_date()).show()
 # +-------+------------------+-------------+-------------------+----------+--------------+
 # |   Name|lenght of the name|to_date(Date)| to_timestamp(Date)|      Date|current_date()|
@@ -567,7 +627,7 @@ df.select(create_map('Name', 'Age').alias("map"), concat_ws(' is ', 'Name', 'Age
 # +---------------+-------------+
 
 # coalesce() - Returns the first column that is not null or the default value
-df_null = spark.createDataFrame([(None, None), (1, None), (None, 2)], ("a", "b"))
+df_null = get_pyspark_df_null()
 df_null.select(coalesce(df_null["a"], df_null["b"])).show()
 # +--------------+
 # |coalesce(a, b)|
@@ -575,6 +635,7 @@ df_null.select(coalesce(df_null["a"], df_null["b"])).show()
 # |          null|
 # |             1|
 # |             2|
+# |             3|
 # +--------------+
 
 df_null.select('*', coalesce(df_null["a"], lit(0.0))).show()
@@ -582,8 +643,9 @@ df_null.select('*', coalesce(df_null["a"], lit(0.0))).show()
 # |   a|   b|coalesce(a, 0.0)|
 # +----+----+----------------+
 # |null|null|             0.0|
-# |   1|null|             1.0|
+# |   1|null|               1|
 # |null|   2|             0.0|
+# |   3|   3|               3|
 # +----+----+----------------+
 
 # udf() - create and use an udf, user memory is in use
@@ -602,15 +664,7 @@ df.withColumn("IncrementAge", increment_age_udf(df["Age"])).show()
 # +-------+---+------------+
 
 # Window Functions
-data = (("James", "Sales", 3000),
-        ("Michael", "Sales", 4600),
-        ("Maria", "Finance", 3000),
-        ("Scott", "Finance", 3300),
-        ("Jen", "Finance", 3300),
-        ("Saif", "Sales", 4100)
-        )
-schema = ["employee_name", "department", "salary"]
-df_window = spark.createDataFrame(data=data, schema=schema)
+df_window = get_pyspark_df_window()
 df_window.show()
 # +-------------+----------+------+
 # |employee_name|department|salary|
