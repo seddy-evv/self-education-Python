@@ -162,8 +162,9 @@ join_rdd = rdd10.join(rdd11)
 print(join_rdd.collect())  # [("a", (1, 2)), ("a", (1, 3))]
 
 
-# Create DataFrame from Python List of Tuples
+# Create DataFrame
 
+# Create DataFrame from Python List of Tuples
 data = [("Alice", 28), ("Bob", 25), ("Charlie", 30)]
 df = spark.createDataFrame(data, schema=["Name", "Age"])
 df.show()
@@ -174,6 +175,22 @@ df.show()
 # |    Bob| 25|
 # |Charlie| 30|
 # +-------+---+
+
+# Create DataFrame from Python List of dicts
+data = [
+  {"Name": "Alice", "Age": 28},
+  {"Name": "Bob", "Age": 25},
+  {"Name": "Charlie", "Age": 30}
+  ]
+df = spark.createDataFrame(data)
+df.show()
+# +---+-------+
+# |Age|   Name|
+# +---+-------+
+# | 28|  Alice|
+# | 25|    Bob|
+# | 30|Charlie|
+# +---+-------+
 
 # Create DataFrame from schema with types
 schema = StructType([
