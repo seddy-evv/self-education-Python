@@ -245,6 +245,17 @@ df.show()
 # |Charlie| 30|
 # +-------+---+
 
+# from a range
+df = spark.range(3).toDF("num")
+df.show()
+# +---+
+# |num|
+# +---+
+# |  0|
+# |  1|
+# |  2|
+# +---+
+
 
 # Basic PySpark DataFrame Operations
 
