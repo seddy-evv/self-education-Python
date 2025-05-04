@@ -5,7 +5,7 @@
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create_map, to_date, to_timestamp, \
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
-    current_date
+    current_date, floor, rand, count
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -832,3 +832,68 @@ df.withColumn("avg", avg(col("salary")).over(window_spec_agg)) \
 # |     Sales|3900.0|11700|3000|4600|
 # |     Sales|3900.0|11700|3000|4600|
 # +----------+------+-----+----+----+
+
+# Salt implementation
+# Salt in PySpark is commonly used for handling skewed data during joins/agg or to distribute keys more
+# uniformly across partitions. When you have a dataset that heavily skews toward certain key values
+# (e.g., in a join operation), the computation may become unbalanced as some partitions have a much larger workload
+# than others. Adding a salt value to these keys helps distribute the data across partitions more evenly.
+# After salting, always recombine results to get back to the original keys by removing the salt
+# (e.g., splitting the salted key)!!!
+
+# AGGREGATION SALT
+# When we can use Salt: sum(), count(), max(), min()
+# avg() - we can't use as method, but we can combine results using total sum / total count, check example below
+# When we can't use Salt: first() and last() (sorted), countDistinct(), rank(), denseRank()
+# Avoid salting for holistic, order-sensitive, or distinct operations.
+
+# Example with different keys:
+# Sample skewed dataset
+data = [
+    ("A", 100),  # "A" is heavily skewed
+    ("A", 200),
+    ("A", 300),
+    ("A", 400),
+    ("B", 50),   # "B" and "C" are not skewed
+    ("B", 60),
+    ("C", 30),
+    ("C", 40),
+    ("C", 50)
+]
+
+# Create DataFrame
+df = spark.createDataFrame(data, ["key", "value"])
+
+# Show the raw data
+print("Original Dataset:")
+df.show()
+
+# Step 1: Add a salt column
+# For the skewed keys, add a random salt value to redistribute the data
+salt_range = 3  # Adjust based on the skewed nature of the data
+df_salted = df.withColumn("salt", floor(rand() * salt_range)) \
+              .withColumn("salted_key", concat(col("key"), lit("_"), col("salt")))
+
+# Show the salted data
+print("Salted Dataset:")
+df_salted.show()
+
+# Step 2: Perform the aggregation on the salted data
+# Example: Calculate the sum of values for each salted key
+aggregated_salted = df_salted.groupBy("salted_key").agg(sum("value").alias("sum_value"),
+                                                        max("value").alias("max_value"),
+                                                        count("*").alias("count"))
+
+# Show the aggregated result for salted keys
+print("Aggregated Dataset with Salted Keys:")
+aggregated_salted.show()
+
+# Step 3: Recombine the results by removing the salt
+# Extract the original key by splitting the salted key
+final_result = aggregated_salted.withColumn("original_key", col("salted_key").substr(1, 1)).groupBy("original_key") \
+                                .agg(sum("sum_value").alias("total_sum"), max("max_value").alias("max_value"),
+                                     (sum("sum_value") / sum("count")).alias("avg"))
+
+# Show the final aggregated result
+print("Final Aggregated Dataset (De-salted):")
+final_result.show()
