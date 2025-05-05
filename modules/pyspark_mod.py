@@ -5,7 +5,7 @@
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create_map, to_date, to_timestamp, \
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
-    current_date, floor, rand, count
+    current_date, floor, rand, count, array, explode
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -267,8 +267,8 @@ print(data)
 # [Row(Name='Alice', Age=28), Row(Name='Bob', Age=25), Row(Name='Charlie', Age=30)]
 
 # Count: Count the number of rows
-count = df.count()
-print(count)
+count_res = df.count()
+print(count_res)
 # 3
 
 # Show: Display the DataFrame
@@ -893,6 +893,52 @@ aggregated_salted.show()
 final_result = aggregated_salted.withColumn("original_key", col("salted_key").substr(1, 1)).groupBy("original_key") \
                                 .agg(sum("sum_value").alias("total_sum"), max("max_value").alias("max_value"),
                                      (sum("sum_value") / sum("count")).alias("avg"))
+
+# Show the final aggregated result
+print("Final Aggregated Dataset (De-salted):")
+final_result.show()
+
+# Example with the single key:
+# Sample skewed dataset
+data = [
+    ("A", 100),  # "A" is heavily skewed
+    ("A", 200),
+    ("A", 300),
+    ("A", 400),
+    ("A", 50),
+    ("A", 60),
+    ("A", 30),
+    ("A", 40),
+    ("A", 50)
+]
+
+# Create DataFrame
+df = spark.createDataFrame(data, ["key", "value"])
+
+# Show the raw data
+print("Original Dataset:")
+df.show()
+
+# Step 1: Add a salt column
+# For the skewed keys, add a random salt value to redistribute the data
+salt_range = 3  # Adjust based on the skewed nature of the data
+df_salted = df.withColumn("salted_key", floor(rand() * salt_range))
+
+# Show the salted data
+print("Salted Dataset:")
+df_salted.show()
+
+# Step 2: Perform the aggregation on the salted data
+# Example: Calculate the sum of values for each salted key
+aggregated_salted = df_salted.groupBy("key", "salted_key").agg(sum("value").alias("sum_value"))
+
+# Show the aggregated result for salted keys
+print("Aggregated Dataset with Salted Keys:")
+aggregated_salted.show()
+
+# Step 3: Recombine the results by removing the salt
+# Extract the original key by splitting the salted key
+final_result = aggregated_salted.groupBy("key").agg(sum("sum_value").alias("total_sum"))
 
 # Show the final aggregated result
 print("Final Aggregated Dataset (De-salted):")
