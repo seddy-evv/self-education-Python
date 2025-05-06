@@ -943,3 +943,51 @@ final_result = aggregated_salted.groupBy("key").agg(sum("sum_value").alias("tota
 # Show the final aggregated result
 print("Final Aggregated Dataset (De-salted):")
 final_result.show()
+
+# JOIN SALT
+large_dataset = spark.createDataFrame([
+    (1, "value1"),
+    (1, "value1"),
+    (1, "value1"),
+    (2, "value2"),
+    (3, "value3")
+], ["join_key", "data"])
+print("Large Dataset:")
+large_dataset.show()
+
+small_dataset = spark.createDataFrame([
+    (1, "small_value1"),
+    (2, "small_value2"),
+    (3, "small_value3")
+], ["join_key", "small_data"])
+print("Small Dataset:")
+small_dataset.show()
+
+# Add salt to the large dataset
+# Choose a salt range based on the degree of skew; here, we use [0, 2] (3 buckets)
+# floor() - returns the nearest integer that is less than or equal to given value.
+# rand() - Generates a random column with samples uniformly distributed in [0.0, 1.0)
+# explode() - returns a new row for each element in the given array or map.
+salt_range = 3
+large_salted = large_dataset.withColumn("salt", floor(rand() * salt_range)) \
+                            .withColumn("salted_key", concat(col("join_key"), lit("_"), col("salt")))
+print("Large Salted Dataset:")
+large_salted.show()
+
+# Replicate the small dataset for each salt value
+# Generate keys for all possible salt values and explode them
+
+small_salted = small_dataset.withColumn("salt_array", array([lit(i) for i in range(salt_range)])) \
+                            .withColumn("salt", explode(col("salt_array"))) \
+                            .withColumn("salted_key", concat(col("join_key"), lit("_"), col("salt"))) \
+                            .drop("salt_array")
+print("Small Salted Dataset:")
+small_salted.show()
+
+# Perform the join on the salted key
+result = large_salted.join(small_salted, on=["salted_key", "join_key"], how="inner") \
+                     .select("join_key", "data", "small_data")
+
+# Show the result
+print("Final Joined Dataset (De-salted):")
+result.show()
