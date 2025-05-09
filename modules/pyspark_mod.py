@@ -867,6 +867,19 @@ df = spark.createDataFrame(data, ["key", "value"])
 # Show the raw data
 print("Original Dataset:")
 df.show()
+# +---+-----+
+# |key|value|
+# +---+-----+
+# |  A|  100|
+# |  A|  200|
+# |  A|  300|
+# |  A|  400|
+# |  B|   50|
+# |  B|   60|
+# |  C|   30|
+# |  C|   40|
+# |  C|   50|
+# +---+-----+
 
 # Step 1: Add a salt column
 # For the skewed keys, add a random salt value to redistribute the data
@@ -877,6 +890,19 @@ df_salted = df.withColumn("salt", floor(rand() * salt_range)) \
 # Show the salted data
 print("Salted Dataset:")
 df_salted.show()
+# +---+-----+----+----------+
+# |key|value|salt|salted_key|
+# +---+-----+----+----------+
+# |  A|  100|   1|       A_1|
+# |  A|  200|   1|       A_1|
+# |  A|  300|   0|       A_0|
+# |  A|  400|   1|       A_1|
+# |  B|   50|   2|       B_2|
+# |  B|   60|   0|       B_0|
+# |  C|   30|   1|       C_1|
+# |  C|   40|   0|       C_0|
+# |  C|   50|   2|       C_2|
+# +---+-----+----+----------+
 
 # Step 2: Perform the aggregation on the salted data
 # Example: Calculate the sum of values for each salted key
@@ -887,6 +913,17 @@ aggregated_salted = df_salted.groupBy("salted_key").agg(sum("value").alias("sum_
 # Show the aggregated result for salted keys
 print("Aggregated Dataset with Salted Keys:")
 aggregated_salted.show()
+# +----------+---------+---------+-----+
+# |salted_key|sum_value|max_value|count|
+# +----------+---------+---------+-----+
+# |       A_1|      700|      400|    3|
+# |       A_0|      300|      300|    1|
+# |       B_2|       50|       50|    1|
+# |       B_0|       60|       60|    1|
+# |       C_1|       30|       30|    1|
+# |       C_2|       50|       50|    1|
+# |       C_0|       40|       40|    1|
+# +----------+---------+---------+-----+
 
 # Step 3: Recombine the results by removing the salt
 # Extract the original key by splitting the salted key
@@ -897,6 +934,13 @@ final_result = aggregated_salted.withColumn("original_key", col("salted_key").su
 # Show the final aggregated result
 print("Final Aggregated Dataset (De-salted):")
 final_result.show()
+# +------------+---------+---------+-----+
+# |original_key|total_sum|max_value|  avg|
+# +------------+---------+---------+-----+
+# |           B|      110|       60| 55.0|
+# |           C|      120|       50| 40.0|
+# |           A|     1000|      400|250.0|
+# +------------+---------+---------+-----+
 
 # Example with the single key:
 # Sample skewed dataset
@@ -918,6 +962,19 @@ df = spark.createDataFrame(data, ["key", "value"])
 # Show the raw data
 print("Original Dataset:")
 df.show()
+# +---+-----+
+# |key|value|
+# +---+-----+
+# |  A|  100|
+# |  A|  200|
+# |  A|  300|
+# |  A|  400|
+# |  A|   50|
+# |  A|   60|
+# |  A|   30|
+# |  A|   40|
+# |  A|   50|
+# +---+-----+
 
 # Step 1: Add a salt column
 # For the skewed keys, add a random salt value to redistribute the data
@@ -927,6 +984,19 @@ df_salted = df.withColumn("salted_key", floor(rand() * salt_range))
 # Show the salted data
 print("Salted Dataset:")
 df_salted.show()
+# +---+-----+----------+
+# |key|value|salted_key|
+# +---+-----+----------+
+# |  A|  100|         0|
+# |  A|  200|         0|
+# |  A|  300|         0|
+# |  A|  400|         0|
+# |  A|   50|         0|
+# |  A|   60|         1|
+# |  A|   30|         2|
+# |  A|   40|         2|
+# |  A|   50|         2|
+# +---+-----+----------+
 
 # Step 2: Perform the aggregation on the salted data
 # Example: Calculate the sum of values for each salted key
@@ -935,6 +1005,13 @@ aggregated_salted = df_salted.groupBy("key", "salted_key").agg(sum("value").alia
 # Show the aggregated result for salted keys
 print("Aggregated Dataset with Salted Keys:")
 aggregated_salted.show()
+# +---+----------+---------+
+# |key|salted_key|sum_value|
+# +---+----------+---------+
+# |  A|         0|     1050|
+# |  A|         1|       60|
+# |  A|         2|      120|
+# +---+----------+---------+
 
 # Step 3: Recombine the results by removing the salt
 # Extract the original key by splitting the salted key
@@ -943,6 +1020,11 @@ final_result = aggregated_salted.groupBy("key").agg(sum("sum_value").alias("tota
 # Show the final aggregated result
 print("Final Aggregated Dataset (De-salted):")
 final_result.show()
+# +---+---------+
+# |key|total_sum|
+# +---+---------+
+# |  A|     1230|
+# +---+---------+
 
 # JOIN SALT
 large_dataset = spark.createDataFrame([
@@ -954,6 +1036,15 @@ large_dataset = spark.createDataFrame([
 ], ["join_key", "data"])
 print("Large Dataset:")
 large_dataset.show()
+# +--------+------+
+# |join_key|  data|
+# +--------+------+
+# |       1|value1|
+# |       1|value1|
+# |       1|value1|
+# |       2|value2|
+# |       3|value3|
+# +--------+------+
 
 small_dataset = spark.createDataFrame([
     (1, "small_value1"),
@@ -962,6 +1053,13 @@ small_dataset = spark.createDataFrame([
 ], ["join_key", "small_data"])
 print("Small Dataset:")
 small_dataset.show()
+# +--------+------------+
+# |join_key|  small_data|
+# +--------+------------+
+# |       1|small_value1|
+# |       2|small_value2|
+# |       3|small_value3|
+# +--------+------------+
 
 # Add salt to the large dataset
 # Choose a salt range based on the degree of skew; here, we use [0, 2] (3 buckets)
@@ -973,6 +1071,15 @@ large_salted = large_dataset.withColumn("salt", floor(rand() * salt_range)) \
                             .withColumn("salted_key", concat(col("join_key"), lit("_"), col("salt")))
 print("Large Salted Dataset:")
 large_salted.show()
+# +--------+------+----+----------+
+# |join_key|  data|salt|salted_key|
+# +--------+------+----+----------+
+# |       1|value1|   0|       1_0|
+# |       1|value1|   0|       1_0|
+# |       1|value1|   2|       1_2|
+# |       2|value2|   0|       2_0|
+# |       3|value3|   1|       3_1|
+# +--------+------+----+----------+
 
 # Replicate the small dataset for each salt value
 # Generate keys for all possible salt values and explode them
@@ -983,6 +1090,19 @@ small_salted = small_dataset.withColumn("salt_array", array([lit(i) for i in ran
                             .drop("salt_array")
 print("Small Salted Dataset:")
 small_salted.show()
+# +--------+------------+----+----------+
+# |join_key|  small_data|salt|salted_key|
+# +--------+------------+----+----------+
+# |       1|small_value1|   0|       1_0|
+# |       1|small_value1|   1|       1_1|
+# |       1|small_value1|   2|       1_2|
+# |       2|small_value2|   0|       2_0|
+# |       2|small_value2|   1|       2_1|
+# |       2|small_value2|   2|       2_2|
+# |       3|small_value3|   0|       3_0|
+# |       3|small_value3|   1|       3_1|
+# |       3|small_value3|   2|       3_2|
+# +--------+------------+----+----------+
 
 # Perform the join on the salted key
 result = large_salted.join(small_salted, on=["salted_key", "join_key"], how="inner") \
@@ -991,3 +1111,12 @@ result = large_salted.join(small_salted, on=["salted_key", "join_key"], how="inn
 # Show the result
 print("Final Joined Dataset (De-salted):")
 result.show()
+# +--------+------+------------+
+# |join_key|  data|  small_data|
+# +--------+------+------------+
+# |       1|value1|small_value1|
+# |       1|value1|small_value1|
+# |       1|value1|small_value1|
+# |       2|value2|small_value2|
+# |       3|value3|small_value3|
+# +--------+------+------------+
