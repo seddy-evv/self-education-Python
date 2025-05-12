@@ -216,3 +216,147 @@ query = rate_df.writeStream \
     .option("checkpointLocation", "checkpoint_directory") \
     .outputMode("append") \
     .start()
+
+
+# Window-Based Operations
+# Structured Streaming allows performing windowed aggregations to process events that arrive within
+# specific time intervals.
+
+# Tumbling Window
+# Tumbling windows are a series of fixed-sized, non-overlapping and contiguous time intervals.
+# An input can only be bound to a single window.
+
+tumbling_windowed_df = rate_df.groupBy(
+    window(rate_df.timestamp, "10 minutes")
+).agg(count("value"))
+
+# Sliding Window
+# Sliding windows are similar to the tumbling windows from the point of being “fixed-sized”, but windows can overlap
+# if the duration of slide is smaller than the duration of window, and in this case an input can be bound
+# to the multiple windows.
+
+sliding_windowed_df = rate_df.groupBy(
+    window(rate_df.timestamp, "10 minutes", "5 minutes")
+).count()
+
+# Session Window
+# Session window has a dynamic size of the window length, depending on the inputs. A session window starts with an input,
+# and expands itself if following input has been received within gap duration.
+# The session window is defined based on a timeout, e.g., 10 seconds
+
+session_windowed_df = rate_df.groupBy(
+    session_window(rate_df.timestamp, "10 seconds")
+).count()
+
+
+# Watermarking
+# Watermarking is used for late data handling by specifying maximum allowed lateness in event time.
+watermarked_df = rate_df.withWatermark("timestamp", "10 minutes") \
+    .groupBy(window("timestamp", "5 minutes")) \
+    .count()
+
+
+# Streaming Table APIs
+# Since Spark 3.1, we can also use DataStreamReader.table() to read tables as streaming DataFrames and use
+# DataStreamWriter.toTable() to write streaming DataFrames as tables:
+
+# Example:
+# Create a streaming DataFrame
+df = spark.readStream \
+    .format("rate") \
+    .option("rowsPerSecond", 10) \
+    .load()
+
+# Write the streaming DataFrame to a table
+df.writeStream \
+    .option("checkpointLocation", "path/to/checkpoint/dir") \
+    .toTable("myTable")
+
+# Check the table result
+spark.read.table("myTable").show()
+# +--------------------+-----+
+# |           timestamp|value|
+# +--------------------+-----+
+# |2025-05-11 13:48:...| 3130|
+# |2025-05-11 13:48:...| 3138|
+# |2025-05-11 13:48:...| 3146|
+# |2025-05-11 13:48:...| 3154|
+# |2025-05-11 13:48:...| 3162|
+# |2025-05-11 13:48:...| 3170|
+# +--------------------+-----+
+
+# Transform the source dataset and write to a new table
+# Checkpoint locations for streams should be different!!!
+spark.readStream \
+    .table("myTable") \
+    .select("value") \
+    .writeStream \
+    .option("checkpointLocation", "path/to/checkpoint/dir1") \
+    .format("parquet") \
+    .toTable("newTable")
+
+# Check the new table result
+spark.read.table("newTable").show()
+# +-----+
+# |value|
+# +-----+
+# |    3|
+# |   11|
+# |   19|
+# |   27|
+# |   35|
+# |   43|
+# +-----+
+
+# Streaming Query Management
+active_queries = spark.streams.active
+print([query.name for query in active_queries])
+
+# Query manipulation
+query = rate_df.writeStream \
+    .trigger(processingTime="1 second") \
+    .format("console") \
+    .outputMode("append") \
+    .start()
+
+query.explain()            # to print detailed explanations of the query
+query.stop()               # to stop the query
+query.awaitTermination()   # to block until query is terminated, with stop() or with error,
+                           # without this command the code after will continue to execute
+query.exception()          # to throw the exception if the query has been terminated with error
+rate_df.isStreaming()      # to check the whether a df has streaming data or not
+
+
+# Example: End-to-End Word Count
+# Word Count from rate
+rate_df = spark.readStream.format("rate").option("rowsPerSecond", 10).load()
+
+words = rate_df.select(
+    explode(split(rate_df.timestamp, " ")).alias("timestamp")
+)
+
+# Count occurrences of each word
+word_counts = words.groupBy("timestamp").count()
+
+# Output to the console
+query = word_counts.writeStream \
+    .outputMode("complete") \
+    .format("console") \
+    .start()
+
+query.awaitTermination()
+# +------------+-----+
+# |   timestamp|count|
+# +------------+-----+
+# |11:03:06.253|    1|
+# |11:03:05.853|    1|
+# |11:03:06.053|    1|
+# |11:03:05.753|    1|
+# |11:03:05.453|    1|
+# |11:03:05.553|    1|
+# |11:03:05.953|    1|
+# |11:03:06.353|    1|
+# |11:03:05.653|    1|
+# |11:03:06.153|    1|
+# |  2025-05-11|   10|
+# +------------+-----+
