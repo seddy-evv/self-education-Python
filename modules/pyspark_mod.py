@@ -5,7 +5,7 @@
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create_map, to_date, to_timestamp, \
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
-    current_date, floor, rand, count, array, explode
+    current_date, floor, rand, count, array, explode, count_distinct
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -81,6 +81,7 @@ def get_pyspark_df_window():
     df_window = spark.createDataFrame(data=data, schema=schema)
 
     return df_window
+
 
 # PySpark RDD Operations
 
@@ -382,6 +383,15 @@ df3.agg(max("Salary"), sum("Salary"), avg("Salary")).show()
 # |       4000|      13000|     3250.0|
 # +-----------+-----------+-----------+
 
+df_wndw = get_pyspark_df_window()
+df_wndw.groupBy(df_wndw.department).agg(count_distinct(df_wndw.employee_name)).show()
+# +----------+--------------------+
+# |department|count(employee_name)|
+# +----------+--------------------+
+# |     Sales|                   3|
+# |   Finance|                   3|
+# +----------+--------------------+
+
 # Drop columns
 df1 = get_pyspark_df1()
 df1.drop("Name", "Age").show()
@@ -476,12 +486,14 @@ df_null.replace("1", "2", subset=["a"]).show()
 # +----+----+
 
 # Repartition and coalesce
-# repartition() - Returns a new DataFrame partitioned by the given partitioning expressions.
+# repartition() - Returns a new DataFrame partitioned by the given partitioning expressions (number or/and column).
 # The resulting DataFrame is hash partitioned. The size of partitions can be greater or less than the original.
 # coalesce() - Returns a new DataFrame that has exactly numPartitions partitions. If a larger number of partitions
 # is requested, it will stay at the current number of partitions.
 print(df.repartition(3).rdd.getNumPartitions())  # 3
 print(df.coalesce(1).rdd.getNumPartitions())  # 1
+print(df.repartition('Name').rdd.getNumPartitions())  # 1
+print(df.repartition(3, 'Name').rdd.getNumPartitions())  # 3 Repartition the data into 3 partitions by ‘Name’ column
 
 # Union, how to add new rows to existing Dataframe
 df2 = get_pyspark_df2()
@@ -568,6 +580,30 @@ left_join.show()
 
 
 # PySpark File I/O
+# A typical write operation:
+# 1. In Databricks we can omit the format, since delta format is default.
+# 2. Mode:
+# - append: Append contents of this DataFrame to existing data.
+# - overwrite: Overwrite existing data. The schema of the df does not need to be the same as that of the existing table.
+# - error or errorifexists(default): Throw an exception if data already exists.
+# - ignore: Silently ignore this operation if data already exists.
+# 3. partitionBy and bucketBy - the separate section below.
+# 4. saveAsTable() - creates a table in the Hive metastore within default metastore location.
+# 5. save() - saves the df to the specified path.
+# Example:
+output_path = "/tmp/partitioned_data"
+df.write \
+  .partitionBy("department") \
+  .format("parquet") \
+  .mode("overwrite") \
+  .save(output_path)
+# OR
+partitioned_table = "bucketed_table"
+df.write \
+  .mode("append") \
+  .format("parquet") \
+  .saveAsTable(partitioned_table)
+
 current_time = time.time()
 df = get_pyspark_df()
 
@@ -580,7 +616,11 @@ df.show()
 
 # Read and Write Parquet
 df.write.parquet(f"/output-{current_time}.parquet")
+# or
+df.write.format("parquet").save(f"/output-{current_time}.parquet")
 df_parquet = spark.read.parquet(f"/output-{current_time}.parquet")
+# or
+df_parquet = spark.read.format("parquet").load(f"/output-{current_time}.parquet")
 df_parquet.show()
 
 # Read and write JSON
@@ -690,6 +730,7 @@ df.withColumn("IncrementAge", increment_age_udf(df["Age"])).show()
 # |    Bob| 25|          26|
 # |Charlie| 30|          31|
 # +-------+---+------------+
+
 
 # Window Functions
 df_window = get_pyspark_df_window()
@@ -832,6 +873,7 @@ df.withColumn("avg", avg(col("salary")).over(window_spec_agg)) \
 # |     Sales|3900.0|11700|3000|4600|
 # |     Sales|3900.0|11700|3000|4600|
 # +----------+------+-----+----+----+
+
 
 # Salt implementation
 # Salt in PySpark is commonly used for handling skewed data during joins/agg or to distribute keys more
@@ -1120,3 +1162,89 @@ result.show()
 # |       2|value2|small_value2|
 # |       3|value3|small_value3|
 # +--------+------+------------+
+
+
+# bucketBy and partitionBy
+
+# Bucketing (Bucketing is not supported for Delta tables!!!)
+# When you bucket a DataFrame, Spark uses a hash function on the specified column(s) to distribute the rows across a
+# fixed number of buckets. Each bucket is stored as a file, and the data in each bucket is sorted based on
+# the bucket column(s). Bucketing is particularly useful for operations like joins between large tables. When two
+# tables are bucketed on the join column and have the same number of buckets, Spark can perform the join operation
+# more efficiently without needing to shuffle data between nodes.
+# Sample data for demonstration
+data = [
+    (1, "Alice", 29),
+    (2, "Bob", 31),
+    (3, "Charlie", 26),
+    (4, "David", 33),
+    (5, "Eve", 29),
+    (6, "Frank", 33)
+]
+
+columns = ["id", "name", "age"]
+
+# Create a DataFrame
+df = spark.createDataFrame(data, schema=columns)
+
+# Save the DataFrame as a bucketed table
+bucketed_table = "bucketed_table"
+# Bucketing by the column 'age' into 4 buckets
+# Sorting within the buckets by the column 'name'
+df.write \
+  .bucketBy(4, "age") \
+  .sortBy("name") \
+  .format("parquet") \
+  .saveAsTable(bucketed_table)
+
+# Reading data from the bucketed table
+bucketed_df = spark.sql(f"SELECT * FROM {bucketed_table}")
+bucketed_df.show()
+
+# Partitioning
+# Partitioning in PySpark involves dividing data into separate directories (on HDFS, S3, etc.) based on the values in
+# one or more columns. This is useful when working with large datasets, as it helps in reducing the amount of data
+# read during queries, optimizing performance for operations like joins and aggregations.
+#
+# When you read a partitioned table, Spark automatically recognizes the partitions and loads them efficiently based on the query.
+# If you filter on the partition column (e.g., department = 'Sales'), Spark will only load the required partitions
+# instead of reading the full dataset, reducing I/O overhead.
+data = [
+    (1, "Alice", "Sales", 3000),
+    (2, "Bob", "HR", 4000),
+    (3, "Charlie", "Sales", 2500),
+    (4, "David", "HR", 3000),
+    (5, "Eve", "IT", 5000),
+    (6, "Frank", "IT", 4500)
+]
+
+columns = ["id", "name", "department", "salary"]
+
+# Creating a DataFrame
+df = spark.createDataFrame(data, schema=columns)
+
+# Show the original DataFrame
+print("Original DataFrame:")
+df.show()
+
+# Write the DataFrame to disk with partitioning by a column ('department')
+output_path = "/tmp/partitioned_data"
+# Partitioning by the 'department' column
+df.write \
+    .partitionBy("department") \
+    .format("parquet") \
+    .mode("overwrite") \
+    .save(output_path)
+
+# The data is saved with a directory structure like:
+# /tmp/partitioned_data/department=Sales/...
+# /tmp/partitioned_data/department=HR/...
+# /tmp/partitioned_data/department=IT/...
+
+print("Data has been written to disk, partitioned by the 'department' column.")
+
+# Reading the partitioned data back
+partitioned_df = spark.read.format("parquet").load(output_path)
+
+print("Reading partitioned DataFrame:")
+partitioned_df.show()
