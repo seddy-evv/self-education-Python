@@ -2,6 +2,7 @@
 # It allows handling large-scale data across multiple nodes and provides a rich set of functions for data processing.
 # Below is a description and examples of some of the main PySpark functions:
 
+from pyspark import StorageLevel
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create_map, to_date, to_timestamp, \
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
@@ -299,6 +300,8 @@ df.describe().show()
 df.select("Name").show()
 # or
 df.select(df.Name).show()
+# or
+df.select(df["Name"]).show()
 # +-------+
 # |   Name|
 # +-------+
@@ -508,6 +511,20 @@ df1.union(df2).show()
 # |   John| 35|  Netflix|
 # +-------+---+---------+
 
+# cache() and persist()
+# Every action (like show() or count()) triggers a computation pipeline that might include re-reading data from
+# disk if it's not cached or persisted.
+# Caching saves the data in memory or on disk (depending on the persistence level), so subsequent actions on
+# the same DataFrame or RDD do not require reading the data again from the disk.
+# With cache(), we can use only the default storage level:
+# - MEMORY_ONLY for RDD
+# - MEMORY_AND_DISK for DataFrame
+# With persist(), we can specify which storage level we want for RDD and DataFrame, such as MEMORY_ONLY, DISK_ONLY, etc.
+df.cache()
+print(df.count())  # Now we can use `df` in more transformations and actions without reading the data from disk again
+df.persist(StorageLevel.MEMORY_AND_DISK)  # Equivalent to df.cache()
+# Unpersisting: If you no longer need the cached or persisted data, call df.unpersist()
+
 
 # PySpark SQL
 
@@ -612,12 +629,15 @@ df.write.csv(f"/output-{current_time}.csv", header=True)
 
 # Read CSV File with the schema
 df = spark.read.csv(f"/output-{current_time}.csv", header=True, inferSchema=True)
+# or
+df = spark.read.format("csv").options(header=True, inferSchema=True).load(f"/output-{current_time}.csv")
 df.show()
 
 # Read and Write Parquet
 df.write.parquet(f"/output-{current_time}.parquet")
 # or
 df.write.format("parquet").save(f"/output-{current_time}.parquet")
+
 df_parquet = spark.read.parquet(f"/output-{current_time}.parquet")
 # or
 df_parquet = spark.read.format("parquet").load(f"/output-{current_time}.parquet")
@@ -1042,7 +1062,7 @@ df_salted.show()
 
 # Step 2: Perform the aggregation on the salted data
 # Example: Calculate the sum of values for each salted key
-aggregated_salted = df_salted.groupBy("key", "salted_key").agg(sum("value").alias("sum_value"))
+aggregated_salted = df_salted.groupBy("salted_key", "key").agg(sum("value").alias("sum_value"))
 
 # Show the aggregated result for salted keys
 print("Aggregated Dataset with Salted Keys:")
