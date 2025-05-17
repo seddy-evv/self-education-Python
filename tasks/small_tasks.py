@@ -145,3 +145,49 @@ for item in b:
     while item in a:
         a.remove(item)
 print(a)
+
+
+# hash task
+data = {1, True, 1.0}
+print(data)
+# {1}
+
+# Exaplanation:
+print(hash(1))
+print(hash(True))
+print(hash(1.0))
+# 1
+# 1
+# 1
+
+
+# tuple with list task
+data = (['bee'], 'pygen')
+data[0] = data[0] + ['geek']
+# or
+# data[0] + = ['geek']
+print(data)
+# SyntaxError: invalid syntax
+
+# but it works
+data = (['bee'], 'pygen')
+data[0].append(['geek'])
+print(data)
+# (['bee', ['geek']], 'pygen')
+
+
+# dict keys
+dct = {None: 0, True: 1, False: 0, (0, 1): 1}
+print(dct)
+# {None: 0, True: 1, False: 0, (0, 1): 1}
+
+dct = {(0, [1]): 1}
+print(dct)
+# TypeError: unhashable type: 'list'
+
+
+# infinite recursion
+a = []
+a.append(a)
+print(a)
+# [[...]]
