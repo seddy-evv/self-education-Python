@@ -6,7 +6,7 @@ from pyspark import StorageLevel
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create_map, to_date, to_timestamp, \
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
-    current_date, floor, rand, count, array, explode, count_distinct
+    current_date, floor, rand, count, array, explode, count_distinct, broadcast
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -595,6 +595,27 @@ left_join.show()
 # |Charlie|     M|null|
 # +-------+------+----+
 
+# Broadcast Join
+df1.join(broadcast(df2), on="Name", how="inner").explain()
+# == Physical Plan ==
+# AdaptiveSparkPlan isFinalPlan=false
+# +- Project [Name#156, Age#157L, Gender#161]
+#    +- BroadcastHashJoin [Name#156], [Name#160], Inner, BuildRight, false, true
+#       :- Filter isnotnull(Name#156)
+#       :  +- Scan ExistingRDD[Name#156,Age#157L]
+#       +- Exchange SinglePartition, EXECUTOR_BROADCAST, [plan_id=396]
+#          +- Filter isnotnull(Name#160)
+#             +- Scan ExistingRDD[Name#160,Gender#161]
+
+broadcast_join = df1.join(broadcast(df2), on="Name", how="inner")
+broadcast_join.show()
+# +-----+---+------+
+# | Name|Age|Gender|
+# +-----+---+------+
+# |Alice| 28|     F|
+# |  Bob| 25|     M|
+# +-----+---+------+
+
 
 # PySpark File I/O
 # A typical write operation:
@@ -643,7 +664,7 @@ df_parquet = spark.read.parquet(f"/output-{current_time}.parquet")
 df_parquet = spark.read.format("parquet").load(f"/output-{current_time}.parquet")
 df_parquet.show()
 
-# Read and write JSON
+# Read and write JSON (set multiline option to true to read JSON records on file from multiple lines)
 df.write.format("json").save(f"/output-{current_time}.json")
 df_json = spark.read.format("json").load(f"/output-{current_time}.json")
 df_json.show()
