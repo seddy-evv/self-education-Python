@@ -310,6 +310,17 @@ df.select(df["Name"]).show()
 # |Charlie|
 # +-------+
 
+# selectExpr
+df_expr = df.selectExpr("Age * 2")
+df_expr.show()
+# +---------+
+# |(Age * 2)|
+# +---------+
+# |       56|
+# |       50|
+# |       60|
+# +---------+
+
 # select distinct
 df.select("Name").distinct()
 # +-------+
@@ -498,7 +509,8 @@ print(df.coalesce(1).rdd.getNumPartitions())  # 1
 print(df.repartition('Name').rdd.getNumPartitions())  # 1
 print(df.repartition(3, 'Name').rdd.getNumPartitions())  # 3 Repartition the data into 3 partitions by ‘Name’ column
 
-# Union, how to add new rows to existing Dataframe
+# Union, how to add new rows to existing Dataframe, column positions should be the same
+# To perform union by column names use unionByName, if allowMissingColumns=True, missing columns will be filled with null.
 df2 = get_pyspark_df2()
 df1.union(df2).show()
 # +-------+---+---------+
@@ -584,6 +596,26 @@ inner_join.show()
 # |  Bob| 25|     M|
 # +-----+---+------+
 
+# Important moment with pyspark join
+inner_join = df1.join(df2, df1.Name == df2.Name, how="inner")
+inner_join.show()
+# +-----+---+-----+------+
+# | Name|Age| Name|Gender|
+# +-----+---+-----+------+
+# |Alice| 28|Alice|     F|
+# |  Bob| 25|  Bob|     M|
+# +-----+---+-----+------+
+
+# To fix it
+inner_join = df1.join(df2, df1.Name == df2.Name, how="inner").select(df1.Name, df1.Age, df2.Gender)
+inner_join.show()
+# +-----+---+------+
+# | Name|Age|Gender|
+# +-----+---+------+
+# |Alice| 28|     F|
+# |  Bob| 25|     M|
+# +-----+---+------+
+
 # Left Join
 left_join = df2.join(df1, on="Name", how="left")
 left_join.show()
@@ -619,7 +651,7 @@ broadcast_join.show()
 
 # PySpark File I/O
 # A typical write operation:
-# 1. In Databricks we can omit the format, since delta format is default.
+# 1. In Databricks we can omit the format option, since delta format is default.
 # 2. Mode:
 # - append: Append contents of this DataFrame to existing data.
 # - overwrite: Overwrite existing data. The schema of the df does not need to be the same as that of the existing table.
@@ -636,11 +668,14 @@ df.write \
   .mode("overwrite") \
   .save(output_path)
 # OR
-partitioned_table = "bucketed_table"
+partitioned_table = "partitioned_table"
 df.write \
   .mode("append") \
   .format("parquet") \
   .saveAsTable(partitioned_table)
+
+# When table is created we can use df.write.insertInto("table_name", overwrite=False) to append data and overwrite
+# the data in the table with overwrite=True
 
 current_time = time.time()
 df = get_pyspark_df()
@@ -678,6 +713,26 @@ df_avro.show()
 df.write.format("com.databricks.spark.xml").options(rowTag='book').save(f"/output-{current_time}.xml")
 df_xml = spark.read.format("com.databricks.spark.xml").options(rowTag='book').load(f"/output-{current_time}.xml")
 df_xml.show()
+
+# Read and write jdbc
+jdbc_url = "jdbc:mysql://hostname:3306/database"
+jdbc_properties = {
+    "user": "your_username",
+    "password": "your_password",
+    "driver": "com.mysql.cj.jdbc.Driver"
+}
+
+rdbms_data = spark.read.format("jdbc") \
+    .option("url", jdbc_url) \
+    .option("dbtable", "source_table") \
+    .options(**jdbc_properties) \
+    .load()
+rdbms_data.write.format("jdbc") \
+    .option("url", jdbc_url) \
+    .option("dbtable", "target_table") \
+    .options(**jdbc_properties) \
+    .mode("overwrite") \
+    .save()
 
 
 # PySpark Functions Module
