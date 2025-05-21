@@ -302,6 +302,8 @@ df.select("Name").show()
 df.select(df.Name).show()
 # or
 df.select(df["Name"]).show()
+# or
+df.select(col("Name")).show()
 # +-------+
 # |   Name|
 # +-------+
