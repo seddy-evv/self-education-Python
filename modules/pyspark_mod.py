@@ -295,6 +295,18 @@ df.describe().show()
 # |    max|Charlie|                30|
 # +-------+-------+------------------+
 
+print(df.columns)
+# ['Name', 'Age']
+
+# we can use df.schema to create a new df from existing one with the same schema
+print(df.schema)
+# StructType([StructField('Name', StringType(), True), StructField('Age', LongType(), True)])
+
+df.printSchema()
+# root
+#  |-- Name: string (nullable = true)
+#  |-- Age: long (nullable = true)
+
 # Select Columns
 # We can specify the colum name in two ways
 df.select("Name").show()
@@ -738,6 +750,7 @@ rdbms_data.write.format("jdbc") \
 
 
 # PySpark Functions Module
+# We can use these functions within select and withColumn methods.
 df = get_pyspark_df()
 
 # concat() - concatenates multiple input columns together into a single column
@@ -793,6 +806,9 @@ df.select(create_map('Name', 'Age').alias("map"), concat_ws(' is ', 'Name', 'Age
 # +---------------+-------------+
 
 # coalesce() - Returns the first column that is not null or the default value
+# from Spark version 3.5.0
+# ifnull() - Returns col2 if col1 is null, or col1 otherwise.
+# nullif() - Returns null if col1 equals to col2, or col1 otherwise.
 df_null = get_pyspark_df_null()
 df_null.select(coalesce(df_null["a"], df_null["b"])).show()
 # +--------------+
