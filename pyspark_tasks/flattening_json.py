@@ -113,7 +113,6 @@ result.show()
 # |  1|    New York|      10001|Alice|           102|          450|
 # +---+------------+-----------+-----+--------------+-------------+
 
-
 # # 5. Save the Tabular Data:
 # # Write the resulting DataFrame to a tabular format such as CSV or Parquet:
 # flattened_df.write.csv("output_tabular_data.csv", header=True)
