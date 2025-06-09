@@ -163,11 +163,15 @@ print(hash(1.0))
 
 # tuple with list task
 data = (['bee'], 'pygen')
-data[0] = data[0] + ['geek']
+try:
+    data[0] = data[0] + ['geek']
+except Exception as exp:
+    print(exp)
+    # TypeError: 'tuple' object does not support item assignment
 # or
-# data[0] + = ['geek']
-print(data)
-# SyntaxError: invalid syntax
+# data[0] += ['geek']
+# print(data)
+# TypeError: 'tuple' object does not support item assignment
 
 # but it works
 data = (['bee'], 'pygen')
@@ -181,9 +185,11 @@ dct = {None: 0, True: 1, False: 0, (0, 1): 1}
 print(dct)
 # {None: 0, True: 1, False: 0, (0, 1): 1}
 
-dct = {(0, [1]): 1}
-print(dct)
-# TypeError: unhashable type: 'list'
+try:
+    dct = {(0, [1]): 1}
+except:
+    print(dct)
+    # TypeError: unhashable type: 'list'
 
 
 # infinite recursion
@@ -191,3 +197,19 @@ a = []
 a.append(a)
 print(a)
 # [[...]]
+
+
+# random
+import random
+
+# random(): Returns a random floating-point number between 0.0 (inclusive) and 1.0 (exclusive).
+number = random.random()
+print(number)
+# 0.3848767341685718
+print(number * 100)
+# randint() takes two arguments, a and b (includes both the start and end values), representing the start
+# and end of the range, respectively.
+# It is an alias for randrange(a, b + 1, 1).
+number_int = random.randint(0, 100)
+print(number_int)
+# 41
