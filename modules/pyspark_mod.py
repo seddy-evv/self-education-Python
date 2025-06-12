@@ -6,7 +6,7 @@ from pyspark import StorageLevel
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create_map, to_date, to_timestamp, \
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
-    current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc
+    current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -311,7 +311,7 @@ df.printSchema()
 #  |-- Age: long (nullable = true)
 
 # Select Columns
-# We can specify the colum name in two ways
+# We can specify the colum name in two ways (strings are case-insensitive e.g. namE)
 df.select("Name").show()
 # or
 df.select(df.Name).show()
@@ -795,14 +795,14 @@ df.withColumn("Name", when(df.Name == "Alice", "Alicia").otherwise(df.Name)).sho
 # current_date() - get current date
 df_date = get_pyspark_df_date()
 df_date.select("Name", expr("length(name)").alias("lenght of the name"), to_date("Date"), to_timestamp("Date"),
-               col("Date").cast("date"), current_date()).show()
-# +-------+------------------+-------------+-------------------+----------+--------------+
-# |   Name|lenght of the name|to_date(Date)| to_timestamp(Date)|      Date|current_date()|
-# +-------+------------------+-------------+-------------------+----------+--------------+
-# |  Alice|                 5|   1997-02-28|1997-02-28 10:30:00|1997-02-28|    2025-04-22|
-# |    Bob|                 3|   2000-02-28|2000-02-28 10:30:00|2000-02-28|    2025-04-22|
-# |Charlie|                 7|   2005-02-28|2005-02-28 10:30:00|2005-02-28|    2025-04-22|
-# +-------+------------------+-------------+-------------------+----------+--------------+
+               col("Date").cast("date"), date_format(col("Date"), "yyyy-MM").alias("yyyy-mm"), current_date()).show()
+# +-------+------------------+-------------+-------------------+----------+-------+--------------+
+# |   Name|lenght of the name|to_date(Date)| to_timestamp(Date)|      Date|yyyy-mm|current_date()|
+# +-------+------------------+-------------+-------------------+----------+-------+--------------+
+# |  Alice|                 5|   1997-02-28|1997-02-28 10:30:00|1997-02-28|1997-02|    2025-06-12|
+# |    Bob|                 3|   2000-02-28|2000-02-28 10:30:00|2000-02-28|2000-02|    2025-06-12|
+# |Charlie|                 7|   2005-02-28|2005-02-28 10:30:00|2005-02-28|2005-02|    2025-06-12|
+# +-------+------------------+-------------+-------------------+----------+-------+--------------+
 
 # create_map() - The create_map() function in Apache Spark is popularly used to convert the selected or all the
 # DataFrame columns to the MapType, similar to the Python Dictionary (Dict) object.
