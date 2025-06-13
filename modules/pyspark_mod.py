@@ -6,7 +6,8 @@ from pyspark import StorageLevel
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create_map, to_date, to_timestamp, \
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
-    current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format
+    current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format, substring_index, \
+    regexp_replace, upper, length, substring, trim, instr, split
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -714,6 +715,9 @@ df = spark.read.csv(f"/output-{current_time}.csv", header=True, inferSchema=True
 df = spark.read.format("csv").options(header=True, inferSchema=True).load(f"/output-{current_time}.csv")
 df.show()
 
+# Read CSV file without the schema, schema is StructType([StructField...])
+# df = spark.read.csv(f"/output-{current_time}.csv", header=False, schema=schema)
+
 # Read and Write Parquet
 df.write.parquet(f"/output-{current_time}.parquet")
 # or
@@ -791,8 +795,10 @@ df.withColumn("Name", when(df.Name == "Alice", "Alicia").otherwise(df.Name)).sho
 # expr() - Parses the expression string into the column that it represents. Expression defined in string.
 # to_date() - Converts a Column into pyspark.sql.types.DateType using the optionally specified format.
 # Equivalent to col.cast("date").
+# col(column_name).cast(dataType) or df.column_name.cast(dataType) - Casts the column into type dataType.
 # to_timestamp() - Converts a Column into pyspark.sql.types.TimestampType using the optionally specified format.
 # current_date() - get current date
+# date_format() - Converts a date/timestamp/string to a value of string in the format specified by the date format.
 df_date = get_pyspark_df_date()
 df_date.select("Name", expr("length(name)").alias("lenght of the name"), to_date("Date"), to_timestamp("Date"),
                col("Date").cast("date"), date_format(col("Date"), "yyyy-MM").alias("yyyy-mm"), current_date()).show()
@@ -816,6 +822,32 @@ df.select(create_map('Name', 'Age').alias("map"), concat_ws(' is ', 'Name', 'Age
 # |{Charlie -> 30}|Charlie is 30|
 # +---------------+-------------+
 
+# String operations:
+# substring_index() - Returns the substring from string str before count occurrences of the delimiter delim.
+# regexp_replace() - Replace all substrings of the specified string value that match regexp with replacement.
+# upper() - Converts a string expression to upper case.
+# length() - Computes the character length of string data or number of bytes of binary data.
+# substring() - Substring starts at pos and is of length len.
+# trim() - Trim the spaces from both ends for the specified string column.
+# instr() - Locate the position of the first occurrence of substr. The position is 1 based index.
+# split() - Splits str around matches of the given pattern.
+df.select(substring_index(col("Name"), "_", 1).alias("name_without_underscore"),
+          regexp_replace(col("Name"), r"\d", "").alias("name_without_digits"),
+          upper(col("Name")).alias("name_upper"), length(col("Name")).alias("name_length"),
+          substring(col("Name"), 1, 3).alias("name_substring"),
+          trim(col("Name")).alias("name_trim"),
+          instr(col("Name"), "_").alias("underscore_position"),
+          split(col("Name"), "_").alias("split_array"),
+          split(col("Name"), "_")[0].alias("split_name")
+          ).show()
+# +-------------+-------------------+----------+-----------+------+---------+-------------------+-----------+----------+
+# |name_substing|name_without_digits|name_upper|name_length|name_3|name_trim|underscore_position|split_array|split_name|
+# +-------------+-------------------+----------+-----------+------+---------+-------------------+-----------+----------+
+# |        Alice|             Alice_|   ALICE_1|          7|   Ali|  Alice_1|                  6| [Alice, 1]|     Alice|
+# |          Bob|               Bob_|     BOB_2|          5|   Bob|    Bob_2|                  4|   [Bob, 2]|       Bob|
+# |    Charlie3 |           Charlie | CHARLIE3 |          9|   Cha| Charlie3|                  0|[Charlie3 ]| Charlie3 |
+# +-------------+-------------------+----------+-----------+------+---------+-------------------+-----------+----------+
+
 # coalesce() - Returns the first column that is not null or the default value
 # from Spark version 3.5.0
 # ifnull() - Returns col2 if col1 is null, or col1 otherwise.
@@ -832,8 +864,6 @@ df_null.select(coalesce(df_null["a"], df_null["b"])).show()
 # +--------------+
 
 df_null.select('*', coalesce(df_null["a"], lit(0.0))).show()
-# similar to
-df.select("*", (col("Age") + lit(1)).alias("AgePlusOne")).show()
 # +----+----+----------------+
 # |   a|   b|coalesce(a, 0.0)|
 # +----+----+----------------+
@@ -1098,9 +1128,10 @@ aggregated_salted.show()
 
 # Step 3: Recombine the results by removing the salt
 # Extract the original key by splitting the salted key
-final_result = aggregated_salted.withColumn("original_key", col("salted_key").substr(1, 1)).groupBy("original_key") \
-                                .agg(sum("sum_value").alias("total_sum"), max("max_value").alias("max_value"),
-                                     (sum("sum_value") / sum("count")).alias("avg"))
+final_result = aggregated_salted.withColumn("original_key", substring_index(col("salted_key"), "_", 1))\
+                                .groupBy("original_key").agg(sum("sum_value").alias("total_sum"),
+                                                             max("max_value").alias("max_value"),
+                                                             (sum("sum_value") / sum("count")).alias("avg"))
 
 # Show the final aggregated result
 print("Final Aggregated Dataset (De-salted):")
