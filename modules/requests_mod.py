@@ -1,79 +1,125 @@
-from pyspark.sql import SparkSession, Row
-from pyspark.sql.functions import explode, split, col, lower, trim, count
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType
+# The requests library is used for making HTTP requests, enabling you to interact with APIs and web resources.
+import requests
 
-# Initialize a SparkSession
-spark = SparkSession.builder \
-        .appName("WordCount") \
-        .getOrCreate()
+# 1. requests.get(url, params=None, **kwargs)
+# Sends a GET request to the specified URL. Used to retrieve data from a server.
+# Important Parameters:
+# url		    Required. The url of the request
+# params		Optional. A dictionary, list of tuples or bytes to send as a query string. Default None
+# auth		    Optional. A tuple to enable a certain HTTP authentication. Default None
+# cert		    Optional. A String or Tuple specifying a cert file or key. Default None
+# cookies		Optional. A dictionary of cookies to send to the specified url. Default None
+# headers		Optional. A dictionary of HTTP headers to send to the specified url. Default None
+# proxies		Optional. A dictionary of the protocol to the proxy url. Default None
+# timeout		Optional. A number, or a tuple, indicating how many seconds to wait for the client to make a
+#                         connection and/or send a response. Default None which means the request will continue until
+#                         the connection is closed
 
-# Read plain text file into a DataFrame (lines are in the 'value' column)
-# df = spark.read.text("example.txt")
+response = requests.get("https://api.example.com/data", params={"key": "value"})
+print(response.status_code)  # HTTP status code
+print(response.json())       # Parse response JSON
 
-# or create test data
-data = [
-    ("""Hello World
-        Spark is amazing
-        Big Data is here
-        PySpark is fun
-        Spark and Big Data""", 1)
-    ]
-schema = StructType([
-    StructField("value", StringType(), True),
-    StructField("id", IntegerType(), True)
-])
-df = spark.createDataFrame(data, schema=schema)
+# 2. requests.post(url, data=None, json=None, **kwargs)
+# Sends a POST request to the specified URL. Typically used to send data to a server.
+#
+# Use 'data' for form-encoded data.
+# Use 'json' for JSON-encoded data.
+# Important Parameters:
+# url		    Required. The url of the request
+# data		    Optional. A dictionary, list of tuples, bytes or a file object to send to the specified url
+# json		    Optional. A JSON object to send to the specified url
+# files		    Optional. A dictionary of files to send to the specified url
+# auth		    Optional. A tuple to enable a certain HTTP authentication. Default None
+# cert		    Optional. A String or Tuple specifying a cert file or key. Default None
+# cookies		Optional. A dictionary of cookies to send to the specified url. Default None
+# headers		Optional. A dictionary of HTTP headers to send to the specified url. Default None
+# proxies		Optional. A dictionary of the protocol to the proxy url. Default None
+# timeout		Optional. A number, or a tuple, indicating how many seconds to wait for the client to make a
+#                         connection and/or send a response. Default None which means the request will continue until
+#                         the connection is closed
 
-# An additional method to create test data
-string_data = """Hello World
-                 Spark is amazing
-                 Big Data is here
-                 PySpark is fun
-                 Spark and Big Data"""
-data_list = string_data.split(",")
-schema = StructType([StructField("value", StringType(), True)])
-rdd = spark.sparkContext.parallelize(data_list).map(lambda x: Row(x))
-df = spark.createDataFrame(rdd, schema)
+# When making HTTP requests with the Python requests library, the Content-Type header specifies the format of the
+# data being sent in the request body. It's crucial for the server to correctly interpret the request.
+# The requests library usually sets the Content-Type header automatically based on the data being sent. However,
+# it can be explicitly set or overridden using the headers parameter in the request methods:
+# Setting Content-Type to application/json
+headers = {'Content-Type': 'application/json'}
+data = {'key': 'value'}
+response = requests.post('url', json=data, headers=headers)
 
-# Show the input DataFrame
-print("=== Input DataFrame ===")
-df.show(truncate=False)
+# Setting Content-Type to application/xml
+headers = {'Content-Type': 'application/xml'}
+xml_data = '<xml><key>value</key></xml>'
+response = requests.post('url', data=xml_data, headers=headers)
 
-# Step 1: Split lines into words
-# - Use `split()` to split each line into an array of words.
-# - Use `explode()` to flatten the array into individual rows (one word per row).
-words_df = df.select(
-    explode(
-        split(col("value"), r"\s+")  # Split on one or more spaces
-    ).alias("word")
-)
+# Sending form data
+headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+form_data = {'param1': 'value1', 'param2': 'value2'}
+response = requests.post('url', data=form_data, headers=headers)
 
-# Show the DataFrame with words
-print("=== Words DataFrame ===")
-words_df.show(truncate=False)
+# Sending files
+files = {'file': open('file.txt', 'rb')}
+response = requests.post('url', files=files) # Content-Type is automatically set to multipart/form-data
 
-# Step 2: Normalize the words
-# - Trim whitespace and convert to lowercase for consistency.
-normalized_words_df = words_df.select(
-    lower(trim(col("word"))).alias("word")
-)
+# Example for post request:
+payload = {"username": "user", "password": "123456"}
+response = requests.post("https://api.example.com/login", json=payload)
+print(response.status_code)
+print(response.json())
 
-# Show the normalized words DataFrame
-print("=== Normalized Words DataFrame ===")
-normalized_words_df.show(truncate=False)
+# 3. requests.put(url, data=None, **kwargs)
+# Sends a PUT request to update or replace a resource on the server.
+updated_data = {"name": "John", "age": 30}
+response = requests.put("https://api.example.com/users/1", json=updated_data)
+print(response.status_code)
+print(response.json())
 
-# Step 3: Count the occurrences of each word
-# - Group by the "word" column and apply the `count()` aggregation.
-word_count_df = normalized_words_df.groupBy("word").agg(
-    count("word").alias("count")
-)
+# 4. requests.delete(url, **kwargs)
+# Sends a DELETE request to delete a resource from the server (file, record etc).
+# Important Parameters:
+# url		    Required. The url of the request
+# auth		    Optional. A tuple to enable a certain HTTP authentication. Default None
+# cert		    Optional. A String or Tuple specifying a cert file or key. Default None
+# cookies		Optional. A dictionary of cookies to send to the specified url. Default None
+# headers		Optional. A dictionary of HTTP headers to send to the specified url. Default None
+# proxies		Optional. A dictionary of the protocol to the proxy url. Default None
+# stream		Optional. A Boolean indication if the response should be immediately downloaded (False) or streamed (True).
+# timeout		Optional. A number, or a tuple, indicating how many seconds to wait for the client to make a
+#                         connection and/or send a response. Default None which means the request will continue until
+#                         the connection is closed
 
-# Sort the results in descending order of the word count
-sorted_word_count_df = word_count_df.orderBy(col("count").desc())
+response = requests.delete("https://api.example.com/users/1")
+print(response.status_code)
 
-# Show the word count DataFrame
-print("=== Word Count DataFrame ===")
-sorted_word_count_df.show(truncate=False)
+# 5. requests.head(url, **kwargs)
+# Sends a HEAD request to retrieve headers for a resource without the response body.
+# Useful for checking metadata (like content type, size) or the status_code.
+response = requests.head("https://api.example.com/data")
+print(response.headers)  # Print response headers
 
-# Optionally, save the word count to a file
-# sorted_word_count_df.write.csv("word_count_output", header=True)
+# 6. requests.patch(url, data=None, **kwargs)
+# Sends a PATCH request to partially update a resource on the server.
+partial_update = {"age": 35}
+response = requests.patch("https://api.example.com/users/1", json=partial_update)
+print(response.status_code)
+print(response.json())
+
+# 7. requests.options(url, **kwargs)
+# Sends an OPTIONS request to describe the communication options available for a resource or server.
+response = requests.options("https://api.example.com/data")
+print(response.headers)  # Check what options the server supports
+
+# Additional Notes:
+# response.status_code: Gets the HTTP status code (e.g., 200 OK, 404 Not Found).
+# response.json(): Parses the response as JSON if applicable.
+# response.text: Returns the raw response content as a string.
+# response.headers: Access the response headers.
+
+# Summary of Methods:
+# requests.get: Retrieve data.
+# requests.post: Send data or create a resource.
+# requests.put: Update/replace a resource.
+# requests.delete: Remove a resource.
+# requests.head: Fetch headers only, no body.
+# requests.patch: Partially update a resource.
+# requests.options: Get communication options for a resource.
