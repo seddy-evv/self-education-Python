@@ -906,6 +906,8 @@ df_window.show()
 window_spec = Window.partitionBy("department").orderBy(df_window["salary"].desc())
 # for some cases we can use previous rows from df
 # window_spec = Window.orderBy(df["day"].asc()).rowsBetween(Window.unboundedPreceding, Window.currentRow)
+# or consider rows with values are within some range
+# window_spec = Window.partitionBy("partition_column").orderBy("order_column").rangeBetween(-2, 2)
 
 # row_number, rank, dense_rank, percent_rank, ntile
 df_window.withColumn("row_number", row_number().over(window_spec)).show()
