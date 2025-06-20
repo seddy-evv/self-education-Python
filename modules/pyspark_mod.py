@@ -385,7 +385,7 @@ df.select("*", (col("Age") + lit(1)).alias("AgePlusOne")).show()
 # |Charlie| 30|        31|
 # +-------+---+----------+
 
-# Replace Column Values
+# Replace Column Name
 df.withColumnRenamed("Name", "New Name").show()
 # +--------+---+
 # |New Name|Age|
@@ -831,10 +831,10 @@ df.select(create_map('Name', 'Age').alias("map"), concat_ws(' is ', 'Name', 'Age
 # trim() - Trim the spaces from both ends for the specified string column.
 # instr() - Locate the position of the first occurrence of substr. The position is 1 based index.
 # split() - Splits str around matches of the given pattern.
-df.select(substring_index(col("Name"), "_", 1).alias("name_without_underscore"),
+df.select(substring_index(col("Name"), "_", 1).alias("name_substring"),
           regexp_replace(col("Name"), r"\d", "").alias("name_without_digits"),
           upper(col("Name")).alias("name_upper"), length(col("Name")).alias("name_length"),
-          substring(col("Name"), 1, 3).alias("name_substring"),
+          substring(col("Name"), 1, 3).alias("name_3"),
           trim(col("Name")).alias("name_trim"),
           instr(col("Name"), "_").alias("underscore_position"),
           split(col("Name"), "_").alias("split_array"),
