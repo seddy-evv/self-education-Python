@@ -36,10 +36,10 @@ df = spark.createDataFrame(data, schema)
 
 df.show()
 
-df_hotel_agg = df.groupBy(df.event_type, to_date(df.ts).alias("day")).agg(count(to_date(df.ts)).alias("count_ts"))
+df_hotel_agg = df.groupBy(df.event_type, to_date(df.ts).alias("day")).agg(count(df.user_id).alias("count_id"))
 
-df_hotel_sum = df_hotel_agg.select(df_hotel_agg.day, when(df_hotel_agg.event_type == "IN", df_hotel_agg.count_ts)
-                                   .otherwise(when(df_hotel_agg.event_type == "OUT", - df_hotel_agg.count_ts)
+df_hotel_sum = df_hotel_agg.select(df_hotel_agg.day, when(df_hotel_agg.event_type == "IN", df_hotel_agg.count_id)
+                                   .otherwise(when(df_hotel_agg.event_type == "OUT", - df_hotel_agg.count_id)
                                    .otherwise(0)).alias("res")).groupBy(col("day")).agg(sum(col("res")).alias("sum_res"))
 
 window_spec = Window.orderBy(df_hotel_sum["day"].asc()).rowsBetween(Window.unboundedPreceding, Window.currentRow)
