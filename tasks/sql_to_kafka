@@ -1,0 +1,145 @@
+# To migrate data from a 1TB SQL table to a Kafka topic, we need to extract data from the SQL database and publish
+# messages to Kafka. The script below demonstrates how to perform this task using Python, leveraging libraries
+# like pymysql (or psycopg2 for PostgreSQL, etc.) for database interaction and confluent-kafka for Kafka interaction.
+import json
+import pymysql  # For MySQL/MariaDB. Use a different library for other databases.
+from confluent_kafka import Producer
+
+# Database and Kafka configuration
+DB_CONFIG = {
+    'host': 'your_database_host',
+    'user': 'your_database_user',
+    'password': 'your_database_password',
+    'database': 'your_database_name',
+}
+KAFKA_CONFIG = {
+    'bootstrap.servers': 'your_kafka_broker',  # e.g., "localhost:9092"
+}
+TOPIC_NAME = 'your_topic_name'
+TABLE_NAME = 'your_table_name'
+
+# Batch size for data migration
+BATCH_SIZE = 10000
+
+
+def create_kafka_producer():
+    """
+    Create and return a Kafka producer instance.
+    """
+    producer = Producer(KAFKA_CONFIG)
+    return producer
+
+
+def fetch_data_in_batches(db_connection, offset, batch_size):
+    """
+    Fetch a batch of data from the SQL table.
+    """
+    query = f"SELECT * FROM {TABLE_NAME} LIMIT {batch_size} OFFSET {offset}"
+    cursor = db_connection.cursor(pymysql.cursors.DictCursor)  # Use DictCursor for dict-like results
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    cursor.close()
+    return rows
+
+
+def fetch_data_generator(db_connection, batch_size):
+    """
+        A generator function to stream data from the database table in chunks (batches).
+        """
+    offset = 0
+    while True:
+        # Fetch a batch of rows from the database using LIMIT and OFFSET
+        query = f"SELECT * FROM {TABLE_NAME} LIMIT {batch_size} OFFSET {offset}"
+        cursor = db_connection.cursor(pymysql.cursors.DictCursor)  # DictCursor to return rows as dictionaries
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+        # If no more rows, stop the generator
+        if not rows:
+            cursor.close()
+            break
+
+        # Yield the batch of rows
+        yield rows
+
+        # Update the offset for the next batch
+        offset += batch_size
+
+        # Close the cursor to free resources
+        cursor.close()
+
+
+def produce_to_kafka(producer, topic, rows):
+    """
+    Send rows to Kafka topic.
+    """
+    for row in rows:
+        producer.produce(topic, key=None, value=json.dumps(row))
+    producer.flush()  # Ensure all messages are sent
+
+
+def main():
+    # Connect to the database
+    db_connection = pymysql.connect(**DB_CONFIG)
+
+    # Create a Kafka producer
+    producer = create_kafka_producer()
+
+    try:
+        offset = 0
+        while True:
+            # Fetch a batch of data
+            rows = fetch_data_in_batches(db_connection, offset, BATCH_SIZE)
+
+            if not rows:  # No more rows to process
+                print("All data has been migrated.")
+                break
+
+            # Produce rows to Kafka
+            print(f"Migrating {len(rows)} rows to Kafka...")
+            produce_to_kafka(producer, TOPIC_NAME, rows)
+
+            # Increment the offset for the next batch
+            offset += BATCH_SIZE
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+    finally:
+        # Close the database connection
+        db_connection.close()
+        print("Database connection closed.")
+
+
+def main_generator():
+    # Step 1: Connect to the database
+    db_connection = pymysql.connect(**DB_CONFIG)
+
+    # Step 2: Create a Kafka producer
+    producer = create_kafka_producer()
+
+    try:
+        # Step 3: Initialize the data generator
+        generator = fetch_data_generator(db_connection, BATCH_SIZE)
+
+        # Step 4: Process and publish each batch of rows to Kafka
+        for batch in generator:
+            print(f"Migrating {len(batch)} rows to Kafka...")
+            produce_to_kafka(producer, TOPIC_NAME, batch)
+
+        print("All data has been migrated successfully.")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+    finally:
+        # Step 5: Close the database connection
+        db_connection.close()
+        print("Database connection closed.")
+
+
+if __name__ == "__main__":
+    # We can solve this task with cycle:
+    main()
+    # Or with generator:
+    main_generator()
