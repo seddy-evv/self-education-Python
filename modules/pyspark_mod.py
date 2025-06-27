@@ -8,7 +8,7 @@ from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
     current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format, substring_index, \
     regexp_replace, upper, length, substring, trim, instr, split
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType
 from pyspark.sql.window import Window
 import pandas as pd
 import time
@@ -873,7 +873,7 @@ df_null.select('*', coalesce(df_null["a"], lit(0.0))).show()
 # |   3|   3|               3|
 # +----+----+----------------+
 
-# udf() - create and use an udf, user memory is in use
+# udf() - create and use an udf, user memory is in use, IntegerType() - return type
 def increment_age(age):
     return age + 1
 
