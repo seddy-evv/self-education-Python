@@ -132,6 +132,15 @@ print_duplicates(lst_)
 # 2
 
 
+"""create dict {'symbol': ['symbol', 'symbol', 'symbol']}"""
+str_ = 'asdfasdfasdfsdf'
+counts_dict = {}
+for char in str_:
+  counts_dict.setdefault(char, []).append(char)
+print(counts_dict)
+# {'a': ['a', 'a', 'a'], 's': ['s', 's', 's', 's'], 'd': ['d', 'd', 'd', 'd'], 'f': ['f', 'f', 'f', 'f']}
+
+
 """back slice"""
 ex = [1, 0, 2, 0, 3]
 print(ex[-1:2:-1])
