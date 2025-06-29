@@ -1,6 +1,9 @@
 """functions"""
+
+
 def sum_calc(a_atr, b_atr):
     return a_atr + b_atr
+
 
 print(sum_calc(1, 2))
 # 3
@@ -13,7 +16,7 @@ print(lambda_func(3, 2))
 
 """exceptions"""
 try:
-    b = 1/0
+    b = 1 / 0
 except Exception as exp:
     print("exception", exp)
 else:
@@ -24,10 +27,13 @@ finally:
 
 
 """str functions"""
+
+
 def str_sepr(exmp):
     words = exmp.split()
     out = ".".join(words)
     print(out)
+
 
 str_sepr("My name is Anatol")
 # My.name.is.Anatol
@@ -52,6 +58,8 @@ print(lst)
 
 
 """decorator"""
+
+
 def dec_func(func):
     # some code
     def wrapper(*args, **kwargs):
@@ -59,11 +67,14 @@ def dec_func(func):
         result = func(*args, **kwargs)
         print(result)
         return result
+
     return wrapper
+
 
 @dec_func
 def my_func():
     return "hi"
+
 
 my_func()
 # 123
@@ -85,8 +96,9 @@ b = 2
 
 a, b = b, a
 
-
 """palindrome"""
+
+
 def palindrome(origin_number):
     total_number = 0
     num = origin_number
@@ -98,6 +110,7 @@ def palindrome(origin_number):
         return True
     else:
         return False
+
 
 print(palindrome(187781))
 # True
@@ -119,6 +132,8 @@ print(ex)
 
 """print duplicates"""
 lst_ = [1, 2, 4, 6, 2, 1, 3, 2]
+
+
 def print_duplicates(lst):
     duplicates = {}
     for n in lst:
@@ -126,6 +141,7 @@ def print_duplicates(lst):
     for key, value in duplicates.items():
         if value > 1:
             print(key)
+
 
 print_duplicates(lst_)
 # 1
@@ -136,9 +152,28 @@ print_duplicates(lst_)
 str_ = 'asdfasdfasdfsdf'
 counts_dict = {}
 for char in str_:
-  counts_dict.setdefault(char, []).append(char)
+    counts_dict.setdefault(char, []).append(char)
 print(counts_dict)
 # {'a': ['a', 'a', 'a'], 's': ['s', 's', 's', 's'], 'd': ['d', 'd', 'd', 'd'], 'f': ['f', 'f', 'f', 'f']}
+
+
+"""Given two integers A and B, print all numbers from A to B inclusive, in ascending order if A < B, or in
+# descending order otherwise."""
+a = 7
+b = 2
+
+if a < b:
+    for i in range(a, b + 1):
+        print(i)
+elif a > b:
+    for i in range(a, b - 1, -1):
+        print(i)
+# 7
+# 6
+# 5
+# 4
+# 3
+# 2
 
 
 """back slice"""
@@ -226,7 +261,6 @@ try:
 except Exception as exp:
     print(exp)
     # TypeError: unhashable type: 'list'
-
 
 """infinite recursion"""
 a = []
