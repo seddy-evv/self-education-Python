@@ -1,6 +1,4 @@
 """functions"""
-
-
 def sum_calc(a_atr, b_atr):
     return a_atr + b_atr
 
@@ -27,13 +25,10 @@ finally:
 
 
 """str functions"""
-
-
 def str_sepr(exmp):
     words = exmp.split()
     out = ".".join(words)
     print(out)
-
 
 str_sepr("My name is Anatol")
 # My.name.is.Anatol
@@ -58,8 +53,6 @@ print(lst)
 
 
 """decorator"""
-
-
 def dec_func(func):
     # some code
     def wrapper(*args, **kwargs):
@@ -70,11 +63,9 @@ def dec_func(func):
 
     return wrapper
 
-
 @dec_func
 def my_func():
     return "hi"
-
 
 my_func()
 # 123
@@ -90,15 +81,15 @@ except:
     print("no file")
 # no file
 
+
 """reassign variables"""
 a = 1
 b = 2
 
 a, b = b, a
 
+
 """palindrome"""
-
-
 def palindrome(origin_number):
     total_number = 0
     num = origin_number
@@ -110,7 +101,6 @@ def palindrome(origin_number):
         return True
     else:
         return False
-
 
 print(palindrome(187781))
 # True
@@ -132,8 +122,6 @@ print(ex)
 
 """print duplicates"""
 lst_ = [1, 2, 4, 6, 2, 1, 3, 2]
-
-
 def print_duplicates(lst):
     duplicates = {}
     for n in lst:
@@ -261,6 +249,7 @@ try:
 except Exception as exp:
     print(exp)
     # TypeError: unhashable type: 'list'
+
 
 """infinite recursion"""
 a = []
