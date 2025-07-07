@@ -1270,6 +1270,7 @@ small_dataset.show()
 # floor() - returns the nearest integer that is less than or equal to given value.
 # rand() - Generates a random column with samples uniformly distributed in [0.0, 1.0)
 # explode() - returns a new row for each element in the given array or map.
+# posexplode() - returns a new row for each element with position in the given array or map.
 salt_range = 3
 large_salted = large_dataset.withColumn("salt", floor(rand() * salt_range)) \
                             .withColumn("salted_key", concat(col("join_key"), lit("_"), col("salt")))
