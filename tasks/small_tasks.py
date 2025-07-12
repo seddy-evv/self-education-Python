@@ -274,3 +274,11 @@ print(number * 100)
 number_int = random.randint(0, 100)
 print(number_int)
 # 41
+
+
+"""range"""
+a = range(10)
+print(a[:5])
+# range(0, 5)
+print(a[5])
+# 5
