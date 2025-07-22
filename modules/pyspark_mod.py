@@ -565,6 +565,9 @@ df.persist(StorageLevel.MEMORY_AND_DISK)  # Equivalent to df.cache()
 
 
 # PySpark SQL
+# df = spark.table("my_table")
+# is similar to
+# df = spark.sql("SELECT * FROM my_table")
 
 # Register Temp View and Execute SQL
 df_people = get_pyspark_df()
