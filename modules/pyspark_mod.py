@@ -610,6 +610,10 @@ spark.sql("SELECT * FROM people WHERE Age > (SELECT AVG(AGE) FROM people)").show
 # |Charlie| 30|
 # +-------+---+
 
+# Read a delta table from path
+spark.sql("SELECT * FROM delta.`/path/to/delta_table`").show()
+
+
 # PySpark DataFrame Joins
 
 df1 = get_pyspark_df_join1()
