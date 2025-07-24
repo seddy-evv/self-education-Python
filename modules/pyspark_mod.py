@@ -64,6 +64,12 @@ def get_pyspark_df_join2():
 
     return df_join2
 
+def get_pyspark_df_join3():
+    data3 = [("Mike", "M"), ("Bob", "M")]
+    df_join3 = spark.createDataFrame(data3, ["Name", "Gender"])
+
+    return df_join3
+
 def get_pyspark_df_date():
     data = [("Alice", 28, '1997-02-28 10:30:00'), ("Bob", 25, '2000-02-28 10:30:00'),
             ("Charlie", 30, '2005-02-28 10:30:00')]
@@ -618,6 +624,7 @@ spark.sql("SELECT * FROM delta.`/path/to/delta_table`").show()
 
 df1 = get_pyspark_df_join1()
 df2 = get_pyspark_df_join2()
+df3 = get_pyspark_df_join3()
 
 # Inner Join
 inner_join = df1.join(df2, on="Name", how="inner")
@@ -680,6 +687,15 @@ broadcast_join.show()
 # |Alice| 28|     F|
 # |  Bob| 25|     M|
 # +-----+---+------+
+
+# Get a new df containing rows in the df2 but not in df3 while preserving duplicates:
+df2.exceptAll(df3).show()
+# +-------+------+
+# |   Name|Gender|
+# +-------+------+
+# |  Alice|     F|
+# |Charlie|     M|
+# +-------+------+
 
 
 # PySpark File I/O
