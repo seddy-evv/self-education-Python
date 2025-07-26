@@ -7,8 +7,8 @@ spark = SparkSession.builder.appName("Databricks Examples").master("local").getO
 # READ AND WRITE TO DELTA TABLE (for Databricks we can omit delta format option):
 # Create
 data = [
-  ("Alice", 28, 1990), 
-  ("Bob", 25, 1991), 
+  ("Alice", 28, 1990),
+  ("Bob", 25, 1991),
   ("Charlie", 30, 1991)
   ]
 df = spark.createDataFrame(data, schema=["Name", "Age", "Year"])
@@ -16,9 +16,9 @@ df = spark.createDataFrame(data, schema=["Name", "Age", "Year"])
 # Write
 # .option("mergeSchema", "true") - allows to enable schema evolution, and we can add additional columns with append mode
 # .option("overwriteSchema", "true")  - allows add partitions and replace the schema, we should use it with overwrite mode
-# .mode() - append, overwrite, error(default), ignore. 
+# .mode() - append, overwrite, error(default), ignore.
 df.write.format("delta") \
-.mode("append") \ 
+.mode("append") \
 .partitionBy("date") \
 .option("mergeSchema", "true").saveAsTable("my_table")
 # or
@@ -33,16 +33,22 @@ df = spark.read.format("delta").load("path/to/delta_table")
 df = spark.table("my_table")
 
 # Delta table as a streaming source
-df = (spark.readStream
-      .format("delta")
-      .schema(schema)
-      .table("source_table") | .load("/delta/events"))
+df = spark.readStream \
+      .format("delta") \
+      .schema(schema) \
+      .table("source_table")
+# or
+df = spark.readStream \
+      .format("delta") \
+      .schema(schema) \
+      .load("/delta/events")
 
 # Delta table as a streaming sink
-(df.writeStream.format("delta")
- .outputMode("append"|"update"|"complete")
- .option("checkpopintLocation", "path/to/checkpoints")
- .trigger(once=True|processingTime="10 seconds").table("my_"))
+# outputMode and trigger check pyspark_mod.py
+df.writeStream.format("delta") \
+ .outputMode("append") \
+ .option("checkpopintLocation", "path/to/checkpoints") \
+ .trigger(once=True).table("my_table")
 
 
 # CONVERT PARQUET TO DELTA LAKE
@@ -54,7 +60,7 @@ spark.sql("CONVERT TO DELTA parquet.`/path/to/table` [PARTITIONED BY (col_name1 
 
 
 # WORKING WITH DELTA TABLES
-# A DeltaTable is the entry point for interacting with tables programmaticaly in Python 
+# A DeltaTable is the entry point for interacting with tables programmaticaly in Python
 delta_table = DeltaTable.forName(spark, tableName)
 delta_table = DeltaTable.forPath(spark, "delta.`path/to/table`")
 
@@ -120,7 +126,7 @@ spark.sql("""
 
 # Insert with deduplication using MERGE
 (deltaTable.alias("logs").merge(
-    newDedupledLogs.alias("newDedupledLogs"), 
+    newDedupledLogs.alias("newDedupledLogs"),
     "logs.uniqueId = newDedupledLogs.uniqueId")
   .whenNotMatchedInsertAll()
  .execute()
@@ -186,7 +192,7 @@ spark.sql("RESTORE TABLE my_table TO TIMESTAMP AS OF '2020-12-18'")
 spark.sql("""ALTER TABLE my_table SET TBLPROPERTIES (
   delta.logRetentionDuration = 'interval 30 days'
   delta.deletedFileRetentionDuration = 'interval 7 days'
-)""") 
+)""")
 
 # CREATE AND QUERY DELTA TABLES
 # Create and use managed database
