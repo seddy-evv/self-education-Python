@@ -1,4 +1,4 @@
-from delta.tables import *
+from delta.tables import DeltaTable
 from pyspark.sql.functions import col, lit
 from pyspark.sql import SparkSession
 
@@ -60,8 +60,8 @@ spark.sql("CONVERT TO DELTA parquet.`/path/to/table` [PARTITIONED BY (col_name1 
 
 
 # WORKING WITH DELTA TABLES
-# A DeltaTable is the entry point for interacting with tables programmaticaly in Python
-delta_table = DeltaTable.forName(spark, tableName)
+# A DeltaTable is the entry point for interacting with tables programmatically in Python
+delta_table = DeltaTable.forName(spark, "my_table")
 delta_table = DeltaTable.forPath(spark, "delta.`path/to/table`")
 
 
@@ -78,7 +78,7 @@ delta_table.update(condition="eventType = 'clk'", set={"eventType": "'click'"})
 # or
 delta_table.update(condition=col("eventType") == "clk", set={"eventType": lit("click")})
 # or
-spark.sql("UPDATE tableName SET event = 'click' WHERE event = 'clk'")
+spark.sql("UPDATE my_table SET event = 'click' WHERE event = 'clk'")
 
 # Insert values directly into table
 spark.sql("""
@@ -86,7 +86,6 @@ spark.sql("""
               (8003, "Kim", "2023-01-01", 3),
               (8004, "Tim", "2023-01-01", 4)
           """)
-
 
 # Insert using SELECT statement
 spark.sql("INSERT INTO my_table SELECT * FROM sourceTable")
