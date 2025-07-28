@@ -11,7 +11,16 @@ data = [
   ("Bob", 25, 1991),
   ("Charlie", 30, 1991)
   ]
-df = spark.createDataFrame(data, schema=["Name", "Age", "Year"])
+
+schema = ["Name", "Age", "Year"]
+df = spark.createDataFrame(data, schema=schema)
+
+updates_data = [
+  ("Alice", 28, 1990),
+  ("Bob", 25, 1991),
+  ("Charlie", 30, 1991)
+  ]
+updates_df = spark.createDataFrame(updates_data, schema=schema)
 
 # Write
 # .option("mergeSchema", "true") - allows to enable schema evolution, and we can add additional columns with append mode
@@ -62,6 +71,7 @@ spark.sql("CONVERT TO DELTA parquet.`/path/to/table` [PARTITIONED BY (col_name1 
 # WORKING WITH DELTA TABLES
 # A DeltaTable is the entry point for interacting with tables programmatically in Python
 delta_table = DeltaTable.forName(spark, "my_table")
+# or
 delta_table = DeltaTable.forPath(spark, "delta.`path/to/table`")
 
 
@@ -91,7 +101,10 @@ spark.sql("""
 spark.sql("INSERT INTO my_table SELECT * FROM sourceTable")
 
 # Replace all data in the table with new values
-spark.sql("INSERT OVERWRITE my_table VALUES(...)")
+spark.sql("""INSERT OVERWRITE my_table VALUES
+                (8003, "Kim", "2023-01-01", 3),
+                (8004, "Tim", "2023-01-01", 4)
+          """)
 
 # Upsert (update + insert) using MERGE
 # Available options:
@@ -124,8 +137,8 @@ spark.sql("""
           """)
 
 # Insert with deduplication using MERGE
-(deltaTable.alias("logs").merge(
-    newDedupledLogs.alias("newDedupledLogs"),
+(delta_table.alias("logs").merge(
+    updates_df.alias("newDedupledLogs"),
     "logs.uniqueId = newDedupledLogs.uniqueId")
   .whenNotMatchedInsertAll()
  .execute()
@@ -134,7 +147,7 @@ spark.sql("""
 spark.sql("""
           MERGE INTO logs
           USING newDedupledLogs
-          ON logs.uniqueId = newDedupledLogs.uniqueId
+          ON logs.eventId = newDedupledLogs.eventId
           WHEN NOT MATCHED 
             THEN INSERT *
           """)
@@ -158,7 +171,7 @@ spark.sql("ALTER TABLE my_table DROP CONSTRAINT dateWithinRange")
 
 # TIME TRAVEL
 # View transaction log
-fullHistoryDF = deltaTable.history()
+fullHistoryDF = delta_table.history()
 # or
 fullHistoryDF = spark.sql("DESCRIBE HISTORY my_table")
 
@@ -179,8 +192,8 @@ df1.exceptAll(df2).show()
 spark.sql("SELECT * FROM my_table VERSION AS OF 2 EXCEPT ALL SELECT * FROM my_table VERSION AS OF 1")
 
 # Rollback a table by version or timestamp
-deltaTable.restoreToVersion(2)
-deltaTable.resoreToTimestamp("2020-12-18")
+delta_table.restoreToVersion(2)
+delta_table.resoreToTimestamp("2020-12-18")
 # or
 spark.sql("RESTORE TABLE my_table TO VERSION AS OF 0")
 spark.sql("RESTORE TABLE my_table TO TIMESTAMP AS OF '2020-12-18'")
