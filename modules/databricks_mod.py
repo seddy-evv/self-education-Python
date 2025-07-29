@@ -26,15 +26,24 @@ updates_df = spark.createDataFrame(updates_data, schema=schema)
 # .option("mergeSchema", "true") - allows to enable schema evolution, and we can add additional columns with append mode
 # .option("overwriteSchema", "true")  - allows add partitions and replace the schema, we should use it with overwrite mode
 # .mode() - append, overwrite, error(default), ignore.
+# create delta managed table in the Hive metastore catalog
 df.write.format("delta") \
-.mode("append") \
-.partitionBy("date") \
-.option("mergeSchema", "true").saveAsTable("my_table")
-# or
+    .mode("append") \
+    .partitionBy("date") \
+    .option("mergeSchema", "true").saveAsTable("my_table")
+# create delta external table in the Hive metastore catalog
 df.write.format("delta") \
-.mode("append") \
-.partitionBy("date") \
-.option("mergeSchema", "true").save("path/to/delta_table")
+    .mode("append") \
+    .partitionBy("date") \
+    .option("path", "path/to/delta_table") \
+    .option("mergeSchema", "true").saveAsTable("my_table")
+# or just save delta table without creation any tables in the Hive metastore catalog
+df.write.format("delta") \
+    .mode("append") \
+    .partitionBy("date") \
+    .option("mergeSchema", "true").save("path/to/delta_table")
+# if we need to create table in the Hive metastore based on the table above:
+
 
 # Read
 df = spark.read.format("delta").load("path/to/delta_table")
@@ -160,6 +169,9 @@ spark.sql("""
           )
           """)
 
+# Alter table schema - drop column, this operation might be not supported for your Delta table
+spark.sql("ALTER TABLE my_table DROP COLUMN new_column")
+
 # Alter table - add constraint
 # Add "Not NULL" constraint:
 spark.sql("ALTER TABLE my_table CHANGE COLUMN col_name SET NOT NULL")
@@ -212,7 +224,7 @@ spark.sql("""ALTER TABLE my_table SET TBLPROPERTIES (
 # Default database is named "default"
 spark.sql("DROP DATABASE IF EXISTS dbName;")
 spark.sql("CREATE DATABASE dbname;")
-spark.sql("USE dbName";)  # This command avoids having to specify dbNname.tableName every time instead of just tableName
+spark.sql("USE dbName;")  # This command avoids having to specify dbNname.tableName every time instead of just tableName
 
 # Query Delta table by name or path
 df = spark.sql("SELECT * FROM [dbname.]my_table")
@@ -239,7 +251,7 @@ spark.sql("""
           [LOCATION `path/to/table`] -- for external tables
           """)
 
-# Copy new data into Delta table (with indepotent retries)
+# Copy new data into Delta table (with idempotent retries)
 spark.sql("""
           COPY INTO [dbName.] targetTable
           FROM (SELECT * FROM "/path/to/table")
@@ -253,19 +265,27 @@ spark.sql("DESCRIBE DETAIL my_table")
 spark.sql("DESCRIBE FORMATTED my_table")
 
 # Compact old files with Vacuum
-deltaTable.vacuum() # vacuum files older than default retention period (7 days)
+delta_table.vacuum()  # vacuum files older than default retention period (7 days)
 # or
 # DRY RUN - Return a list of up to 1000 files to be deleted.
 spark.sql("VACUUM my_table [RETAIN num HOURS] [DRY RUN]")
 
+# The ANALYZE TABLE statement collects estimated statistics about a specific table or all tables in a specified schema.
+# These statistics are used by the query optimizer to generate an optimal query plan.
+spark.sql("ANALYZE TABLE my_table COMPUTE STATISTICS")
+
+# The REFRESH TABLE invalidates the cached entries for Apache Spark cache, which include data and metadata of the
+# given table or view. This is useful for tables created from csv or parquet files.
+spark.sql("REFRESH TABLE books_csv;")
+
 # Clone a Delta table
-deltaTable = DeltaTable.forName(spark, "source_table")
-deltaTable.clone(target="target_table", isShallow=True, replace=False) # clone the source at latest version
+delta_table = DeltaTable.forName(spark, "source_table")
+delta_table.clone(target="target_table", isShallow=True, replace=False) # clone the source at latest version
 # or
 spark.sql("CREATE TABLE target_table [SHALLOW | DEEP] CLONE source_table [VERSION AS OF 0] LOCATION 'path/to/delta_table';")
 
 # Get DataFrame representation of a Delta table
-df = deltaTable.toDF()
+df = delta_table.toDF()
 
 
 # PERFOMANCE OPTIMIZATIONS
@@ -282,3 +302,8 @@ spark.sql("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeW
 spark.sql("CACHE SELECT * FROM my_table")
 # or
 spark.sql("CACHE SELECT colA, colB FROM my_table WHERE colA > 0")
+
+
+# UNITY CATALOG
+# Grant privileges
+spark.sql("GRANT privilege_type ON securable_object TO principal")
