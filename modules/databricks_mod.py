@@ -5,7 +5,7 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName("Databricks Examples").master("local").getOrCreate()
 
 # READ AND WRITE TO DELTA TABLE (for Databricks we can omit delta format option):
-# Create
+# Create df
 data = [
   ("Alice", 28, 1990),
   ("Bob", 25, 1991),
@@ -22,16 +22,29 @@ updates_data = [
   ]
 updates_df = spark.createDataFrame(updates_data, schema=schema)
 
+# Create empty delta table in the Hive metastore
+spark.sql("""
+    CREATE TABLE my_table
+    (
+        Name STRING NOT NULL,
+        Age INT,
+        Year INT
+    )
+    USING DELTA
+""")
+
 # Write
 # .option("mergeSchema", "true") - allows to enable schema evolution, and we can add additional columns with append mode
 # .option("overwriteSchema", "true")  - allows add partitions and replace the schema, we should use it with overwrite mode
 # .mode() - append, overwrite, error(default), ignore.
+# .clusterBy() - Databricks feature from Runtime 15.2 and above, can be used with .option(“clusterByAuto”, “true”) or
+# just Auto. Clustering is not compatible with partitioning or ZORDER.
 # create delta managed table in the Hive metastore catalog
 df.write.format("delta") \
     .mode("append") \
-    .partitionBy("date") \
+    .clusterBy("col1") \
     .option("mergeSchema", "true").saveAsTable("my_table")
-# create delta external table in the Hive metastore catalog
+# create delta external table in the Hive metastore catalog, path might be cloud storage url
 df.write.format("delta") \
     .mode("append") \
     .partitionBy("date") \
@@ -43,7 +56,7 @@ df.write.format("delta") \
     .partitionBy("date") \
     .option("mergeSchema", "true").save("path/to/delta_table")
 # if we need to create table in the Hive metastore based on the table above:
-
+spark.sql("CREATE TABLE p USING DELTA LOCATION 'path/to/delta_table'")
 
 # Read
 df = spark.read.format("delta").load("path/to/delta_table")
@@ -82,7 +95,13 @@ spark.sql("CONVERT TO DELTA parquet.`/path/to/table` [PARTITIONED BY (col_name1 
 delta_table = DeltaTable.forName(spark, "my_table")
 # or
 delta_table = DeltaTable.forPath(spark, "delta.`path/to/table`")
-
+# or empty Delta table
+(DeltaTable.create()
+ .tableName("my_table")
+ .addColumn("Name", dataType="STRING")
+ .addColumn("Age", dataType="INT")
+ .addColumn("Year", dataType="INT")
+ .execute())
 
 # DELTA LAKE DDL/DML: DELETES, DELETES, INSERTS, MERGES
 # Delete rows:
@@ -238,7 +257,7 @@ spark.sql("""
               date DATE,
               int_rate FLOAT)
           USING DELTA
-          [LOCATION /path/to/delta_table]  -- optional for external tables
+          [LOCATION /path/to/delta_table]  -- optional for external tables, path might be cloud storage url
           [PARTITION BY (time, date)] -- optional for tables with partitions
           """)
 
@@ -248,7 +267,7 @@ spark.sql("""
           CREATE TABLE [dbname.] my_table
           USING DELTA
           AS SELECT * FROM tableName| parquet.`path/to/data`
-          [LOCATION `path/to/table`] -- for external tables
+          [LOCATION `path/to/table`] -- for external tables, path might be cloud storage url
           """)
 
 # Copy new data into Delta table (with idempotent retries)
