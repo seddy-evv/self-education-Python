@@ -138,18 +138,18 @@ spark.sql("""INSERT OVERWRITE my_table VALUES
 # Available options:
 # .whenMatchedUpdate(), .whenMatchedUpdateAll(), .whenNotMatchedInsert(), .whenMatchedDelete()
 (delta_table.alias("target").merge(
-    source = updates_df.alias("updates"),
-    condition = "target.eventId = updates.eventId")
+    source=updates_df.alias("updates"),
+    condition="target.eventId = updates.eventId")
  .whenMatchedUpdateAll()
  .whenNotMatchedInsert(
-     values = {
-         "date": "updates.date",
-         "eventId": "updates.eventId",
-         "data": "updates.data",
-         "count": 1
-     }
- ).execute()
-)
+    values={
+        "date": "updates.date",
+        "eventId": "updates.eventId",
+        "data": "updates.data",
+        "count": 1
+    }
+).execute()
+ )
 # or
 spark.sql("""
           MERGE INTO target
@@ -307,7 +307,7 @@ spark.sql("CREATE TABLE target_table [SHALLOW | DEEP] CLONE source_table [VERSIO
 df = delta_table.toDF()
 
 
-# PERFOMANCE OPTIMIZATIONS
+# PERFORMANCE OPTIMIZATIONS
 # Compact data files with Optimize and Z-Order
 spark.sql("OPTIMIZE my_table [ZORDER BY (colA, colB)]")
 
