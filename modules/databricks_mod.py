@@ -96,12 +96,12 @@ delta_table = DeltaTable.forName(spark, "my_table")
 # or
 delta_table = DeltaTable.forPath(spark, "delta.`path/to/table`")
 # or empty Delta table
-(DeltaTable.create()
- .tableName("my_table")
- .addColumn("Name", dataType="STRING")
- .addColumn("Age", dataType="INT")
- .addColumn("Year", dataType="INT")
- .execute())
+DeltaTable.create() \
+ .tableName("my_table") \
+ .addColumn("Name", dataType="STRING") \
+ .addColumn("Age", dataType="INT") \
+ .addColumn("Year", dataType="INT") \
+ .execute()
 
 # DELTA LAKE DDL/DML: DELETES, DELETES, INSERTS, MERGES
 # Delete rows:
@@ -207,10 +207,10 @@ fullHistoryDF = delta_table.history()
 fullHistoryDF = spark.sql("DESCRIBE HISTORY my_table")
 
 # Query historical versions of Delta Lake tables:
-df = (spark.read.format("delta")
-      .option("versionAsOf", 2)
-      .option("timestampAsOf", "2020-12-18")
-      .load("path/to/delta_table"))
+df = spark.read.format("delta") \
+      .option("versionAsOf", 2) \
+      .option("timestampAsOf", "2020-12-18") \
+      .load("path/to/delta_table")
 # or
 df = spark.sql("SELECT * FROM my_table TIMESTAMP AS OF '2020-12-18 11:37:00'")
 df = spark.sql("SELECT * FROM my_table VERSION AS OF 2")
