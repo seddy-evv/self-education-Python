@@ -236,6 +236,8 @@ spark.sql("""ALTER TABLE my_table SET TBLPROPERTIES (
   delta.logRetentionDuration = 'interval 30 days'
   delta.deletedFileRetentionDuration = 'interval 7 days'
 )""")
+# Check table properties
+spark.sql("SHOW TBLPROPERTIES my_table").show()
 
 # CREATE AND QUERY DELTA TABLES
 # Create and use managed database
