@@ -1434,3 +1434,26 @@ partitioned_df = spark.read.format("parquet").load(output_path)
 
 print("Reading partitioned DataFrame:")
 partitioned_df.show()
+
+
+# DataFrameWriterV2
+# from Spark version 3.5.0
+
+data = [("John", 30), ("Jane", 25), ("Sam", 35)]
+columns = ["Name", "Age"]
+df = spark.createDataFrame(data, columns)
+
+# Write the DataFrame to a table using DataFrameWriterV2 API
+# create() - Create a new table from the contents of the data frame, we will get an error if the table already exists
+# createOrReplace() - Create a new table or replace an existing table with the contents of the data frame.\
+# using("delta") - We can omit for Databricks
+df.writeTo("my_table") \
+    .using("delta") \
+    .createOrReplace()
+# +----+---+
+# |Name|Age|
+# +----+---+
+# |Jane| 25|
+# |John| 30|
+# | Sam| 35|
+# +----+---+
