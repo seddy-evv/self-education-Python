@@ -1457,3 +1457,18 @@ df.writeTo("my_table") \
 # |John| 30|
 # | Sam| 35|
 # +----+---+
+
+data1 = [("Alex", 31)]
+df1 = spark.createDataFrame(data1, columns)
+
+# append() - Append the contents of the data frame to the output table
+df1.writeTo("my_table") \
+    .append()
+# +----+---+
+# |Name|Age|
+# +----+---+
+# |Jane| 25|
+# |Alex| 31|
+# |John| 30|
+# | Sam| 35|
+# +----+---+
