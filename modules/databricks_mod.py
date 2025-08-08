@@ -324,6 +324,10 @@ spark.sql("CACHE SELECT * FROM my_table")
 # or
 spark.sql("CACHE SELECT colA, colB FROM my_table WHERE colA > 0")
 
+# Enable deletion vectors for tables
+spark.sql("CREATE TABLE my_table TBLPROPERTIES ('delta.enableDeletionVectors' = true);")
+spark.sql("ALTER TABLE my_table SET TBLPROPERTIES ('delta.enableDeletionVectors' = true);")
+
 
 # UNITY CATALOG
 # Grant privileges
