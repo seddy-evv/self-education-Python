@@ -1472,3 +1472,13 @@ df1.writeTo("my_table") \
 # |John| 30|
 # | Sam| 35|
 # +----+---+
+
+# # overwritePartitions() - Overwrite all partition for which the data frame contains at least one row with the contents of the data frame in the output table.
+# # If the table doesn't have any partitions all data will be overwriten with new data.
+df1.writeTo("my_table") \
+    .overwritePartitions()
+# +----+---+
+# |Name|Age|
+# +----+---+
+# |Alex| 31|
+# +----+---+
