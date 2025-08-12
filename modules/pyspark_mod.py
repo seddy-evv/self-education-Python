@@ -1482,3 +1482,18 @@ df1.writeTo("my_table") \
 # +----+---+
 # |Alex| 31|
 # +----+---+
+
+data3 = [("John", "NY"), ("Jane", "LA"), ("Sam", "Boston")]
+columns3 = ["Name", "City"]
+df3 = spark.createDataFrame(data3, columns3)
+
+# # replace() - Replace an existing table with the contents of the data frame.
+df3.writeTo("my_table") \
+    .replace()
+# +----+------+
+# |Name|  City|
+# +----+------+
+# | Sam|Boston|
+# |John|    NY|
+# |Jane|    LA|
+# +----+------+
