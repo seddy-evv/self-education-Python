@@ -356,6 +356,7 @@ df.select("Name").distinct()
 # +-------+
 
 # Filter Rows, & - and, | - or, ~ - not, don't forget brackets!
+# where() is an alias for filter()
 df.filter((df.Age > 26) & (df.Age != 30)).show()
 # +-----+---+
 # | Name|Age|
@@ -1473,8 +1474,8 @@ df1.writeTo("my_table") \
 # | Sam| 35|
 # +----+---+
 
-# # overwritePartitions() - Overwrite all partition for which the data frame contains at least one row with the contents of the data frame in the output table.
-# # If the table doesn't have any partitions all data will be overwriten with new data.
+# overwritePartitions() - Overwrite all partition for which the data frame contains at least one row with the contents of the data frame in the output table.
+# If the table doesn't have any partitions all data will be overwriten with new data.
 df1.writeTo("my_table") \
     .overwritePartitions()
 # +----+---+
@@ -1487,7 +1488,7 @@ data3 = [("John", "NY"), ("Jane", "LA"), ("Sam", "Boston")]
 columns3 = ["Name", "City"]
 df3 = spark.createDataFrame(data3, columns3)
 
-# # replace() - Replace an existing table with the contents of the data frame.
+# replace() - Replace an existing table with the contents of the data frame.
 df3.writeTo("my_table") \
     .replace()
 # +----+------+
@@ -1497,3 +1498,46 @@ df3.writeTo("my_table") \
 # |John|    NY|
 # |Jane|    LA|
 # +----+------+
+
+data4 = [("John", "LA")]
+df4 = spark.createDataFrame(data4, columns3)
+
+# overwrite() - Overwrite rows matching the given filter condition with the contents of the data frame in the output table.
+df4.writeTo("my_table") \
+    .overwrite(col("Name") == "John")
+# +----+------+
+# |Name|  City|
+# +----+------+
+# | Sam|Boston|
+# |Jane|    LA|
+# |John|    LA|
+# +----+------+
+
+data5 = [("Anna", "Sales", 25), ("John", "IT", 30), ("Kate", "Sales", 27)]
+columns5 = ["Name", "Department", "Age"]
+df5 = spark.createDataFrame(data5, columns5)
+
+# Partition the table by Department while writing
+# partitionedBy() - Partition the output table created by create, createOrReplace, or replace using the given columns or transforms.
+df5.writeTo("my_table") \
+    .partitionedBy("Department") \
+    .tableProperty("delta.logRetentionDuration", "interval 30 days") \
+    .tableProperty("delta.deletedFileRetentionDuration", "interval 7 days") \
+    .createOrReplace()
+# +----+----------+---+
+# |Name|Department|Age|
+# +----+----------+---+
+# |Anna|     Sales| 25|
+# |Kate|     Sales| 27|
+# |John|        IT| 30|
+# +----+----------+---+
+
+spark.sql(f"SHOW TBLPROPERTIES my_table").show()
+# +--------------------+----------------+
+# |                 key|           value|
+# +--------------------+----------------+
+# |delta.deletedFile...| interval 7 days|
+# |delta.logRetentio...|interval 30 days|
+# |delta.minReaderVe...|               1|
+# |delta.minWriterVe...|               2|
+# +--------------------+----------------+
