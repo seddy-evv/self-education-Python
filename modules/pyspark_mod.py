@@ -7,7 +7,8 @@ from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create_map, to_date, to_timestamp, \
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
     current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format, substring_index, \
-    regexp_replace, upper, length, substring, trim, instr, split
+    regexp_replace, upper, length, substring, trim, instr, split, array_contains, arrays_overlap, arrays_zip, element_at, \
+    transform
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -871,6 +872,14 @@ df.select(substring_index(col("Name"), "_", 1).alias("name_substring"),
 # |          Bob|               Bob_|     BOB_2|          5|   Bob|    Bob_2|                  4|   [Bob, 2]|       Bob|
 # |    Charlie3 |           Charlie | CHARLIE3 |          9|   Cha| Charlie3|                  0|[Charlie3 ]| Charlie3 |
 # +-------------+-------------------+----------+-----------+------+---------+-------------------+-----------+----------+
+
+# Array operations:
+# array_contains() - This function returns a boolean indicating whether the array contains the given value.
+# arrays_overlap() - This function returns a boolean column indicating if the input arrays have common non-null elements.
+# arrays_zip () - Returns a merged array of structs in which the N-th struct contains all N-th values of input arrays
+# element_at() -  Returns element of array at given (1-based) index.
+# transform() - Returns an array of elements after applying a transformation to each element in the input array.
+
 
 # coalesce() - Returns the first column that is not null or the default value
 # from Spark version 3.5.0
