@@ -91,6 +91,15 @@ def get_pyspark_df_window():
 
     return df_window
 
+def get_array_df():
+    data = [
+        (1, [1, 2, 3, 4], [3, 4, 5], ["a", "b", "c"]),
+        (2, [5, 6, 7], [7, 8], ["x", "y"]),
+        (3, [], [2, 3], [])
+    ]
+    schema = ["id", "numbers", "numbers1", "letters"]
+    df_array = spark.createDataFrame(data, schema)
+    return df_array
 
 # PySpark RDD Operations
 
@@ -874,6 +883,18 @@ df.select(substring_index(col("Name"), "_", 1).alias("name_substring"),
 # +-------------+-------------------+----------+-----------+------+---------+-------------------+-----------+----------+
 
 # Array operations:
+df = get_array_df()
+df.show()
+# +---+------------+---------+---------+
+# | id|     numbers| numbers1|  letters|
+# +---+------------+---------+---------+
+# |  1|[1, 2, 3, 4]|[3, 4, 5]|[a, b, c]|
+# |  2|   [5, 6, 7]|   [7, 8]|   [x, y]|
+# |  3|          []|   [2, 3]|       []|
+# +---+------------+---------+---------+
+
+# explode() - returns a new row for each element in the given array or map.
+# posexplode() - returns a new row for each element with position in the given array or map.
 # array_contains() - This function returns a boolean indicating whether the array contains the given value.
 # arrays_overlap() - This function returns a boolean column indicating if the input arrays have common non-null elements.
 # arrays_zip () - Returns a merged array of structs in which the N-th struct contains all N-th values of input arrays
@@ -1302,8 +1323,6 @@ small_dataset.show()
 # Choose a salt range based on the degree of skew; here, we use [0, 2] (3 buckets)
 # floor() - returns the nearest integer that is less than or equal to given value.
 # rand() - Generates a random column with samples uniformly distributed in [0.0, 1.0)
-# explode() - returns a new row for each element in the given array or map.
-# posexplode() - returns a new row for each element with position in the given array or map.
 salt_range = 3
 large_salted = large_dataset.withColumn("salt", floor(rand() * salt_range)) \
                             .withColumn("salted_key", concat(col("join_key"), lit("_"), col("salt")))
