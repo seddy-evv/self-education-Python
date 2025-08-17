@@ -894,6 +894,19 @@ df.show()
 # +---+------------+---------+---------+
 
 # explode() - returns a new row for each element in the given array or map.
+df.select("id", "numbers1", "letters", explode("numbers").alias("number")).show()
+# +---+---------+---------+------+
+# | id| numbers1|  letters|number|
+# +---+---------+---------+------+
+# |  1|[3, 4, 5]|[a, b, c]|     1|
+# |  1|[3, 4, 5]|[a, b, c]|     2|
+# |  1|[3, 4, 5]|[a, b, c]|     3|
+# |  1|[3, 4, 5]|[a, b, c]|     4|
+# |  2|   [7, 8]|   [x, y]|     5|
+# |  2|   [7, 8]|   [x, y]|     6|
+# |  2|   [7, 8]|   [x, y]|     7|
+# +---+---------+---------+------+
+
 # posexplode() - returns a new row for each element with position in the given array or map.
 # array_contains() - This function returns a boolean indicating whether the array contains the given value.
 # arrays_overlap() - This function returns a boolean column indicating if the input arrays have common non-null elements.
