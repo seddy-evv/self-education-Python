@@ -908,6 +908,21 @@ df.select("id", "numbers1", "letters", explode("numbers").alias("number")).show(
 # +---+---------+---------+------+
 
 # posexplode() - returns a new row for each element with position in the given array or map.
+# posexplode_outer() - Returns a new row for each element with position in the given array or map.
+# Unlike posexplode, if the array/map is null or empty then the row (null, null) is produced.
+df.select("id", "numbers1", "letters", posexplode("numbers").alias("pos", "number")).show()
+# +---+---------+---------+---+------+
+# | id| numbers1|  letters|pos|number|
+# +---+---------+---------+---+------+
+# |  1|[3, 4, 5]|[a, b, c]|  0|     1|
+# |  1|[3, 4, 5]|[a, b, c]|  1|     2|
+# |  1|[3, 4, 5]|[a, b, c]|  2|     3|
+# |  1|[3, 4, 5]|[a, b, c]|  3|     4|
+# |  2|   [7, 8]|   [x, y]|  0|     5|
+# |  2|   [7, 8]|   [x, y]|  1|     6|
+# |  2|   [7, 8]|   [x, y]|  2|     7|
+# +---+---------+---------+---+------+
+
 # array_contains() - This function returns a boolean indicating whether the array contains the given value.
 # arrays_overlap() - This function returns a boolean column indicating if the input arrays have common non-null elements.
 # arrays_zip () - Returns a merged array of structs in which the N-th struct contains all N-th values of input arrays
