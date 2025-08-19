@@ -924,6 +924,15 @@ df.select("id", "numbers1", "letters", posexplode("numbers").alias("pos", "numbe
 # +---+---------+---------+---+------+
 
 # array_contains() - This function returns a boolean indicating whether the array contains the given value.
+df.select("id", "numbers", array_contains("numbers", 3).alias("contains_3")).show()
+# +---+------------+----------+
+# | id|     numbers|contains_3|
+# +---+------------+----------+
+# |  1|[1, 2, 3, 4]|      true|
+# |  2|   [5, 6, 7]|     false|
+# |  3|          []|     false|
+# +---+------------+----------+
+
 # arrays_overlap() - This function returns a boolean column indicating if the input arrays have common non-null elements.
 # arrays_zip () - Returns a merged array of structs in which the N-th struct contains all N-th values of input arrays
 # element_at() -  Returns element of array at given (1-based) index.
