@@ -944,6 +944,15 @@ df.select("id", "numbers", "numbers1", arrays_overlap("numbers", "numbers1").ali
 # +---+------------+---------+-----------+
 
 # arrays_zip () - Returns a merged array of structs in which the N-th struct contains all N-th values of input arrays
+df.select("id", "numbers", "letters", arrays_zip("numbers", "letters").alias("zipped_array")).show(truncate=False)
+# +---+------------+---------+-----------------------------------+
+# |id |numbers     |letters  |zipped_array                       |
+# +---+------------+---------+-----------------------------------+
+# |1  |[1, 2, 3, 4]|[a, b, c]|[{1, a}, {2, b}, {3, c}, {4, null}]|
+# |2  |[5, 6, 7]   |[x, y]   |[{5, x}, {6, y}, {7, null}]        |
+# |3  |[]          |[]       |[]                                 |
+# +---+------------+---------+-----------------------------------+
+
 # element_at() -  Returns element of array at given (1-based) index.
 # transform() - Returns an array of elements after applying a transformation to each element in the input array.
 
