@@ -954,6 +954,15 @@ df.select("id", "numbers", "letters", arrays_zip("numbers", "letters").alias("zi
 # +---+------------+---------+-----------------------------------+
 
 # element_at() -  Returns element of array at given (1-based) index.
+df.select("id", "numbers", element_at("numbers", 2).alias("second_element_numbers")).show()
+# +---+------------+----------------------+
+# | id|     numbers|second_element_numbers|
+# +---+------------+----------------------+
+# |  1|[1, 2, 3, 4]|                     2|
+# |  2|   [5, 6, 7]|                     6|
+# |  3|          []|                  null|
+# +---+------------+----------------------+
+
 # transform() - Returns an array of elements after applying a transformation to each element in the input array.
 
 
