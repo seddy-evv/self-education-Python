@@ -964,7 +964,14 @@ df.select("id", "numbers", element_at("numbers", 2).alias("second_element_number
 # +---+------------+----------------------+
 
 # transform() - Returns an array of elements after applying a transformation to each element in the input array.
-
+df.select("id", "numbers", transform("numbers", lambda x: x * 10).alias("transformed_array_numbers")).show()
+# +---+------------+-------------------------+
+# | id|     numbers|transformed_array_numbers|
+# +---+------------+-------------------------+
+# |  1|[1, 2, 3, 4]|         [10, 20, 30, 40]|
+# |  2|   [5, 6, 7]|             [50, 60, 70]|
+# |  3|          []|                       []|
+# +---+------------+-------------------------+
 
 # coalesce() - Returns the first column that is not null or the default value
 # from Spark version 3.5.0
