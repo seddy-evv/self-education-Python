@@ -8,7 +8,7 @@ from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
     current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format, substring_index, \
     regexp_replace, upper, length, substring, trim, instr, split, array_contains, arrays_overlap, arrays_zip, element_at, \
-    transform
+    transform, posexplode, array_union
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -972,6 +972,17 @@ df.select("id", "numbers", transform("numbers", lambda x: x * 10).alias("transfo
 # |  2|   [5, 6, 7]|             [50, 60, 70]|
 # |  3|          []|                       []|
 # +---+------------+-------------------------+
+
+# array_union(): Returns a new array containing the union of elements in col1 and col2, without duplicates.
+df = df.withColumn("union_array", array_union(col("numbers"), col("numbers1")))
+df.show()
+# +---+------------+---------+---------+---------------+
+# | id|     numbers| numbers1|  letters|    union_array|
+# +---+------------+---------+---------+---------------+
+# |  1|[1, 2, 3, 4]|[3, 4, 5]|[a, b, c]|[1, 2, 3, 4, 5]|
+# |  2|   [5, 6, 7]|   [7, 8]|   [x, y]|   [5, 6, 7, 8]|
+# |  3|          []|   [2, 3]|       []|         [2, 3]|
+# +---+------------+---------+---------+---------------+
 
 # coalesce() - Returns the first column that is not null or the default value
 # from Spark version 3.5.0
