@@ -8,7 +8,7 @@ from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
     current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format, substring_index, \
     regexp_replace, upper, length, substring, trim, instr, split, array_contains, arrays_overlap, arrays_zip, element_at, \
-    transform, posexplode, array_union
+    transform, posexplode, array_union, collect_list
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -983,6 +983,18 @@ df.show()
 # |  2|   [5, 6, 7]|   [7, 8]|   [x, y]|   [5, 6, 7, 8]|
 # |  3|          []|   [2, 3]|       []|         [2, 3]|
 # +---+------------+---------+---------+---------------+
+
+# collect_list(): Collects the values from a column into a list, with duplicates, and returns this list of objects.
+df_collect = get_pyspark_df3()
+df_collect = df_collect.groupBy("Name").agg(collect_list("Salary").alias("salary_list"))
+df_collect.show()
+# +-------+------------+
+# |   Name| salary_list|
+# +-------+------------+
+# |  Alice|      [2000]|
+# |    Bob|[3000, 4000]|
+# |Charlie|      [4000]|
+# +-------+------------+
 
 # coalesce() - Returns the first column that is not null or the default value
 # from Spark version 3.5.0
