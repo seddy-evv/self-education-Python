@@ -441,6 +441,18 @@ df3.agg(max("Salary"), sum("Salary"), avg("Salary")).show()
 # +-----------+-----------+-----------+
 
 df_wndw = get_pyspark_df_window()
+df_wndw.show()
+# +-------------+----------+------+
+# |employee_name|department|salary|
+# +-------------+----------+------+
+# |        James|     Sales|  3000|
+# |      Michael|     Sales|  4600|
+# |        Maria|   Finance|  3000|
+# |        Scott|   Finance|  3300|
+# |          Jen|   Finance|  3300|
+# |         Saif|     Sales|  4100|
+# +-------------+----------+------+
+
 df_wndw.groupBy(df_wndw.department).agg(count_distinct(df_wndw.employee_name)).show()
 # +----------+--------------------+
 # |department|count(employee_name)|
@@ -448,6 +460,18 @@ df_wndw.groupBy(df_wndw.department).agg(count_distinct(df_wndw.employee_name)).s
 # |     Sales|                   3|
 # |   Finance|                   3|
 # +----------+--------------------+
+
+df_wndw.groupBy("employee_name").pivot("department").sum("salary").show()
+# +-------------+-------+-----+
+# |employee_name|Finance|Sales|
+# +-------------+-------+-----+
+# |        Scott|   3300| null|
+# |        James|   null| 3000|
+# |          Jen|   3300| null|
+# |      Michael|   null| 4600|
+# |         Saif|   null| 4100|
+# |        Maria|   3000| null|
+# +-------------+-------+-----+
 
 # Drop columns
 df1 = get_pyspark_df1()
