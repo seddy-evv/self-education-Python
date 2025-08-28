@@ -825,6 +825,14 @@ rdbms_data.write.format("jdbc") \
 # PySpark Functions Module
 # We can use these functions within select and withColumn methods.
 df = get_pyspark_df()
+df.show()
+# +-------+---+
+# |   Name|Age|
+# +-------+---+
+# |  Alice| 28|
+# |    Bob| 25|
+# |Charlie| 30|
+# +-------+---+
 
 # concat() - concatenates multiple input columns together into a single column
 # lit() - creates a Column of literal value. Often used with withColumn() expression,
