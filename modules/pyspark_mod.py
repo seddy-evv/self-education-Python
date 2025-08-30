@@ -282,6 +282,13 @@ df.show()
 # reduceByKey() (RDD, shuffle less data unlike groupByKey()), orderBy() / sort(), aggregateByKey()
 
 df = get_pyspark_df()
+# +-------+---+
+# |   Name|Age|
+# +-------+---+
+# |  Alice| 28|
+# |    Bob| 25|
+# |Charlie| 30|
+# +-------+---+
 
 # Collect: Retrieve all data
 data = df.collect()
