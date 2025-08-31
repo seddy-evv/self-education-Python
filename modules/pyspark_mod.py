@@ -665,6 +665,12 @@ spark.sql("SELECT * FROM delta.`/path/to/delta_table`").show()
 # PySpark DataFrame Joins
 
 df1 = get_pyspark_df_join1()
+# +-----+---+
+# | Name|Age|
+# +-----+---+
+# |Alice| 28|
+# |  Bob| 25|
+# +-----+---+
 df2 = get_pyspark_df_join2()
 df3 = get_pyspark_df_join3()
 
