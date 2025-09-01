@@ -672,6 +672,14 @@ df1 = get_pyspark_df_join1()
 # |  Bob| 25|
 # +-----+---+
 df2 = get_pyspark_df_join2()
+df2.show()
+# +-------+------+
+# |   Name|Gender|
+# +-------+------+
+# |  Alice|     F|
+# |    Bob|     M|
+# |Charlie|     M|
+# +-------+------+
 df3 = get_pyspark_df_join3()
 
 # Inner Join
