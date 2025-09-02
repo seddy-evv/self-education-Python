@@ -681,6 +681,12 @@ df2.show()
 # |Charlie|     M|
 # +-------+------+
 df3 = get_pyspark_df_join3()
+# +----+------+
+# |Name|Gender|
+# +----+------+
+# |Mike|     M|
+# | Bob|     M|
+# +----+------+
 
 # Inner Join
 inner_join = df1.join(df2, on="Name", how="inner")
