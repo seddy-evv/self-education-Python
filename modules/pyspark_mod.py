@@ -1045,6 +1045,16 @@ df.show()
 
 # collect_list(): Collects the values from a column into a list, with duplicates, and returns this list of objects.
 df_collect = get_pyspark_df3()
+df_collect.show()
+# +-------+------+
+# |   Name|Salary|
+# +-------+------+
+# |  Alice|  2000|
+# |    Bob|  3000|
+# |Charlie|  4000|
+# |    Bob|  4000|
+# +-------+------+
+
 df_collect = df_collect.groupBy("Name").agg(collect_list("Salary").alias("salary_list"))
 df_collect.show()
 # +-------+------------+
