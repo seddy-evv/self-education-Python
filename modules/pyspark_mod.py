@@ -1070,6 +1070,15 @@ df_collect.show()
 # ifnull() - Returns col2 if col1 is null, or col1 otherwise.
 # nullif() - Returns null if col1 equals to col2, or col1 otherwise.
 df_null = get_pyspark_df_null()
+df_null.show()
+# +----+----+
+# |   a|   b|
+# +----+----+
+# |null|null|
+# |   1|null|
+# |null|   2|
+# |   3|   3|
+# +----+----+
 df_null.select(coalesce(df_null["a"], df_null["b"])).show()
 # +--------------+
 # |coalesce(a, b)|
