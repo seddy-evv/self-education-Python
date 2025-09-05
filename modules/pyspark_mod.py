@@ -501,6 +501,15 @@ df1.limit(1).show()
 
 # Drop rows with null values
 df_null = get_pyspark_df_null()
+df_null.show()
+# +----+----+
+# |   a|   b|
+# +----+----+
+# |null|null|
+# |   1|null|
+# |null|   2|
+# |   3|   3|
+# +----+----+
 df_null.dropna().show()  # Drop rows that have at least one null value
 # +---+---+
 # |  a|  b|
