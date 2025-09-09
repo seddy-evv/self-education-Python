@@ -282,6 +282,8 @@ df.show()
 # reduceByKey() (RDD, shuffle less data unlike groupByKey()), orderBy() / sort(), aggregateByKey()
 
 df = get_pyspark_df()
+# Show: Display the DataFrame
+df.show()
 # +-------+---+
 # |   Name|Age|
 # +-------+---+
@@ -299,16 +301,6 @@ print(data)
 count_res = df.count()
 print(count_res)
 # 3
-
-# Show: Display the DataFrame
-df.show()
-# +-------+---+
-# |   Name|Age|
-# +-------+---+
-# |  Alice| 28|
-# |    Bob| 25|
-# |Charlie| 30|
-# +-------+---+
 
 # describe() - Computes basic statistics for numeric and string columns.
 df.describe().show()
