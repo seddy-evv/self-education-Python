@@ -8,7 +8,7 @@ from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
     current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format, substring_index, \
     regexp_replace, upper, length, substring, trim, instr, split, array_contains, arrays_overlap, arrays_zip, element_at, \
-    transform, posexplode, array_union, collect_list
+    transform, posexplode, array_union, collect_list, struct
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -666,6 +666,7 @@ spark.sql("SELECT * FROM delta.`/path/to/delta_table`").show()
 # PySpark DataFrame Joins
 
 df1 = get_pyspark_df_join1()
+df1.show()
 # +-----+---+
 # | Name|Age|
 # +-----+---+
@@ -941,6 +942,25 @@ df.select(substring_index(col("Name"), "_", 1).alias("name_substring"),
 # |          Bob|               Bob_|     BOB_2|          5|   Bob|    Bob_2|                  4|   [Bob, 2]|       Bob|
 # |    Charlie3 |           Charlie | CHARLIE3 |          9|   Cha| Charlie3|                  0|[Charlie3 ]| Charlie3 |
 # +-------------+-------------------+----------+-----------+------+---------+-------------------+-----------+----------+
+
+# struct() - Creates a new struct column.
+struct_df = df.select(struct("Name", "Age").alias("person_info"))
+struct_df.show(truncate=False)
+# +-------------+
+# |person_info  |
+# +-------------+
+# |{Alice, 28}  |
+# |{Bob, 25}    |
+# |{Charlie, 30}|
+# +-------------+
+struct_df.select("person_info.Age").show()
+# +---+
+# |Age|
+# +---+
+# | 28|
+# | 25|
+# | 30|
+# +---+
 
 # Array operations:
 df = get_array_df()
