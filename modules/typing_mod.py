@@ -16,3 +16,13 @@ middle_name: Optional[str] = None
 
 # Union types: Variable can hold multiple types
 data: Union[str, List[str]] = "Hello, world!"
+
+
+# Typing for functions
+# name: str - means the input name must be a str.
+# -> str - means the function will return a str.
+def greet(name: str) -> str:
+    """
+    Returns a greeting message for the given name.
+    """
+    return f"Hello, {name}!"
