@@ -26,3 +26,11 @@ def greet(name: str) -> str:
     Returns a greeting message for the given name.
     """
     return f"Hello, {name}!"
+
+
+def sum_numbers(numbers: List[int]) -> int:
+    """
+    Sums a list of integers and returns the total.
+    """
+    return sum(numbers)
+
