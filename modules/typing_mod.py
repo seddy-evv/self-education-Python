@@ -34,3 +34,11 @@ def sum_numbers(numbers: List[int]) -> int:
     """
     return sum(numbers)
 
+# Variables or functions can accept multiple types using Union.
+def find_coordinates(data: Dict[str, Union[float, Tuple[float, float]]]) -> Tuple[float, float]:
+    """
+    Extracts coordinates from a dictionary.
+    """
+    if isinstance(data["location"], float):  # Single float becomes a tuple
+        return (data["location"], data["location"])
+    return data["location"]
