@@ -42,3 +42,9 @@ def find_coordinates(data: Dict[str, Union[float, Tuple[float, float]]]) -> Tupl
     if isinstance(data["location"], float):  # Single float becomes a tuple
         return (data["location"], data["location"])
     return data["location"]
+
+def is_valid_user(age: int, active_status: bool) -> bool:
+    """
+    Checks if a user is valid based on age and activity status.
+    """
+    return age > 18 and active_status
