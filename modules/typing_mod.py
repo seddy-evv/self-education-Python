@@ -48,3 +48,14 @@ def is_valid_user(age: int, active_status: bool) -> bool:
     Checks if a user is valid based on age and activity status.
     """
     return age > 18 and active_status
+
+# Optional indicates that the inputs and the return value might be None.
+def safe_multiply(a: Optional[float], b: Optional[float]) -> Optional[float]:
+    """
+    Multiplies two optional floating-point numbers safely. If either value is None, returns None.
+    """
+    if a is None or b is None:
+        return None
+    return a * b
+
+
