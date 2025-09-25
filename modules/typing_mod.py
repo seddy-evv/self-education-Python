@@ -34,6 +34,7 @@ def sum_numbers(numbers: List[int]) -> int:
     """
     return sum(numbers)
 
+
 # Variables or functions can accept multiple types using Union.
 def find_coordinates(data: Dict[str, Union[float, Tuple[float, float]]]) -> Tuple[float, float]:
     """
@@ -42,6 +43,7 @@ def find_coordinates(data: Dict[str, Union[float, Tuple[float, float]]]) -> Tupl
     if isinstance(data["location"], float):  # Single float becomes a tuple
         return (data["location"], data["location"])
     return data["location"]
+
 
 def is_valid_user(age: int, active_status: bool) -> bool:
     """
@@ -59,3 +61,22 @@ def safe_multiply(a: Optional[float], b: Optional[float]) -> Optional[float]:
     return a * b
 
 
+# Entry point for demonstration
+if __name__ == "__main__":
+    # Using typed variables
+    print(f"Name: {name}")
+    print(f"Age: {age}")
+    print(f"Height: {height}")
+    print(f"Active: {is_active}")
+    print(f"Scores: {scores}")
+    print(f"Preferences: {preferences}")
+    print(f"Middle Name: {middle_name}")
+    print(f"Coordinates: {coordinates}")
+    print(f"Data: {data}")
+
+    # Function outputs
+    print(greet(name))
+    print(f"Total Score: {sum_numbers(scores)}")
+    print(f"Valid User: {is_valid_user(age, is_active)}")
+    print(f"Safe Multiply: {safe_multiply(4.5, None)}")
+    print(f"Coordinates: {find_coordinates({'location': (12.3, 45.6)})}")
