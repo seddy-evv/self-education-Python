@@ -1,3 +1,10 @@
+# The Python runtime does not enforce function and variable type annotations. They can be used by third party tools such
+# as type checkers, IDEs, linters, etc.
+# The "typing" module in Python provides support for type hints, which were introduced in PEP 484 and PEP 526.
+# Python is a dynamically typed language, meaning you don't explicitly declare variable types. However, type hints
+# allow you to add optional static type annotations to your code, improving readability, maintainability,
+# and enabling static analysis tools (like MyPy) to catch potential type-related errors before runtime.
+
 from typing import List, Dict, Tuple, Optional, Union
 
 # Typing for variables
