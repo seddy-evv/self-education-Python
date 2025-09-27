@@ -7,7 +7,9 @@
 
 from typing import List, Dict, Tuple, Optional, Union
 
+
 # Typing for variables
+
 name: str = "Alice"                # A string variable
 age: int = 30                      # An integer variable
 height: float = 5.6                # A floating-point variable
@@ -26,6 +28,7 @@ data: Union[str, List[str]] = "Hello, world!"
 
 
 # Typing for functions
+
 # name: str - means the input name must be a str.
 # -> str - means the function will return a str.
 def greet(name: str) -> str:
@@ -57,6 +60,7 @@ def is_valid_user(age: int, active_status: bool) -> bool:
     Checks if a user is valid based on age and activity status.
     """
     return age > 18 and active_status
+
 
 # Optional indicates that the inputs and the return value might be None.
 def safe_multiply(a: Optional[float], b: Optional[float]) -> Optional[float]:
