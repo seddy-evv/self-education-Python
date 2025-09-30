@@ -16,6 +16,8 @@ height: float = 5.6                # A floating-point variable
 is_active: bool = True             # A boolean variable
 
 scores: List[int] = [85, 90, 78]   # A list of integers
+
+# Union types: Variable can hold multiple types
 preferences: Dict[str, Union[str, int]] = {"color": "blue", "font_size": 12}  # A dictionary with mixed types
 
 coordinates: Tuple[float, float] = (34.5, 45.2)  # A tuple of two floats
@@ -23,7 +25,6 @@ coordinates: Tuple[float, float] = (34.5, 45.2)  # A tuple of two floats
 # Optional types: Might be None
 middle_name: Optional[str] = None
 
-# Union types: Variable can hold multiple types
 data: Union[str, List[str]] = "Hello, world!"
 
 
