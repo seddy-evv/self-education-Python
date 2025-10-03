@@ -36,5 +36,20 @@ class ImmutablePoint:
         """Calculate the distance of the point from the origin."""
         return (self.x ** 2 + self.y ** 2) ** 0.5
 
+@dataclass
+class Team:
+    """Represents a team."""
+    name: str
+    members: List[Person] = field(default_factory=list)  # Initialize as an empty list
+
+    def add_member(self, person: Person) -> None:
+        """Add a person to the team."""
+        self.members.append(person)
+
+    def team_info(self) -> str:
+        """Get information about the team and its members."""
+        member_names = ', '.join([member.name for member in self.members])
+        return f"Team: {self.name}\nMembers: {member_names}"
+
 
         
