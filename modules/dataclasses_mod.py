@@ -1,3 +1,7 @@
+# With @dataclass decorator __init__ magic method will be automatically created under the hood, also we can
+# specify default values for attributes and we should specify types, and if we pass different data type a TypeError
+# will be raised.
+
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -13,6 +17,7 @@ class Person:
         """A method for the person to greet."""
         return f"Hello, my name is {self.name} and I am {self.age} years old."
 
+
 @dataclass
 class Book:
     """Represents a book."""
@@ -26,6 +31,7 @@ class Book:
         genre_list = ', '.join(self.genres) if self.genres else "No genres listed"
         return f"{self.title} by {self.author}, {self.pages} pages. Genres: {genre_list}"
 
+
 @dataclass(frozen=True)  # Makes the dataclass immutable
 class ImmutablePoint:
     """Represents an immutable point in 2D space."""
@@ -35,6 +41,7 @@ class ImmutablePoint:
     def distance_to_origin(self) -> float:
         """Calculate the distance of the point from the origin."""
         return (self.x ** 2 + self.y ** 2) ** 0.5
+
 
 @dataclass
 class Team:
@@ -52,4 +59,19 @@ class Team:
         return f"Team: {self.name}\nMembers: {member_names}"
 
 
-        
+if __name__ == "__main__":
+    alice = Person(name="Alice", age=30, email="alice@example.com")
+    bob = Person(name="Bob", age=25)
+    print(alice.greet())
+    print(bob.greet())
+
+    book = Book(title="Python Guide", author="John Doe", pages=300, genres=["Programming", "Education"])
+    print(book.summary())
+
+    point = ImmutablePoint(x=3.0, y=4.0)
+    print(f"Point distance to origin: {point.distance_to_origin()}")
+
+    team = Team(name="Developers")
+    team.add_member(alice)
+    team.add_member(bob)
+    print(team.team_info())
