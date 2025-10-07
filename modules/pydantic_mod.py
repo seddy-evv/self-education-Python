@@ -14,3 +14,16 @@ class Person(BaseModel):
         if not name.strip():
             raise ValueError("Name must not be empty.")
         return name
+
+# Define a model for a book
+class Book(BaseModel):
+    title: str
+    author: str
+    pages: int = Field(..., ge=1, description="Pages must be a positive integer.")  # Pages must be >= 1
+    genres: List[str] = []  # Default is an empty list
+
+    @field_validator("genres", mode="before")
+    def validate_genres(cls, genres: List[str]) -> List[str]:
+        """Ensure genres list has no empty strings."""
+        return [genre for genre in genres if genre.strip()]
+
