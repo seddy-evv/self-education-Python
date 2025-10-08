@@ -27,3 +27,13 @@ class Book(BaseModel):
         """Ensure genres list has no empty strings."""
         return [genre for genre in genres if genre.strip()]
 
+
+# Define a nested model for a team
+class Team(BaseModel):
+    name: str
+    members: List[Person]  # Nested model (list of Person objects)
+
+    def team_info(self) -> str:
+        """Get detailed information about the team."""
+        member_names = ', '.join([member.name for member in self.members])
+        return f"Team name: {self.name}\nMembers: {member_names}"
