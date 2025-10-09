@@ -37,3 +37,19 @@ class Team(BaseModel):
         """Get detailed information about the team."""
         member_names = ', '.join([member.name for member in self.members])
         return f"Team name: {self.name}\nMembers: {member_names}"
+
+# Define a model for coordinates with a custom validator
+class Coordinates(BaseModel):
+    x: float
+    y: float
+
+    @field_validator("x", "y")
+    def validate_coordinates(cls, value: float) -> float:
+        """Ensure coordinates are finite numbers."""
+        if not (-10_000 <= value <= 10_000):
+            raise ValueError("Coordinates must be between -10,000 and 10,000.")
+        return value
+
+    def distance_to_origin(self) -> float:
+        """Calculate the distance to the origin (0, 0)."""
+        return (self.x ** 2 + self.y ** 2) ** 0.5
