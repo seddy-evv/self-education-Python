@@ -60,7 +60,6 @@ class Coordinates(BaseModel):
         return (self.x ** 2 + self.y ** 2) ** 0.5
 
 
-# Example usage (uncomment these lines to test the module):
 if __name__ == "__main__":
     try:
         alice = Person(name="Alice", age=30, email="alice@example.com")
