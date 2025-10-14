@@ -314,6 +314,21 @@ df.describe().show()
 # |    max|Charlie|                30|
 # +-------+-------+------------------+
 
+# summary() - Computes specified statistics for numeric and string columns.
+df.summary().show()
+# +-------+-------+------------------+
+# |summary|   Name|               Age|
+# +-------+-------+------------------+
+# |  count|      3|                 3|
+# |   mean|   null|27.666666666666668|
+# | stddev|   null|2.5166114784235836|
+# |    min|  Alice|                25|
+# |    25%|   null|                25|
+# |    50%|   null|                28|
+# |    75%|   null|                30|
+# |    max|Charlie|                30|
+# +-------+-------+------------------+
+
 print(df.columns)
 # ['Name', 'Age']
 
