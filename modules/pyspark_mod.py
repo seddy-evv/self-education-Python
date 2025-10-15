@@ -358,7 +358,7 @@ df.select(col("Name")).show()
 # |Charlie|
 # +-------+
 
-# selectExpr
+# selectExpr - This is a variant of select() that accepts SQL expressions, but we don't need to create temp view.
 df_expr = df.selectExpr("Age * 2")
 df_expr.show()
 # +---------+
