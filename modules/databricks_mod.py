@@ -189,6 +189,9 @@ spark.sql("""
           """)
 
 # Alter table schema - drop column, this operation might be not supported for your Delta table
+# In this case you need to specify properties below, but che the project documentation first
+spark.sql("ALTER TABLE my_table SET TBLPROPERTIES ('delta.columnMapping.mode' = 'name', "
+          "'delta.minReaderVersion' = '2', 'delta.minWriterVersion' = '5')")
 spark.sql("ALTER TABLE my_table DROP COLUMN new_column")
 
 # Alter table - add constraint
