@@ -209,6 +209,8 @@ fullHistoryDF = delta_table.history()
 # or
 fullHistoryDF = spark.sql("DESCRIBE HISTORY my_table")
 
+# Get the last timestamp version of the table
+timestamp_last = spark.sql(f"DESCRIBE HISTORY my_table1").orderBy("version", ascending=False).collect()[0].timestamp
 # Query historical versions of Delta Lake tables:
 df = spark.read.format("delta") \
       .option("versionAsOf", 2) \
