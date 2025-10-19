@@ -404,6 +404,11 @@ df.sort("Age", ascending=False).show()
 # |    Bob| 25|
 # +-------+---+
 
+# If we need to get a value from the one row
+Name = df.sort("Age", ascending=False).first().Name
+print(Name)
+# Charlie
+
 # Add New Column
 df.withColumn("AgePlusOne", col("Age") + lit(1)).show()
 # similar to:
