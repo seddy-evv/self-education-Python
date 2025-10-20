@@ -404,7 +404,7 @@ df.sort("Age", ascending=False).show()
 # |    Bob| 25|
 # +-------+---+
 
-# If we need to get a value from the one row
+# If we need to get a column value from the one row, we can use .Column
 Name = df.sort("Age", ascending=False).first().Name
 print(Name)
 # Charlie
