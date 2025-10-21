@@ -244,6 +244,7 @@ spark.sql("""ALTER TABLE my_table SET TBLPROPERTIES (
 # Check table properties
 spark.sql("SHOW TBLPROPERTIES my_table").show()
 
+
 # CREATE AND QUERY DELTA TABLES
 # Create and use managed database
 # Managed database is saved in the Hive metastore
