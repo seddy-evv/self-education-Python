@@ -252,6 +252,7 @@ spark.sql("SHOW TBLPROPERTIES my_table").show()
 spark.sql("DROP DATABASE IF EXISTS dbName;")
 spark.sql("CREATE DATABASE dbname;")
 spark.sql("USE dbName;")  # This command avoids having to specify dbNname.tableName every time instead of just tableName
+# spark.sql("USE CATALOG catalog_name;") # This command avoids having to specify catalog_name if Unity Catalog is used
 
 # Query Delta table by name or path
 df = spark.sql("SELECT * FROM [dbname.]my_table")
