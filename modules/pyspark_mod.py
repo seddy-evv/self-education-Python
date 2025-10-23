@@ -381,6 +381,7 @@ df.select("Name").distinct()
 
 # Filter Rows, & - and, | - or, ~ - not, don't forget brackets!
 # where() is an alias for filter()
+# also we can use a SQL expression string: df.filter("Age > 26")
 df.filter((df.Age > 26) & (df.Age != 30)).show()
 # +-----+---+
 # | Name|Age|
@@ -617,6 +618,11 @@ df1.union(df2).show()
 # |   Alex| 38|Microsoft|
 # |   John| 35|  Netflix|
 # +-------+---+---------+
+
+# If we need to union a list with dfs:
+# Suppose you have a list of DataFrames: dfs = [df1, df2, df3, ..., dfN]
+# from functools import reduce
+# result_df = reduce(lambda df1, df2: df1.union(df2), dfs)
 
 # cache() and persist()
 # Every action (like show() or count()) triggers a computation pipeline that might include re-reading data from
