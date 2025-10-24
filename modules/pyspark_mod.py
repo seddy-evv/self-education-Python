@@ -393,6 +393,8 @@ df.filter((df.Age > 26) & (df.Age != 30)).show()
 df.orderBy(df["Age"].desc()).show()
 # or
 df.orderBy(df["Age"], ascending=False).show()
+# we also can use [col("col_name1"), col("col_name2")] instead of just col("col_name")
+df.orderBy(col("Age"), ascending=False).show()
 # or
 df.orderBy(desc("Age")).show()
 # or
@@ -1181,6 +1183,8 @@ window_spec = Window.partitionBy("department").orderBy(df_window["salary"].desc(
 # window_spec = Window.orderBy(df["day"].asc()).rowsBetween(Window.unboundedPreceding, Window.currentRow)
 # or consider rows with values are within some range
 # window_spec = Window.partitionBy("partition_column").orderBy("order_column").rangeBetween(-2, 2)
+# or even omit partitionBy() if we need to get a rank between all departments
+# window_spec = Window.orderBy(df_window["salary"].desc())
 
 # row_number, rank, dense_rank, percent_rank, ntile
 df_window.withColumn("row_number", row_number().over(window_spec)).show()
