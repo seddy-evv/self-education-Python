@@ -101,6 +101,23 @@ def get_array_df():
     df_array = spark.createDataFrame(data, schema)
     return df_array
 
+def get_array_split():
+    data = [("James", "Sales", 3000),
+            ("Michael", "Sales", 4600),
+            ("Maria", "Finance", 3000),
+            ("Scott", "Finance", 3300),
+            ("Jen", "Finance", 3300),
+            ("Saif", "Sales", 4100),
+            ("Alex", "Sales", 4000),
+            ("Bob", "Finance", 3900),
+            ("Michael", "Sales", 4900),
+            ("Mike", "HR", 1900)
+            ]
+    schema = ["employee_name", "department", "salary"]
+    df_split = spark.createDataFrame(data=data, schema=schema)
+
+    return df_split
+
 # PySpark RDD Operations
 
 # Create RDD
@@ -625,6 +642,30 @@ df1.union(df2).show()
 # Suppose you have a list of DataFrames: dfs = [df1, df2, df3, ..., dfN]
 # from functools import reduce
 # result_df = reduce(lambda df1, df2: df1.union(df2), dfs)
+
+# randomSplit(), randomly splits this DataFrame with the provided weights, seed - to control the randomness.
+df_split = get_array_split()
+df1, df2 = df_split.randomSplit([0.3, 0.7], 42)
+df1.show()
+# +-------------+----------+------+
+# |employee_name|department|salary|
+# +-------------+----------+------+
+# |        Scott|   Finance|  3300|
+# |         Saif|     Sales|  4100|
+# |         Mike|        HR|  1900|
+# +-------------+----------+------+
+df2.show()
+# +-------------+----------+------+
+# |employee_name|department|salary|
+# +-------------+----------+------+
+# |        James|     Sales|  3000|
+# |      Michael|     Sales|  4600|
+# |        Maria|   Finance|  3000|
+# |          Jen|   Finance|  3300|
+# |         Alex|     Sales|  4000|
+# |          Bob|   Finance|  3900|
+# |      Michael|     Sales|  4900|
+# +-------------+----------+------+
 
 # cache() and persist()
 # Every action (like show() or count()) triggers a computation pipeline that might include re-reading data from
