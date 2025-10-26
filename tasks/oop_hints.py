@@ -17,4 +17,14 @@ class Room:
 
     def __repr__(self) -> str:
         return f"{self.r_number, self.r_type, self.reserved, self.guest_name}"
-      
+
+
+class HotelBookingService:
+
+    rooms: list[Room]
+
+    def __init__(self) -> None:
+        self.rooms = [Room(101, "single"),
+                      Room(102, "double"),
+                      Room(103, "suite")]
+
