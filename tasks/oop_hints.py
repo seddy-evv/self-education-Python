@@ -36,3 +36,11 @@ class HotelBookingService:
         room_to_book.reserved = True
         room_to_book.guest_name = guest_name
         return room_to_book
+
+    def cancel_booking(self, room_number: int) -> Room | None:
+        room_to_cancel = next((room for room in self.rooms if room.r_number == room_number), None)
+        if not room_to_cancel:
+            return None
+        room_to_cancel.reserved = False
+        room_to_cancel.guest_name = None
+        return room_to_cancel
