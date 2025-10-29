@@ -358,6 +358,10 @@ df.printSchema()
 #  |-- Name: string (nullable = true)
 #  |-- Age: long (nullable = true)
 
+# isEmpty() - checks if the DataFrame is empty and returns a boolean value.
+df.isEmpty()
+# False
+
 # Select Columns
 # We can specify the colum name in two ways (strings are case-insensitive e.g. namE)
 df.select("Name").show()
