@@ -44,3 +44,6 @@ class HotelBookingService:
         room_to_cancel.reserved = False
         room_to_cancel.guest_name = None
         return room_to_cancel
+
+    def list_available_rooms(self) -> list[Room | None]:
+        return list(filter(lambda room: not room.reserved, self.rooms))
