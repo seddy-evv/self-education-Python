@@ -47,3 +47,6 @@ class HotelBookingService:
 
     def list_available_rooms(self) -> list[Room | None]:
         return list(filter(lambda room: not room.reserved, self.rooms))
+
+    def get_room_details(self, room_number: int) -> Room | None:
+        return next((room for room in self.rooms if room.r_number == room_number), None)
