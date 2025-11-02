@@ -50,3 +50,6 @@ class HotelBookingService:
 
     def get_room_details(self, room_number: int) -> Room | None:
         return next((room for room in self.rooms if room.r_number == room_number), None)
+
+    def list_guests(self) -> list[str | None]:
+        return list(map(lambda room: room.guest_name, filter(lambda room: room.reserved, self.rooms)))
