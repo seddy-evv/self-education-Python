@@ -53,3 +53,11 @@ class HotelBookingService:
 
     def list_guests(self) -> list[str | None]:
         return list(map(lambda room: room.guest_name, filter(lambda room: room.reserved, self.rooms)))
+
+    def change_room_type(self, room_number: int, new_type: str) -> bool:
+        room_to_change = next((room for room in self.rooms if room.r_number == room_number), None)
+        if not room_to_change:
+            return False
+        room_to_change.r_type = new_type
+        return True
+
