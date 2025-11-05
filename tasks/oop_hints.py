@@ -61,3 +61,5 @@ class HotelBookingService:
         room_to_change.r_type = new_type
         return True
 
+    def get_total_rooms_by_type(self, room_type: str) -> int:
+        return len(list(filter(lambda room: room.r_type == room_type, self.rooms)))
