@@ -62,11 +62,15 @@ class HotelBookingService:
         return True
 
     def get_total_rooms_by_type(self, room_type: str) -> int:
-        return len(list(filter(lambda room: room.r_type == room_type, self.rooms)))
+        res = len(list(filter(lambda room: room.r_type == room_type, self.rooms)))
+        # or
+        # res = len([room for room in self.rooms if room.r_type == room_type])
+        return res
 
     def get_reserved_rooms_by_type(self, room_type: str) -> int:
         return len(list(filter(lambda room: room.r_type == room_type and room.reserved, self.rooms)))
 
 
 if __name__ == "__main__":
-    hotel = HotelBookingService()
+    booking_service = HotelBookingService()
+    print(booking_service.get_total_rooms_by_type("single"))
