@@ -49,7 +49,11 @@ class HotelBookingService:
         return list(filter(lambda room: not room.reserved, self.rooms))
 
     def get_room_details(self, room_number: int) -> Room | None:
-        return next((room for room in self.rooms if room.r_number == room_number), None)
+        res = next((room for room in self.rooms if room.r_number == room_number), None)
+        # or
+        # room_detail = [room for room in self.rooms if room.r_number == room_number]
+        # res = room_detail[0] if res else None
+        return res
 
     def list_guests(self) -> list[str | None]:
         res = list(map(lambda room: room.guest_name, filter(lambda room: room.reserved, self.rooms)))
@@ -78,3 +82,4 @@ if __name__ == "__main__":
     booking_service = HotelBookingService()
     print(booking_service.get_total_rooms_by_type("single"))
     print(booking_service.list_guests())
+    print(booking_service.get_room_details(101))
