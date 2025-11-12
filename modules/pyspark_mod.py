@@ -358,6 +358,13 @@ df.printSchema()
 #  |-- Name: string (nullable = true)
 #  |-- Age: long (nullable = true)
 
+# if we need to get a schema above as a string
+schema_string = df._jdf.schema().treeString()
+print(schema_string)
+# root
+#  |-- Name: string (nullable = true)
+#  |-- Age: long (nullable = true)
+
 # isEmpty() - checks if the DataFrame is empty and returns a boolean value.
 df.isEmpty()
 # False
