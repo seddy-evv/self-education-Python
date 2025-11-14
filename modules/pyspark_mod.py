@@ -417,6 +417,15 @@ df.filter((df.Age > 26) & (df.Age != 30)).show()
 # |Alice| 28|
 # +-----+---+
 
+# due to lazy evaluation this also will work
+df.select(df.Name).filter(df.Age > 26).show()
+# +-------+
+# |   Name|
+# +-------+
+# |  Alice|
+# |Charlie|
+# +-------+
+
 # Order rows
 df.orderBy(df["Age"].desc()).show()
 # or
