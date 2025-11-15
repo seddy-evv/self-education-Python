@@ -46,7 +46,10 @@ class HotelBookingService:
         return room_to_cancel
 
     def list_available_rooms(self) -> list[Room | None]:
-        return list(filter(lambda room: not room.reserved, self.rooms))
+        res = list(filter(lambda room: not room.reserved, self.rooms))
+        # or
+        # res = [room for room in self.rooms if not room.reserved]
+        return res
 
     def get_room_details(self, room_number: int) -> Room | None:
         res = next((room for room in self.rooms if room.r_number == room_number), None)
@@ -87,3 +90,4 @@ if __name__ == "__main__":
     print(booking_service.list_guests())
     print(booking_service.get_room_details(101))
     print(booking_service.get_reserved_rooms_by_type("single"))
+    print(booking_service.list_available_rooms())
