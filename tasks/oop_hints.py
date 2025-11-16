@@ -30,6 +30,8 @@ class HotelBookingService:
 
     def book_room(self, desired_type: str, guest_name: str) -> Room | None:
         available_rooms = list(filter(lambda room: room.r_type == desired_type, self.rooms))
+        # # or
+        # available_rooms = [room for room in self.rooms if room.r_type == desired_type]
         room_to_book = next((room for room in available_rooms if not room.reserved), None)
         if not room_to_book:
             return None
