@@ -68,6 +68,9 @@ class HotelBookingService:
 
     def change_room_type(self, room_number: int, new_type: str) -> bool:
         room_to_change = next((room for room in self.rooms if room.r_number == room_number), None)
+        # or
+        # rooms = [room for room in self.rooms if room.r_number == room_number]
+        # room_to_change = rooms[0] if rooms else None
         if not room_to_change:
             return False
         room_to_change.r_type = new_type
@@ -93,3 +96,4 @@ if __name__ == "__main__":
     print(booking_service.get_room_details(101))
     print(booking_service.get_reserved_rooms_by_type("single"))
     print(booking_service.list_available_rooms())
+    print(booking_service.change_room_type(101, "double"))
