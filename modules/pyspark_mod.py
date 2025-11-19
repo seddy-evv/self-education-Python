@@ -398,7 +398,7 @@ df_expr.show()
 # +---------+
 
 # select distinct
-df.select("Name").distinct()
+df.select("Name").distinct().show()
 # +-------+
 # |   Name|
 # +-------+
