@@ -101,3 +101,4 @@ if __name__ == "__main__":
     print(booking_service.list_available_rooms())
     print(booking_service.change_room_type(101, "double"))
     print(booking_service.cancel_booking(102))
+    print(booking_service.book_room("double", "Alex"))
