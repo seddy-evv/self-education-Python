@@ -33,6 +33,9 @@ class HotelBookingService:
         # # or
         # available_rooms = [room for room in self.rooms if room.r_type == desired_type]
         room_to_book = next((room for room in available_rooms if not room.reserved), None)
+        # or
+        # res = [room for room in available_rooms if not room.reserved]
+        # room_detail = res[0] if res else None
         if not room_to_book:
             return None
         room_to_book.reserved = True
