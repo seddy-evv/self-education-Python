@@ -42,7 +42,7 @@ class HotelBookingService:
         room_to_book.guest_name = guest_name
         return room_to_book
 
-    def cancel_booking(self, room_number: int) -> Room | None:
+    def cancel_booking_number(self, room_number: int) -> Room | None:
         room_to_cancel = next((room for room in self.rooms if room.r_number == room_number), None)
         # or
         # room_detail = [room for room in self.rooms if room.r_number == room_number]
@@ -103,5 +103,5 @@ if __name__ == "__main__":
     print(booking_service.get_reserved_rooms_by_type("single"))
     print(booking_service.list_available_rooms())
     print(booking_service.change_room_type(101, "double"))
-    print(booking_service.cancel_booking(102))
+    print(booking_service.cancel_booking_number(102))
     print(booking_service.book_room("double", "Alex"))
