@@ -1,3 +1,6 @@
+from typing import overload
+
+
 class Room:
     __slots__ = ["r_number", "r_type", "reserved", "guest_name"]
 
@@ -42,7 +45,23 @@ class HotelBookingService:
         room_to_book.guest_name = guest_name
         return room_to_book
 
-    def cancel_booking_number(self, room_number: int) -> Room | None:
+    # The @overload decorator is used to provide multiple type hints for a function that can accept different argument
+    # types, but it does not implement the function logic itself. The actual implementation is provided separately.
+    @overload
+    def cancel_booking(self, room_number: int) -> Room | None:
+        ...
+
+    @overload
+    def cancel_booking(self, room_number: str) -> Room | None:
+        ...
+
+    def cancel_booking(self, room_number: int) -> Room | None:
+        if isinstance(room_number, str):
+            room_number = int(room_number)
+        elif isinstance(room_number, int):
+            room_number = room_number
+        else:
+            raise TypeError("Invalid argument type.")
         room_to_cancel = next((room for room in self.rooms if room.r_number == room_number), None)
         # or
         # room_detail = [room for room in self.rooms if room.r_number == room_number]
@@ -103,5 +122,5 @@ if __name__ == "__main__":
     print(booking_service.get_reserved_rooms_by_type("single"))
     print(booking_service.list_available_rooms())
     print(booking_service.change_room_type(101, "double"))
-    print(booking_service.cancel_booking_number(102))
+    print(booking_service.cancel_booking(102))
     print(booking_service.book_room("double", "Alex"))
