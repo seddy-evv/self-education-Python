@@ -984,8 +984,9 @@ df.withColumn("Name", when(df.Name == "Alice", "Alicia").otherwise(df.Name)).sho
 # current_date() - get current date
 # date_format() - Converts a date/timestamp/string to a value of string in the format specified by the date format.
 df_date = get_pyspark_df_date()
-df_date.select("Name", expr("length(name)").alias("lenght of the name"), to_date("Date"), to_timestamp("Date"),
-               col("Date").cast("date"), date_format(col("Date"), "yyyy-MM").alias("yyyy-mm"), current_date()).show()
+df_date_format = df_date.select("Name", expr("length(name)").alias("lenght of the name"), to_date("Date"), to_timestamp("Date"),
+                                col("Date").cast("date"), date_format(col("Date"), "yyyy-MM").alias("yyyy-mm"), current_date())
+df_date_format.show()
 # +-------+------------------+-------------+-------------------+----------+-------+--------------+
 # |   Name|lenght of the name|to_date(Date)| to_timestamp(Date)|      Date|yyyy-mm|current_date()|
 # +-------+------------------+-------------+-------------------+----------+-------+--------------+
@@ -993,6 +994,15 @@ df_date.select("Name", expr("length(name)").alias("lenght of the name"), to_date
 # |    Bob|                 3|   2000-02-28|2000-02-28 10:30:00|2000-02-28|2000-02|    2025-06-12|
 # |Charlie|                 7|   2005-02-28|2005-02-28 10:30:00|2005-02-28|2005-02|    2025-06-12|
 # +-------+------------------+-------------+-------------------+----------+-------+--------------+
+df_date_format.printSchema()
+# root
+#  |-- Name: string (nullable = true)
+#  |-- lenght of the name: integer (nullable = true)
+#  |-- to_date(Date): date (nullable = true)
+#  |-- to_timestamp(Date): timestamp (nullable = true)
+#  |-- Date: date (nullable = true)
+#  |-- yyyy-mm: string (nullable = true)
+#  |-- current_date(): date (nullable = false)
 
 # create_map() - The create_map() function in Apache Spark is popularly used to convert the selected or all the
 # DataFrame columns to the MapType, similar to the Python Dictionary (Dict) object.
