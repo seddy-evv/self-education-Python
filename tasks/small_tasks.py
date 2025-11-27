@@ -282,3 +282,10 @@ print(a[:5])
 # range(0, 5)
 print(a[5])
 # 5
+
+
+"""crazy i++ version"""
+i = 1
+i = -~i
+print(i)
+# 2
