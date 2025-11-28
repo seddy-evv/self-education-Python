@@ -289,3 +289,14 @@ i = 1
 i = -~i
 print(i)
 # 2
+
+
+"""weird math"""
+# since two minuses cancel each other out, and the pluses do nothing
+a = 3 +++-- 4
+# but in this case - works
+b = 3 ++--- 4
+print(a)
+# 7
+print(b)
+# -1
