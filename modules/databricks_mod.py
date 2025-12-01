@@ -22,6 +22,12 @@ updates_data = [
   ]
 updates_df = spark.createDataFrame(updates_data, schema=schema)
 
+replace_data = [
+  ("Alex", 30, 1990)
+  ]
+
+replace_df = spark.createDataFrame(replace_data, schema=schema)
+
 # Create empty delta table in the Hive metastore
 spark.sql("""
     CREATE TABLE my_table
@@ -39,6 +45,7 @@ spark.sql("""
 # .mode() - append, overwrite, error(default), ignore.
 # .clusterBy() - Databricks feature from Runtime 15.2 and above, can be used with .option(“clusterByAuto”, “true”) or
 # just Auto. Clustering is not compatible with partitioning or ZORDER.
+# replaceWhere() - option atomically replaces all records that match a given predicate.
 # create delta managed table in the Hive metastore catalog
 df.write.format("delta") \
     .mode("append") \
@@ -57,6 +64,13 @@ df.write.format("delta") \
     .option("mergeSchema", "true").save("path/to/delta_table")
 # if we need to create table in the Hive metastore based on the table above:
 spark.sql("CREATE TABLE p USING DELTA LOCATION 'path/to/delta_table'")
+# replace records in the my_table, all records in the replace_df should be with Year = 1990 otherwise
+# this operation fails with an error, also it's better that the column Year be partition column
+(replace_df.write
+ .mode("overwrite")
+ .option("replaceWhere", "Year = 1990")
+ .saveAsTable("my_table")
+ )
 
 # Read
 df = spark.read.format("delta").load("path/to/delta_table")
