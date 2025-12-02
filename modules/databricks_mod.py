@@ -49,18 +49,18 @@ spark.sql("""
 # create delta managed table in the Hive metastore catalog
 df.write.format("delta") \
     .mode("append") \
-    .clusterBy("col1") \
+    .clusterBy("Year") \
     .option("mergeSchema", "true").saveAsTable("my_table")
 # create delta external table in the Hive metastore catalog, path might be cloud storage url
 df.write.format("delta") \
     .mode("append") \
-    .partitionBy("date") \
+    .partitionBy("Year") \
     .option("path", "path/to/delta_table") \
     .option("mergeSchema", "true").saveAsTable("my_table")
 # or just save delta table without creation any tables in the Hive metastore catalog
 df.write.format("delta") \
     .mode("append") \
-    .partitionBy("date") \
+    .partitionBy("Year") \
     .option("mergeSchema", "true").save("path/to/delta_table")
 # if we need to create table in the Hive metastore based on the table above:
 spark.sql("CREATE TABLE p USING DELTA LOCATION 'path/to/delta_table'")
@@ -182,7 +182,7 @@ spark.sql("""
 (delta_table.alias("logs").merge(
     updates_df.alias("newDedupledLogs"),
     "logs.uniqueId = newDedupledLogs.uniqueId")
-  .whenNotMatchedInsertAll()
+ .whenNotMatchedInsertAll()
  .execute()
  )
 # or
@@ -219,9 +219,9 @@ spark.sql("ALTER TABLE my_table DROP CONSTRAINT dateWithinRange")
 
 # TIME TRAVEL
 # View transaction log
-fullHistoryDF = delta_table.history()
+full_history_df = delta_table.history()
 # or
-fullHistoryDF = spark.sql("DESCRIBE HISTORY my_table")
+full_history_df = spark.sql("DESCRIBE HISTORY my_table")
 
 # Get the last timestamp version of the table
 timestamp_last = spark.sql(f"DESCRIBE HISTORY my_table1").orderBy("version", ascending=False).collect()[0].timestamp
