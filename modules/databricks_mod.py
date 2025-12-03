@@ -28,7 +28,7 @@ replace_data = [
 
 replace_df = spark.createDataFrame(replace_data, schema=schema)
 
-# Create empty delta table in the Hive metastore
+# Create an empty delta table in the Hive metastore
 spark.sql("""
     CREATE TABLE my_table
     (
@@ -37,6 +37,16 @@ spark.sql("""
         Year INT
     )
     USING DELTA
+""")
+# Create a table using CTAS and the existing table
+# CTAS do not support manual schema declaration, instead TABLE might be VIEW, TEMP VIEW, GLOBAL TEMP VIEW
+# The my_table table was MANAGED, the my_table_new is EXTERNAL due to LOCATION declaration
+spark.sql("""
+    CREATE TABLE my_table_new
+    COMMENT 'Contains names and years'
+    PARTITIONED BY (Year)
+    LOCATION 'some/path'
+    AS SELECT Name, Year FROM my_table
 """)
 
 # Write
@@ -62,8 +72,10 @@ df.write.format("delta") \
     .mode("append") \
     .partitionBy("Year") \
     .option("mergeSchema", "true").save("path/to/delta_table")
-# if we need to create table in the Hive metastore based on the table above:
+# if we need to create external table in the Hive metastore based on the table above:
 spark.sql("CREATE TABLE p USING DELTA LOCATION 'path/to/delta_table'")
+
+
 # replace records in the my_table, all records in the replace_df should be with Year = 1990 otherwise
 # this operation fails with an error, also it's better that the column Year be partition column
 (replace_df.write
