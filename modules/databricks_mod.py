@@ -48,6 +48,11 @@ spark.sql("""
     LOCATION 'some/path'
     AS SELECT Name, Year FROM my_table
 """)
+# CTAS from file:
+spark.sql("""
+    CREATE TABLE my_table_file
+    AS SELECT * FROM json.`path/file_name.json`
+""")
 
 # Write
 # .option("mergeSchema", "true") - allows to enable schema evolution, and we can add additional columns with append mode
