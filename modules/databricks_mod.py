@@ -341,6 +341,7 @@ spark.sql("REFRESH TABLE books_csv;")
 delta_table = DeltaTable.forName(spark, "source_table")
 delta_table.clone(target="target_table", isShallow=True, replace=False) # clone the source at latest version
 # or
+# we may not specify the location, in this case the target_table will be MANAGED
 spark.sql("CREATE TABLE target_table [SHALLOW | DEEP] CLONE source_table [VERSION AS OF 0] LOCATION 'path/to/delta_table';")
 
 # Get DataFrame representation of a Delta table
