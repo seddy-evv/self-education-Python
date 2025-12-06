@@ -51,7 +51,11 @@ spark.sql("""
 # CTAS from file:
 spark.sql("""
     CREATE TABLE my_table_file
-    AS SELECT * FROM json.`path/file_name.json`
+    AS SELECT * FROM json.`/path/file_name.json`
+""")
+# We also can just select from file
+spark.sql("""
+SELECT * FROM json.`/path/file_name.json`
 """)
 
 # Write
