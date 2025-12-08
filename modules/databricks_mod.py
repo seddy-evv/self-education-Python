@@ -38,6 +38,7 @@ spark.sql("""
     )
     USING DELTA
 """)
+
 # Create a table using CTAS and the existing table
 # CTAS do not support manual schema declaration, instead TABLE might be VIEW, TEMP VIEW, GLOBAL TEMP VIEW
 # The my_table table was MANAGED, the my_table_new is EXTERNAL due to LOCATION declaration
@@ -53,9 +54,23 @@ spark.sql("""
     CREATE TABLE my_table_file
     AS SELECT * FROM json.`/path/file_name.json`
 """)
+
 # We also can just select from file
 spark.sql("""
-SELECT * FROM json.`/path/file_name.json`
+    SELECT * FROM json.`/path/file_name.json`
+""")
+
+# Create an external table from files (the table will not be Delta)
+spark.sql("""
+    CREATE TABLE table_name
+    (
+        Name STRING NOT NULL,
+        Age INT,
+        Year INT
+    )
+    USING CSV
+    OPTIONS (header = 'true', delimiter = ';')
+    LOCATION = 'some/path'
 """)
 
 # Write
