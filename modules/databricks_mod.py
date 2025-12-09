@@ -72,6 +72,20 @@ spark.sql("""
     OPTIONS (header = 'true', delimiter = ';')
     LOCATION = 'some/path'
 """)
+# In case if we need to create a Delta table with specific schema using data from the external files
+spark.sql("""
+    CREATE TEMP VIEW view_name
+    (
+        Name STRING NOT NULL,
+        Age INT,
+        Year INT
+    )
+    USING CSV
+    OPTIONS (header = 'true', delimiter = ';', path = 'some/path')
+    
+    CRATE TABLE table_name
+    AS SELECT * FROM view_name
+""")
 
 # Write
 # .option("mergeSchema", "true") - allows to enable schema evolution, and we can add additional columns with append mode
