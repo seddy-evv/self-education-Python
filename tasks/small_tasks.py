@@ -300,3 +300,10 @@ print(a)
 # 7
 print(b)
 # -1
+
+"""tuple task"""
+t1: tuple[int] = (1, 2)
+t1 += 3,
+print(t1)
+# (1, 2, 3)
+
