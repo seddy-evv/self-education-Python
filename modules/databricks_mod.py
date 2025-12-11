@@ -343,13 +343,14 @@ spark.sql("""
           [LOCATION `path/to/table`] -- for external tables, path might be cloud storage url
           """)
 
-# Copy new data into Delta table (with idempotent retries)
+# Incremental Data Ingestion - loading new data files encountered since the last ingestion
+# 1. Copy new data into Delta table (with idempotent retries)
 spark.sql("""
           COPY INTO [dbName.] targetTable
           FROM (SELECT * FROM "/path/to/table")
           FILEFORMAT = DELTA -- or CSV, Parquet, ORC, JSON
           """)
-
+# 2. Auto Loader - 
 
 # UTILITY METHODS
 # View table details
