@@ -350,7 +350,16 @@ spark.sql("""
           FROM (SELECT * FROM "/path/to/table")
           FILEFORMAT = DELTA -- or CSV, Parquet, ORC, JSON
           """)
-# 2. Auto Loader - 
+# 2. Auto Loader - more efficient than COPY INTO, support near real-time ingestion of millions of files per hour
+spark.readStream \
+    .format("cloudFiles") \
+    .option("cloudFiles.format", "<source_format>") \
+    .option("cloudFiles.schemaLocation", "<schema_directiry>") \
+    .load("/path/to/data") \
+    .writeStream \
+    .option("checkpointLocation", "<checkpoint_directory>") \
+    .option("mergeSchema", "true") \
+    .table("my_table")
 
 # UTILITY METHODS
 # View table details
