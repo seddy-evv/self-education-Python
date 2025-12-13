@@ -350,7 +350,7 @@ spark.sql("""
           FROM (SELECT * FROM "/path/to/table")
           FILEFORMAT = DELTA -- or CSV, Parquet, ORC, JSON
           """)
-# 2. Auto Loader - more efficient than COPY INTO, support near real-time ingestion of millions of files per hour
+# 2. Auto Loader - more efficient than COPY INTO, support near real-time ingestion of millions of files per hour (but we need a running cluster)
 spark.readStream \
     .format("cloudFiles") \
     .option("cloudFiles.format", "<source_format>") \
