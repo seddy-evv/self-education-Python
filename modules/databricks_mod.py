@@ -198,7 +198,7 @@ spark.sql("""INSERT OVERWRITE my_table VALUES
                 (8004, "Tim", "2023-01-01", 4)
           """)
 
-# Upsert (update + insert) using MERGE
+# Upsert (update + insert) using MERGE INTO
 # Available options:
 # .whenMatchedUpdate(), .whenMatchedUpdateAll(), .whenNotMatchedInsert(), .whenMatchedDelete()
 (delta_table.alias("target").merge(
@@ -243,6 +243,42 @@ spark.sql("""
           WHEN NOT MATCHED 
             THEN INSERT *
           """)
+
+# Incremental Data Ingestion - loading new data files encountered since the last ingestion
+# 1. Copy new data into Delta table (with idempotent retries)
+spark.sql("""
+          COPY INTO [dbName.] targetTable
+          FROM (SELECT * FROM "/path/to/table")
+          FILEFORMAT = DELTA -- or CSV, Parquet, ORC, JSON
+          """)
+# 2. Auto Loader - more efficient than COPY INTO, support near real-time ingestion of millions of files per hour
+spark.readStream \
+    .format("cloudFiles") \
+    .option("cloudFiles.format", "<source_format>") \
+    .option("cloudFiles.schemaLocation", "<schema_directiry>") \
+    .load("/path/to/data") \
+    .writeStream \
+    .option("checkpointLocation", "<checkpoint_directory>") \
+    .option("mergeSchema", "true") \
+    .table("my_table")
+
+# CDC: Process of identifying changes made to data in the source and delivering those changes to the target
+# (Insert, Delete, Update), useful if streaming source table is not append only.
+# APPLY CHANGES INTO - we can use within DLT pipelines to implement CDC, specifying keys, sequence on a streaming
+# target table, simplifying complex merges for streaming data.
+spark.sql("""
+          APPLY CHANGES INTO LIVE.target_table
+          FROM STREAM(LIVE.cdc_feed_table)
+          KEYS (key_field)
+          APPLY AS DELETE WHEN operating_filed = 'DELETE'
+          SEQUENCE BY sequence_field
+          COLUMNS *
+          """)
+# AUTO CDC: The AUTO CDC APIs replace the APPLY CHANGES APIs, and have the same syntax.
+
+# When to APPLY CHANGES INTO AND AUTO CDC vs. MERGE INTO
+# APPLY CHANGES INTO / AUTO CDC: Recommended for streaming CDC in DLT, handles complexity (duplicates, out-of-order data) automatically.
+# MERGE INTO: More flexible for batch, but requires manual logic for streaming CDC, error handling, and deduplication, leading to higher complexity and potential errors. 
 
 # Alter table schema - add columns, but sometimes it's not allowed for the table
 spark.sql("""
@@ -342,24 +378,6 @@ spark.sql("""
           AS SELECT * FROM tableName| parquet.`path/to/data`
           [LOCATION `path/to/table`] -- for external tables, path might be cloud storage url
           """)
-
-# Incremental Data Ingestion - loading new data files encountered since the last ingestion
-# 1. Copy new data into Delta table (with idempotent retries)
-spark.sql("""
-          COPY INTO [dbName.] targetTable
-          FROM (SELECT * FROM "/path/to/table")
-          FILEFORMAT = DELTA -- or CSV, Parquet, ORC, JSON
-          """)
-# 2. Auto Loader - more efficient than COPY INTO, support near real-time ingestion of millions of files per hour (but we need a running cluster)
-spark.readStream \
-    .format("cloudFiles") \
-    .option("cloudFiles.format", "<source_format>") \
-    .option("cloudFiles.schemaLocation", "<schema_directiry>") \
-    .load("/path/to/data") \
-    .writeStream \
-    .option("checkpointLocation", "<checkpoint_directory>") \
-    .option("mergeSchema", "true") \
-    .table("my_table")
 
 # UTILITY METHODS
 # View table details
