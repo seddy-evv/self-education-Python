@@ -167,7 +167,7 @@ DeltaTable.create() \
  .addColumn("Year", dataType="INT") \
  .execute()
 
-# DELTA LAKE DDL/DML: DELETES, DELETES, INSERTS, MERGES
+# DELTA LAKE DDL/DML: UPDATES, DELETES, INSERTS, MERGES
 # Delete rows:
 delta_table.delete("date < '2017-01-01'")
 # or
@@ -278,7 +278,7 @@ spark.sql("""
 
 # When to APPLY CHANGES INTO AND AUTO CDC vs. MERGE INTO
 # APPLY CHANGES INTO / AUTO CDC: Recommended for streaming CDC in DLT, handles complexity (duplicates, out-of-order data) automatically.
-# MERGE INTO: More flexible for batch, but requires manual logic for streaming CDC, error handling, and deduplication, leading to higher complexity and potential errors. 
+# MERGE INTO: More flexible for batch, but requires manual logic for streaming CDC, error handling, and deduplication, leading to higher complexity and potential errors.
 
 # Alter table schema - add columns, but sometimes it's not allowed for the table
 spark.sql("""
