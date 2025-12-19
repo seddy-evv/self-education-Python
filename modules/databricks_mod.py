@@ -182,6 +182,16 @@ delta_table.update(condition=col("eventType") == "clk", set={"eventType": lit("c
 # or
 spark.sql("UPDATE my_table SET event = 'click' WHERE event = 'clk'")
 
+# COUNT DISTINCT
+# In case if we need to query data using one column, this works fine:
+spark.sql("SELECT COUNT(DISTINCT Name) FROM my_table")
+# If we need to query data using all columns this may provide inconsistent result:
+spark.sql("SELECT COUNT(DISTINCT *) FROM my_table")
+# so it's better to use this code:
+spark.sql("SELECT COUNT(*) FROM (SELECT DISTINCT * FROM my_table)")
+# or just use pyspark
+print(spark.table("my_table").distinct().count())
+
 # Insert values directly into table
 spark.sql("""
           INSERT INTO TABLE my_table VALUES 
