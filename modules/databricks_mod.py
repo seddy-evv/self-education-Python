@@ -192,6 +192,10 @@ spark.sql("SELECT COUNT(*) FROM (SELECT DISTINCT * FROM my_table)")
 # or just use pyspark
 print(spark.table("my_table").distinct().count())
 
+# We can use notebook widgets directly in the SQL query
+# dbutils.widgets.text("table", "") - create a widget age
+spark.sql("SELECT * FROM my_table WHERE age = ${age}")
+
 # SELECT DISTINCT WITH ORDER
 # This code will produce an error:
 # spark.sql("SELECT DISTINCT Name FROM my_table ORDER BY Age")
