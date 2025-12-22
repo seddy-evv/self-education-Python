@@ -192,10 +192,6 @@ spark.sql("SELECT COUNT(*) FROM (SELECT DISTINCT * FROM my_table)")
 # or just use pyspark
 print(spark.table("my_table").distinct().count())
 
-# We can use notebook widgets directly in the SQL query
-# dbutils.widgets.text("table", "") - create a widget age
-spark.sql("SELECT * FROM my_table WHERE age = ${age}")
-
 # SELECT DISTINCT WITH ORDER
 # This code will produce an error:
 # spark.sql("SELECT DISTINCT Name FROM my_table ORDER BY Age")
@@ -475,3 +471,20 @@ spark.sql("ALTER TABLE my_table SET TBLPROPERTIES ('delta.enableDeletionVectors'
 # UNITY CATALOG
 # Grant privileges
 spark.sql("GRANT privilege_type ON securable_object TO principal")
+
+
+# NOTEBOOK WIDGETS
+# Create widgets:
+dbutils.widgets.text("start_date", "")
+dbutils.widgets.dropdown("register_ml_model", "True", ["True", "False"])
+dbutils.widgets.text("threshold", "")
+# Create a widget with default value:
+dbutils.widgets.text("name", "default_value")
+# Get widget value:
+START_DATE = dbutils.widgets.get("start_date")
+REGISTER_ML_MODEL = eval(dbutils.widgets.get("register_ml_model"))
+THRESHOLD = float(dbutils.widgets.get("threshold"))
+NAME = dbutils.widgets.get("name")
+# We can use notebook widgets directly in the SQL query
+dbutils.widgets.text("age", "")
+spark.sql("SELECT * FROM my_table WHERE age = ${age}")
