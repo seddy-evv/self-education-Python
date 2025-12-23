@@ -426,6 +426,16 @@ df.select(df.Name).filter(df.Age > 26).show()
 # |Charlie|
 # +-------+
 
+# filter column data using a list of values
+df.filter(col("Age").isin(25, 26)).show()
+# this code provides the same result:
+# df.filter(df["Age"].isin(25, 26)).show()
+# +----+---+
+# |Name|Age|
+# +----+---+
+# | Bob| 25|
+# +----+---+
+
 # Order rows
 df.orderBy(df["Age"].desc()).show()
 # or
