@@ -474,17 +474,17 @@ spark.sql("GRANT privilege_type ON securable_object TO principal")
 
 
 # NOTEBOOK WIDGETS
-# Create widgets:
+# Create the widgets:
 dbutils.widgets.text("start_date", "")
 dbutils.widgets.dropdown("register_ml_model", "True", ["True", "False"])
 dbutils.widgets.text("threshold", "")
 # Create a widget with default value:
 dbutils.widgets.text("name", "default_value")
-# Get widget value:
+# Get a widget value:
 START_DATE = dbutils.widgets.get("start_date")
 REGISTER_ML_MODEL = eval(dbutils.widgets.get("register_ml_model"))
 THRESHOLD = float(dbutils.widgets.get("threshold"))
 NAME = dbutils.widgets.get("name")
-# We can use notebook widgets directly in the SQL query
+# We can use notebook widgets directly in the SQL query:
 dbutils.widgets.text("age", "")
 spark.sql("SELECT * FROM my_table WHERE age = ${age}")
