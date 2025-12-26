@@ -307,20 +307,3 @@ t1: tuple[int] = (1, 2)
 t1 += 3,
 print(t1)
 # (1, 2, 3)
-
-
-"""sort a dict by values """
-initial_dict = {"c": 10, "b": 5, "d": 12, "a": 1}
-
-# Dicts preserve insertion order in Python 3.7+. Same in CPython 3.6
-# Sort the dictionary by value in ascending order
-# sorted_data_asc = dict(sorted(initial_dict.items(), key=lambda item: item[1]))
-# print(sorted_data_asc)
-
-# import operator
-# # Sort the dictionary by value using itemgetter
-# sorted_data_asc = dict(sorted(initial_dict.items(), key=operator.itemgetter(1)))
-
-# Older versions
-sorted_data_asc = sorted(initial_dict.items(), key=lambda kv: kv[1])
-print(sorted_data_asc)
