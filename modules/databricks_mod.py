@@ -488,3 +488,22 @@ NAME = dbutils.widgets.get("name")
 # We can use notebook widgets directly in the SQL query:
 dbutils.widgets.text("age", "")
 spark.sql("SELECT * FROM my_table WHERE age = ${age}")
+
+
+# DBUTILS
+from databricks.sdk.runtime import dbutils
+
+# File System (dbutils.fs):
+
+# dbutils.fs.cp(from, to, recurse=False): Copies a file or directory, potentially across different file systems.
+# dbutils.fs.head(file, maxBytes=65536): Returns the first few bytes of a file.
+# dbutils.fs.ls(path): Lists the contents of a directory.
+# dbutils.fs.mkdirs(dir): Creates the given directory if it does not already exist.
+# dbutils.fs.mount(source, mount_point, extra_configs=None): Mounts a cloud object storage path to a DBFS path.
+# dbutils.fs.mounts(): Displays information about the currently mounted file systems.
+# dbutils.fs.mv(from, to, recurse=False): Moves a file or directory from one location to another.
+# dbutils.fs.put(file, contents, overwrite=False): Writes the given string content to a file.
+# dbutils.fs.refreshMounts(): Forces a refresh of all mount points to ensure the latest state.
+# dbutils.fs.rm(dir, recurse=False): Removes a file or directory.
+# dbutils.fs.unmount(mount_point): Deletes a DBFS mount point.
+# dbutils.fs.updateMount(source, mount_point, extra_configs=None): Updates an existing mount point with new configuration.
