@@ -507,3 +507,10 @@ from databricks.sdk.runtime import dbutils
 # dbutils.fs.rm(dir, recurse=False): Removes a file or directory.
 # dbutils.fs.unmount(mount_point): Deletes a DBFS mount point.
 # dbutils.fs.updateMount(source, mount_point, extra_configs=None): Updates an existing mount point with new configuration.
+
+# Secrets (dbutils.secrets):
+
+# dbutils.secrets.get(scope, key): Retrieves the value of a secret from a specified secret scope and key.
+# dbutils.secrets.getBytes(scope, key): Gets the secret value as bytes.
+# dbutils.secrets.list(scope): Lists the metadata for all secrets within a given scope.
+# dbutils.secrets.listScopes(): Lists all available secret scopes.
