@@ -514,3 +514,14 @@ from databricks.sdk.runtime import dbutils
 # dbutils.secrets.getBytes(scope, key): Gets the secret value as bytes.
 # dbutils.secrets.list(scope): Lists the metadata for all secrets within a given scope.
 # dbutils.secrets.listScopes(): Lists all available secret scopes.
+
+# Widgets (dbutils.widgets):
+
+# dbutils.widgets.combobox(name, defaultValue, choices, label): Creates a combobox widget allowing free-form text entry or selection from a provided list.
+# dbutils.widgets.dropdown(name, defaultValue, choices, label): Creates a dropdown widget with a list of selectable values.
+# dbutils.widgets.get(name): Retrieves the current value of a widget.
+# dbutils.widgets.getArgument(name, optional=False): Retrieves the value of a widget, with an option to specify if it's optional.
+# dbutils.widgets.multiselect(name, defaultValue, choices, label): Creates a widget that allows for the selection of multiple values from a list.
+# dbutils.widgets.remove(name): Removes a specific widget from the notebook.
+# dbutils.widgets.removeAll(): Removes all widgets from the notebook.
+# dbutils.widgets.text(name, defaultValue="", label=""): Creates a text input widget.
