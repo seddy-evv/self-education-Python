@@ -525,3 +525,14 @@ from databricks.sdk.runtime import dbutils
 # dbutils.widgets.remove(name): Removes a specific widget from the notebook.
 # dbutils.widgets.removeAll(): Removes all widgets from the notebook.
 # dbutils.widgets.text(name, defaultValue="", label=""): Creates a text input widget.
+
+# Notebook (dbutils.notebook):
+
+# dbutils.notebook.exit(value): Exits the notebook with a specified return value.
+# dbutils.notebook.run(path, timeout_seconds, arguments=None): Runs another notebook and returns its exit value.
+
+# Jobs (dbutils.jobs):
+
+# dbutils.jobs.taskValues.set(key, value): Sets a value that can be retrieved by downstream tasks in the same job.
+# dbutils.jobs.taskValues.get(taskKey, key, default=None, debugValue=None): Retrieves a value that was set by an upstream task in the same job.
+
