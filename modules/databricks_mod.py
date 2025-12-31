@@ -536,3 +536,12 @@ from databricks.sdk.runtime import dbutils
 # dbutils.jobs.taskValues.set(key, value): Sets a value that can be retrieved by downstream tasks in the same job.
 # dbutils.jobs.taskValues.get(taskKey, key, default=None, debugValue=None): Retrieves a value that was set by an upstream task in the same job.
 
+# Data (dbutils.data):
+
+# dbutils.data.summarize(data, precise=False): Calculates and displays summary statistics for a Spark or pandas DataFrame.
+
+# Credentials (dbutils.credentials):
+
+# dbutils.credentials.assumeRole(role): Sets the AWS IAM role to assume for accessing S3 data.
+# dbutils.credentials.getServiceCredentialsProvider(credentialName): Returns a credentials provider for a given service credential.
+# dbutils.credentials.showCurrentRole(): Displays the currently assumed AWS IAM role.
