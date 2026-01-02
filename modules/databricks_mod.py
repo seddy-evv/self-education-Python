@@ -474,18 +474,18 @@ spark.sql("GRANT privilege_type ON securable_object TO principal")
 
 
 # NOTEBOOK WIDGETS
-# Create the widgets:
+# Create widgets:
 dbutils.widgets.text("start_date", "")
 dbutils.widgets.dropdown("register_ml_model", "True", ["True", "False"])
 dbutils.widgets.text("threshold", "")
 # Create a widget with default value:
 dbutils.widgets.text("name", "default_value")
-# Get a widget value:
+# Get widget value:
 START_DATE = dbutils.widgets.get("start_date")
 REGISTER_ML_MODEL = eval(dbutils.widgets.get("register_ml_model"))
 THRESHOLD = float(dbutils.widgets.get("threshold"))
 NAME = dbutils.widgets.get("name")
-# We can use notebook widgets directly in the SQL query:
+# We can use notebook widgets directly in the SQL query
 dbutils.widgets.text("age", "")
 spark.sql("SELECT * FROM my_table WHERE age = ${age}")
 
@@ -545,3 +545,12 @@ from databricks.sdk.runtime import dbutils
 # dbutils.credentials.assumeRole(role): Sets the AWS IAM role to assume for accessing S3 data.
 # dbutils.credentials.getServiceCredentialsProvider(credentialName): Returns a credentials provider for a given service credential.
 # dbutils.credentials.showCurrentRole(): Displays the currently assumed AWS IAM role.
+
+# Library (dbutils.library):
+
+# dbutils.library.installPyPI(pypiName, version=None, repo=None, extras=None): Installs a Python package from PyPI on the cluster.
+# dbutils.library.install(path): Installs a library from a specified path.
+# dbutils.library.list(): Lists all libraries installed on the cluster.
+# dbutils.library.restartPython(): Restarts the Python process for the current notebook session.
+# dbutils.library.updateCondaEnv(envName, packages): Updates a Conda environment with specified packages.
+# dbutils.library.uninstall(path): Uninstalls a library from the cluster.
