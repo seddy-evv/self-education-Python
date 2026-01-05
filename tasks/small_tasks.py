@@ -307,3 +307,11 @@ t1: tuple[int] = (1, 2)
 t1 += 3,
 print(t1)
 # (1, 2, 3)
+
+
+"""dumyy context manager"""
+from contextlib import nullcontext
+
+with nullcontext():
+    print("Inside a dummy context manager")
+    
