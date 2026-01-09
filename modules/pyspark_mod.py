@@ -8,7 +8,7 @@ from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
     current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format, substring_index, \
     regexp_replace, upper, length, substring, trim, instr, split, array_contains, arrays_overlap, arrays_zip, element_at, \
-    transform, posexplode, array_union, collect_list, struct
+    transform, posexplode, array_union, collect_list, struct, round
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -1324,7 +1324,7 @@ df_window.withColumn("percent_rank", percent_rank().over(window_spec)).show()
 # |        James|     Sales|  3000|         1.0|
 # +-------------+----------+------+------------+
 
-df.withColumn("ntile", ntile(2).over(window_spec)).show()
+df_window.withColumn("ntile", ntile(2).over(window_spec)).show()
 # +-------------+----------+------+-----+
 # |employee_name|department|salary|ntile|
 # +-------------+----------+------+-----+
@@ -1337,7 +1337,7 @@ df.withColumn("ntile", ntile(2).over(window_spec)).show()
 # +-------------+----------+------+-----+
 
 # cume_dist, lag, lead
-df.withColumn("cume_dist", cume_dist().over(window_spec)).show()
+df_window.withColumn("cume_dist", cume_dist().over(window_spec)).show()
 # +-------------+----------+------+------------------+
 # |employee_name|department|salary|         cume_dist|
 # +-------------+----------+------+------------------+
@@ -1349,7 +1349,7 @@ df.withColumn("cume_dist", cume_dist().over(window_spec)).show()
 # |        James|     Sales|  3000|               1.0|
 # +-------------+----------+------+------------------+
 
-df.withColumn("lag", lag("salary", 2).over(window_spec)).show()
+df_window.withColumn("lag", lag("salary", 2).over(window_spec)).show()
 # +-------------+----------+------+----+
 # |employee_name|department|salary| lag|
 # +-------------+----------+------+----+
@@ -1361,7 +1361,7 @@ df.withColumn("lag", lag("salary", 2).over(window_spec)).show()
 # |        James|     Sales|  3000|4600|
 # +-------------+----------+------+----+
 
-df.withColumn("lead", lead("salary", 2).over(window_spec)).show()
+df_window.withColumn("lead", lead("salary", 2).over(window_spec)).show()
 # +-------------+----------+------+----+
 # |employee_name|department|salary|lead|
 # +-------------+----------+------+----+
@@ -1373,7 +1373,7 @@ df.withColumn("lead", lead("salary", 2).over(window_spec)).show()
 # |        James|     Sales|  3000|null|
 # +-------------+----------+------+----+
 
-# avg, sum, min, max
+# avg, sum, min, max, round
 window_spec_agg = Window.partitionBy("department")
 
 df.withColumn("avg", avg(col("salary")).over(window_spec_agg)) \
