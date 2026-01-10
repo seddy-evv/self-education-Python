@@ -54,7 +54,7 @@ rounded_number = round(number / 0.05) * 0.05
 print(rounded_number)
 # 1.25
 
-# but due to the nature of floating-point arithmetic, you might get results with many decimal places,
-# such as 1.25000000000000001, so the decimal module will help
+""" but due to the nature of floating-point arithmetic, you might get results with many decimal places,
+such as 1.25000000000000001, so the decimal module will help"""
 print(traditional_round(1.25000000000000001, 2))
 # 1.25
