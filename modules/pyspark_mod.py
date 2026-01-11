@@ -36,8 +36,8 @@ def get_pyspark_df2():
     return df2
 
 def get_pyspark_df3():
-    data = [("Alice", 2000), ("Bob", 3000), ("Charlie", 4000), ("Bob", 4000)]
-    df3 = spark.createDataFrame(data, schema=["Name", "Salary"])
+    data = [("Alice", 2000, 2.4), ("Bob", 3000, 2.5), ("Charlie", 4000, 3.5), ("Bob", 4000, 4.5)]
+    df3 = spark.createDataFrame(data, schema=["Name", "Salary", "Percent"])
 
     return df3
 
@@ -492,7 +492,17 @@ df.groupBy("Age").count().show()
 # +---+-----+
 
 df3 = get_pyspark_df3()
-aggregated_df = df3.groupBy("Name").agg(sum("Salary").alias("Salary sum"), max("Salary"))
+df3 = df3.withColumn("Percent", round(col("Percent")))
+df3.show()
+# +-------+------+-------+
+# |   Name|Salary|Percent|
+# +-------+------+-------+
+# |  Alice|  2000|    2.0|
+# |    Bob|  3000|    3.0|
+# |Charlie|  4000|    4.0|
+# |    Bob|  4000|    5.0|
+# +-------+------+-------+
+aggregated_df = df3.groupBy("Name").agg(sum("Salary").alias("Salary sum"), max("Salary"), round("Percent"))
 aggregated_df.show()
 # +-------+----------+-----------+
 # |   Name|Salary sum|max(Salary)|
