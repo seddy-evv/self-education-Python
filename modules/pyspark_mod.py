@@ -9,7 +9,7 @@ from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create
     current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format, substring_index, \
     regexp_replace, upper, length, substring, trim, instr, split, array_contains, arrays_overlap, arrays_zip, element_at, \
     transform, posexplode, array_union, collect_list, struct, round
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType, LongType
 from pyspark.sql.window import Window
 import pandas as pd
 import time
@@ -352,6 +352,12 @@ print(df.columns)
 # we can use df.schema to create a new df from existing one with the same schema
 print(df.schema)
 # StructType([StructField('Name', StringType(), True), StructField('Age', LongType(), True)])
+
+# select numerical columns
+numeric_columns = [col for col in df.columns if df.schema[col].dataType in [IntegerType(), DoubleType(), FloatType(),
+                                                                            LongType()]]
+print(numeric_columns)
+# ['Age']
 
 df.printSchema()
 # root
