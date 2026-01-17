@@ -198,6 +198,12 @@ print(spark.table("my_table").distinct().count())
 # so to select distinct names with order by age:
 spark.sql("SELECT Name FROM (SELECT Name, Age FROM my_table ORDER BY Age)")
 
+# SELECT EXCEPT
+spark.sql("SELECT * EXCEPT(Age) FROM my_table")
+
+# Create deterministic keys
+spar.sql("SELECT XXHASH64(Name || Age) AS deterministic_primary_key FROM my_table")
+
 # Insert values directly into table
 spark.sql("""
           INSERT INTO TABLE my_table VALUES 
