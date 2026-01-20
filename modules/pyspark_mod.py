@@ -12,6 +12,7 @@ from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType, LongType
 from pyspark.sql.window import Window
 import pandas as pd
+import pyspark.pandas as ps
 import time
 
 # Create SparkSession
@@ -1889,3 +1890,17 @@ spark.sql(f"SHOW TBLPROPERTIES my_table").show()
 # |delta.minReaderVe...|               1|
 # |delta.minWriterVe...|               2|
 # +--------------------+----------------+
+
+
+# Pandas API and Pandas DataFrames with pyspark
+
+# 1 .toPandas() - Returns the contents of this DataFrame as Pandas pandas.DataFrame. This method should only be used
+# if the resulting Pandas pandas.DataFrame is expected to be small, as all the data is loaded into the driver’s memory.
+
+df = get_pyspark_df()
+pandas_df = df.toPandas()
+print(pandas_df)
+#       Name  Age
+# 0    Alice   28
+# 1      Bob   25
+# 2  Charlie   30
