@@ -1904,3 +1904,31 @@ print(pandas_df)
 # 0    Alice   28
 # 1      Bob   25
 # 2  Charlie   30
+
+# 2. Pandas API on Spark
+# The pandas API on Spark allows users to run code written with the familiar pandas syntax in a distributed and
+# scalable manner on an Apache Spark cluster. It was developed to address the limitation of standard pandas, which
+# can only process data that fits into the memory of a single machine.
+# API Coverage: While coverage is high, not all pandas APIs are supported, and some features, like specific pandas data
+# types (e.g., Timedelta), are not yet fully implemented.
+psdf = ps.DataFrame({'a': [1, 2, 3, 4, 5, 6],
+                    'b': [100, 200, 300, 400, 500, 600]})
+
+# Use familiar pandas syntax
+print(psdf.head())
+#    a    b
+# 0  1  100
+# 1  2  200
+# 2  3  300
+# 3  4  400
+# 4  5  500
+print(psdf.describe())
+#               a           b
+# count  6.000000    6.000000
+# mean   3.500000  350.000000
+# std    1.870829  187.082869
+# min    1.000000  100.000000
+# 25%    2.000000  200.000000
+# 50%    3.000000  300.000000
+# 75%    5.000000  500.000000
+# max    6.000000  600.000000
