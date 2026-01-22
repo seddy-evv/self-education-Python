@@ -928,6 +928,8 @@ df.write.format("parquet").save(f"/output-{current_time}.parquet")
 
 df_parquet = spark.read.parquet(f"/output-{current_time}.parquet")
 # or
+# path might be directly to the storage account/container/folder
+# abfss://curated-container@testaccount123.dfs.core.windows.net/data/
 df_parquet = spark.read.format("parquet").load(f"/output-{current_time}.parquet")
 df_parquet.show()
 
@@ -1932,3 +1934,18 @@ print(psdf.describe())
 # 50%    3.000000  300.000000
 # 75%    5.000000  500.000000
 # max    6.000000  600.000000
+
+# 3.mapInPandas() - Maps an iterator of batches in the current DataFrame using a Python native function that is
+# performed on pandas DataFrames both as input and output, and returns the result as a DataFrame. This can be useful
+# if we need to pass a pandas dataframe to a specific library. Processing will be performed for each partition.
+
+def filter_func(iterator):
+    for pdf in iterator:
+        yield pdf[pdf.Age == 28]
+
+df.mapInPandas(filter_func, df.schema).show()
+# +-----+---+
+# | Name|Age|
+# +-----+---+
+# |Alice| 28|
+# +-----+---+
