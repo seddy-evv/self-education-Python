@@ -1949,3 +1949,18 @@ df.mapInPandas(filter_func, df.schema).show()
 # +-----+---+
 # |Alice| 28|
 # +-----+---+
+
+# 4. @pandas_udf - Pandas UDFs are user defined functions that are executed by Spark using Arrow to transfer data and
+# Pandas to work with the data, which allows pandas operations.
+
+# With @pandas_udf the model only needs to be loaded once per executor rather than once per batch during the inference
+# process
+# @pandas_udf("double")
+# def predict(iterator: Iterator[pd.DataFrame]) -> Iterator[pd.Series]:
+#     model_path = f"runs:/{run.info.run_id}/model"
+#     model = mlflow.sklearn.load_model(model_path)
+#     for features in iterator
+#         pdf = pd.concat(features, axis=1)
+#         yield pd.Series(model.predict(pdf))
+#
+# df.select(predict("features")).show()
