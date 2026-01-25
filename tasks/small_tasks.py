@@ -226,7 +226,8 @@ try:
     data[0] = data[0] + ['geek']
 except Exception as exp:
     print(exp)
-    # TypeError: 'tuple' object does not support item assignment
+# TypeError: 'tuple' object does not support item assignment
+
 # or
 # data[0] += ['geek']
 # print(data)
@@ -248,7 +249,7 @@ try:
     dct = {(0, [1]): 1}
 except Exception as exp:
     print(exp)
-    # TypeError: unhashable type: 'list'
+# TypeError: unhashable type: 'list'
 
 
 """infinite recursion"""
@@ -314,4 +315,7 @@ from contextlib import nullcontext
 
 with nullcontext():
     print("Inside a dummy context manager")
-    
+
+
+"""assert without unit tests"""
+assert 1 == 2, "error message"
