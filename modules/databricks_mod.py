@@ -535,7 +535,8 @@ from databricks.sdk.runtime import dbutils
 # Notebook (dbutils.notebook):
 
 # dbutils.notebook.exit(value): Exits the notebook with a specified return value.
-# dbutils.notebook.run(path, timeout_seconds, arguments=None): Runs another notebook and returns its exit value.
+# dbutils.notebook.run(path, timeout_seconds, arguments=None): This method runs a child notebook as a new job,
+# allowing you to pass parameters and retrieve a single exit value (as a string).
 
 # Jobs (dbutils.jobs):
 
@@ -560,3 +561,7 @@ from databricks.sdk.runtime import dbutils
 # dbutils.library.restartPython(): Restarts the Python process for the current notebook session.
 # dbutils.library.updateCondaEnv(envName, packages): Updates a Conda environment with specified packages.
 # dbutils.library.uninstall(path): Uninstalls a library from the cluster.
+
+# %
+# %run - The %run command executes another notebook in the same session context as the parent notebook, making all
+# variables and functions from the parent available in the child, and vice versa.
