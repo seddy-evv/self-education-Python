@@ -15,5 +15,11 @@ w = Window.orderBy(desc("f1"), desc("train_date"))
 df_metrics = df_metrics.withColumn("rank", row_number().over(w))
 df_metrics = df_metrics.withColumn("champion", when(col("rank") == 1, lit(True)).otherwise(lit(False))).drop("rank")
 
-
 df_metrics.show()
+# +-------+---+-------------------+--------+
+# |version| f1|         train_date|champion|
+# +-------+---+-------------------+--------+
+# |      2|0.9|2025-12-01 00:00:00|    true|
+# |      1|0.9|2025-11-01 00:00:00|   false|
+# |      3|0.8|2026-01-01 00:00:00|   false|
+# +-------+---+-------------------+--------+
