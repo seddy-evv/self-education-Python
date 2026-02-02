@@ -357,6 +357,20 @@ print(df.schema)
 # select numerical columns
 numeric_columns = [col for col in df.columns if df.schema[col].dataType in [IntegerType(), DoubleType(), FloatType(),
                                                                             LongType()]]
+
+# select all columns except some
+df1 = get_pyspark_df1()
+columns_to_select = [col for col in df1.columns if col not in ["Company"]]
+df_selected = df.select(columns_to_select)
+df_selected.show()
+# +-------+---+
+# |   Name|Age|
+# +-------+---+
+# |  Alice| 28|
+# |    Bob| 25|
+# |Charlie| 30|
+# +-------+---+
+
 print(numeric_columns)
 # ['Age']
 
