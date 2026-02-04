@@ -19,7 +19,7 @@ data = [
     (1, 1, "2025-10-12", "XGB"),
     (1, 0, "2025-10-13", "XGB"),
 ]
-df = spark.createDataFrame(data, schema=["prediction", "actual", "data", "model"])
+df = spark.createDataFrame(data, schema=["prediction", "actual", "date", "model"])
 
 print("df initial")
 df.show()
