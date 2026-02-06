@@ -80,3 +80,41 @@ df_pivot.show()
 # +-----+---+---+---+---+
 # |  XGB|  3|  5|  2|  3|
 # +-----+---+---+---+---+
+
+# WITHOUT PIVOT
+
+df_custom = df \
+.withColumn("TP", when((col("prediction") == 1) & (col("actual") == 1), 1).otherwise(0)) \
+.withColumn("FP", when((col("prediction") == 1) & (col("actual") == 0), 1).otherwise(0)) \
+.withColumn("FN", when((col("prediction") == 0) & (col("actual") == 1), 1).otherwise(0)) \
+.withColumn("TN", when((col("prediction") == 0) & (col("actual") == 0), 1).otherwise(0)) \
+
+print("df custom")
+df_custom.show()
+# +----------+------+----------+-----+---+---+---+---+
+# |prediction|actual|      data|model| TP| FP| FN| TN|
+# +----------+------+----------+-----+---+---+---+---+
+# |         1|     0|2025-10-01|  XGB|  0|  1|  0|  0|
+# |         1|     1|2025-10-02|  XGB|  1|  0|  0|  0|
+# |         0|     1|2025-10-03|  XGB|  0|  0|  1|  0|
+# |         1|     0|2025-10-04|  XGB|  0|  1|  0|  0|
+# |         1|     1|2025-10-05|  XGB|  1|  0|  0|  0|
+# |         0|     0|2025-10-06|  XGB|  0|  0|  0|  1|
+# |         1|     0|2025-10-07|  XGB|  0|  1|  0|  0|
+# |         0|     1|2025-10-08|  XGB|  0|  0|  1|  0|
+# |         1|     0|2025-10-09|  XGB|  0|  1|  0|  0|
+# |         0|     0|2025-10-10|  XGB|  0|  0|  0|  1|
+# |         0|     1|2025-10-11|  XGB|  0|  0|  1|  0|
+# |         1|     1|2025-10-12|  XGB|  1|  0|  0|  0|
+# |         1|     0|2025-10-13|  XGB|  0|  1|  0|  0|
+# +----------+------+----------+-----+---+---+---+---+
+
+df_custom_pivot = df_custom.groupBy("model").agg(sum("TP").alias("TP"), sum("FP").alias("FP"), sum("FN").alias("FN"), sum("TN").alias("TN"))
+
+print("df custom pivot")
+df_custom_pivot.show()
+# +-----+---+---+---+---+
+# |model| TP| FP| FN| TN|
+# +-----+---+---+---+---+
+# |  XGB|  3|  5|  3|  2|
+# +-----+---+---+---+---+
