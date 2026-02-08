@@ -118,3 +118,16 @@ df_custom_pivot.show()
 # +-----+---+---+---+---+
 # |  XGB|  3|  5|  3|  2|
 # +-----+---+---+---+---+
+
+# UNPIVOT
+df_unpivot = df_pivot.unpivot("model", ["TP", "FP", "FN", "TN"], "confusion_matrix", "val")
+print("df unpivot")
+df_unpivot.show()
+# +-----+----------------+---+
+# |model|confusion_matrix|val|
+# +-----+----------------+---+
+# |  XGB|              TP|  3|
+# |  XGB|              FP|  5|
+# |  XGB|              FN|  3|
+# |  XGB|              TN|  2|
+# +-----+----------------+---+
