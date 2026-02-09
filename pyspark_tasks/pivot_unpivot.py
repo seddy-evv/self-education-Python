@@ -131,3 +131,16 @@ df_unpivot.show()
 # |  XGB|              FN|  3|
 # |  XGB|              TN|  2|
 # +-----+----------------+---+
+
+# UNPIVOT CUSTOM
+df_unpivot_custom = df_pivot.selectExpr("model", "stack(4, 'TP', TP, 'FP', FP, 'FN', FN, 'TN', TN) as (confusion_matrix, val)")
+print("df unpivot custom")
+df_unpivot_custom.show()
+# +-----+----------------+---+
+# |model|confusion_matrix|val|
+# +-----+----------------+---+
+# |  XGB|              TP|  3|
+# |  XGB|              FP|  5|
+# |  XGB|              FN|  3|
+# |  XGB|              TN|  2|
+# +-----+----------------+---+
