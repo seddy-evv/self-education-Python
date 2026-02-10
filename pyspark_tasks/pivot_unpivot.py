@@ -144,3 +144,50 @@ df_unpivot_custom.show()
 # |  XGB|              FN|  3|
 # |  XGB|              TN|  2|
 # +-----+----------------+---+
+
+# UNPIVOT TO THE ORIGINAL DF
+# For 'TP'
+df_tp = df_pivot.select(
+    "model",
+    explode(sequence(lit(1), col("TP"))).alias("dummy")
+).withColumn("type", lit("TP")).drop("dummy")
+
+# For 'FP'
+df_fp = df_pivot.select(
+    "model",
+    explode(sequence(lit(1), col("FP"))).alias("dummy")
+).withColumn("type", lit("FP")).drop("dummy")
+
+# For 'FN'
+df_fn = df_pivot.select(
+    "model",
+    explode(sequence(lit(1), col("FN"))).alias("dummy")
+).withColumn("type", lit("FN")).drop("dummy")
+
+# For 'TN'
+df_tn = df_pivot.select(
+    "model",
+    explode(sequence(lit(1), col("TN"))).alias("dummy")
+).withColumn("type", lit("TN")).drop("dummy")
+
+result = df_tp.union(df_fp).union(df_fn).union(df_tn)
+
+print("unpivot to the original df")
+result.show()
+# +-----+----+
+# |model|type|
+# +-----+----+
+# |  XGB|  TP|
+# |  XGB|  TP|
+# |  XGB|  TP|
+# |  XGB|  FP|
+# |  XGB|  FP|
+# |  XGB|  FP|
+# |  XGB|  FP|
+# |  XGB|  FP|
+# |  XGB|  FN|
+# |  XGB|  FN|
+# |  XGB|  FN|
+# |  XGB|  TN|
+# |  XGB|  TN|
+# +-----+----+
