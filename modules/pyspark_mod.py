@@ -8,7 +8,7 @@ from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
     current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format, substring_index, \
     regexp_replace, upper, length, substring, trim, instr, split, array_contains, arrays_overlap, arrays_zip, element_at, \
-    transform, posexplode, array_union, collect_list, struct, round
+    transform, posexplode, array_union, collect_list, struct, round, sequence
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType, LongType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -347,9 +347,6 @@ df.summary().show()
 # |    max|Charlie|                30|
 # +-------+-------+------------------+
 
-print(df.columns)
-# ['Name', 'Age']
-
 # we can use df.schema to create a new df from existing one with the same schema
 print(df.schema)
 # StructType([StructField('Name', StringType(), True), StructField('Age', LongType(), True)])
@@ -357,6 +354,9 @@ print(df.schema)
 # select numerical columns
 numeric_columns = [col for col in df.columns if df.schema[col].dataType in [IntegerType(), DoubleType(), FloatType(),
                                                                             LongType()]]
+
+print(df.columns)
+# ['Name', 'Age']
 
 # select all columns except some
 df1 = get_pyspark_df1()
@@ -1114,6 +1114,16 @@ df.show()
 # |  2|   [5, 6, 7]|   [7, 8]|   [x, y]|
 # |  3|          []|   [2, 3]|       []|
 # +---+------------+---------+---------+
+
+# sequence - generates a sequence of integers from start to stop, incrementing by step.
+df.withColumn("seq", sequence(lit(1), col("id"))).show()
+# +---+------------+---------+---------+---------+
+# | id|     numbers| numbers1|  letters|      seq|
+# +---+------------+---------+---------+---------+
+# |  1|[1, 2, 3, 4]|[3, 4, 5]|[a, b, c]|      [1]|
+# |  2|   [5, 6, 7]|   [7, 8]|   [x, y]|   [1, 2]|
+# |  3|          []|   [2, 3]|       []|[1, 2, 3]|
+# +---+------------+---------+---------+---------+
 
 # explode() - returns a new row for each element in the given array or map.
 df.select("id", "numbers1", "letters", explode("numbers").alias("number")).show()
