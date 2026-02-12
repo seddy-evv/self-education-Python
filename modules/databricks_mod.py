@@ -202,7 +202,7 @@ spark.sql("SELECT Name FROM (SELECT Name, Age FROM my_table ORDER BY Age)")
 spark.sql("SELECT * EXCEPT(Age) FROM my_table")
 
 # Create deterministic keys
-spar.sql("SELECT XXHASH64(Name || Age) AS deterministic_primary_key FROM my_table")
+spark.sql("SELECT XXHASH64(Name || Age) AS deterministic_primary_key FROM my_table")
 
 # Insert values directly into table
 spark.sql("""
@@ -365,7 +365,7 @@ df = spark.read.format("delta") \
 df = spark.sql("SELECT * FROM my_table TIMESTAMP AS OF '2020-12-18 11:37:00'")
 df = spark.sql("SELECT * FROM my_table VERSION AS OF 2")
 
-# Find chenges between 2 versions of table
+# Find changes between 2 versions of table
 df1 = spark.read.format("delta").load("path/to/delta_table")
 df2 = spark.read.format("delta").option("versionAsOf", 2).load("path/to/delta_table")
 df1.exceptAll(df2).show()
@@ -428,6 +428,9 @@ spark.sql("""
 # View table details
 spark.sql("DESCRIBE DETAIL my_table")
 spark.sql("DESCRIBE FORMATTED my_table")
+
+# Provides the logical or physical plans for an input statement.
+spark.sql("EXPLAIN EXTENDED SELECT * from predictions")
 
 # Compact old files with Vacuum
 delta_table.vacuum()  # vacuum files older than default retention period (7 days)
@@ -563,5 +566,5 @@ from databricks.sdk.runtime import dbutils
 # dbutils.library.uninstall(path): Uninstalls a library from the cluster.
 
 # %
-# %run - The %run command executes another notebook in the same session context as the parent notebook, making all
+# %run - The %run command executes another notebook in the SAME session context as the parent notebook, making all
 # variables and functions from the parent available in the child, and vice versa.
