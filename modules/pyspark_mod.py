@@ -332,6 +332,32 @@ df.describe().show()
 # |    max|Charlie|                30|
 # +-------+-------+------------------+
 
+# explain() - Prints the (logical and physical) plans to the console for debugging purposes.
+# We can also use EXPLAIN within spark.sql() and get the same result
+df.explain(extended=True)
+# == Parsed Logical Plan ==
+# 'UnresolvedSubqueryColumnAliases [Name, Age]
+# +- LocalRelation [Name#13241, Age#13242L]
+#
+# == Analyzed Logical Plan ==
+# Name: string, Age: bigint
+# Project [Name#13241 AS Name#13243, Age#13242L AS Age#13244L]
+# +- LocalRelation [Name#13241, Age#13242L]
+#
+# == Optimized Logical Plan ==
+# LocalRelation [Name#13243, Age#13244L]
+#
+# == Physical Plan ==
+# LocalTableScan [Name#13243, Age#13244L]
+#
+# == Photon Explanation ==
+# Photon does not fully support the query because:
+# 		Unsupported node: LocalTableScan [Name#13243, Age#13244L].
+#
+# Reference node:
+# 	LocalTableScan [Name#13243, Age#13244L]
+
+
 # summary() - Computes specified statistics for numeric and string columns.
 df.summary().show()
 # +-------+-------+------------------+
