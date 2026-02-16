@@ -201,6 +201,15 @@ spark.sql("SELECT Name FROM (SELECT Name, Age FROM my_table ORDER BY Age)")
 # SELECT EXCEPT
 spark.sql("SELECT * EXCEPT(Age) FROM my_table")
 
+# QUALIFY - Filters the results of window functions.
+spark.sql("""
+SELECT
+  Name
+FROM
+  my_table
+QUALIFY RANK() OVER (ORDER BY Age) = 1;
+""")
+
 # Create deterministic keys
 spark.sql("SELECT XXHASH64(Name || Age) AS deterministic_primary_key FROM my_table")
 
