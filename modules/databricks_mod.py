@@ -441,7 +441,7 @@ spark.sql("DESCRIBE FORMATTED my_table")
 # Provides the logical or physical plans for an input statement.
 spark.sql("EXPLAIN EXTENDED SELECT * from predictions")
 
-# Compact old files with Vacuum
+# Remove old files with Vacuum
 delta_table.vacuum()  # vacuum files older than default retention period (7 days)
 # or
 # DRY RUN - Return a list of up to 1000 files to be deleted.
@@ -452,7 +452,7 @@ spark.sql("VACUUM my_table [RETAIN num HOURS] [DRY RUN]")
 spark.sql("ANALYZE TABLE my_table COMPUTE STATISTICS")
 
 # The REFRESH TABLE invalidates the cached entries for Apache Spark cache, which include data and metadata of the
-# given table or view. This is useful for tables created from csv or parquet files.
+# given table or view. This is useful for tables created from csv or parquet files (don't use for delta tables!).
 spark.sql("REFRESH TABLE books_csv;")
 
 # Clone a Delta table
@@ -467,8 +467,15 @@ df = delta_table.toDF()
 
 
 # PERFORMANCE OPTIMIZATIONS
-# Compact data files with Optimize and Z-Order
+# Compact small data files with Optimize and Z-Order
 spark.sql("OPTIMIZE my_table [ZORDER BY (colA, colB)]")
+
+# Predictive Optimization  automatically manages maintenance for Unity Catalog tables, eliminating manual
+# OPTIMIZE, VACUUM, and ANALYZE tasks.
+# Enable at catalog level
+spark.sql("ALTER CATALOG <catalog_name> ENABLE PREDICTIVE OPTIMIZATION")
+# Enable at schema level
+spark.sql("ALTER SCHEMA <schema_name> ENABLE PREDICTIVE OPTIMIZATION")
 
 # Auto-optimize tables
 # For existing tables:
