@@ -349,13 +349,22 @@ spark.sql("ALTER TABLE my_table SET TBLPROPERTIES ('delta.columnMapping.mode' = 
 spark.sql("ALTER TABLE my_table DROP COLUMN new_column")
 
 # Alter table - add constraint
-# Add "Not NULL" constraint:
-spark.sql("ALTER TABLE my_table CHANGE COLUMN col_name SET NOT NULL")
-# Add "check" constraint:
+
+# Two types of ENFORCED (when a constraint is violated, the transaction fails with an error) constraints are supported:
+# NOT NULL: indicates that values in specific columns cannot be null:
+spark.sql("ALTER TABLE my_table ALTER COLUMN col_name SET NOT NULL")
+# Drop NOT NULL:
+spark.sql("ALTER TABLE my_table ALTER COLUMN col_name DROP NOT NULL")
+# CHECK: indicates that a specified boolean expression must be true for each input row:
 spark.sql("ALTER TABLE my_table ADD CONSTRAINT dateWithinRange CHECK (date > '1900-01-01')")
 # Drop Constraint:
 spark.sql("ALTER TABLE my_table DROP CONSTRAINT dateWithinRange")
 
+# Primary and foreign keys are informational only and are not ENFORCED.
+# Add primary key to my_table
+spark.sql("ALTER TABLE my_table ADD CONSTRAINT pk_my_table PRIMARY KEY (Name)")
+# Add foreign key to orders
+spark.sql("ALTER TABLE orders ADD CONSTRAINT fk_orders_my_table FOREIGN KEY (Name) REFERENCES customers (Name)")
 
 # TIME TRAVEL
 # View transaction log
