@@ -1298,6 +1298,7 @@ df_null.select('*', coalesce(df_null["a"], lit(0.0))).show()
 # |   3|   3|               3|
 # +----+----+----------------+
 
+
 # udf() - create and use an udf, user memory is in use, IntegerType() - return type
 def increment_age(age):
     return age + 1
