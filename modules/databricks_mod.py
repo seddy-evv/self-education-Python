@@ -182,37 +182,6 @@ delta_table.update(condition=col("eventType") == "clk", set={"eventType": lit("c
 # or
 spark.sql("UPDATE my_table SET event = 'click' WHERE event = 'clk'")
 
-# COUNT DISTINCT
-# In case if we need to query data using one column, this works fine:
-spark.sql("SELECT COUNT(DISTINCT Name) FROM my_table")
-# If we need to query data using all columns this may provide inconsistent result:
-# spark.sql("SELECT COUNT(DISTINCT *) FROM my_table")
-# so it's better to use this code:
-spark.sql("SELECT COUNT(*) FROM (SELECT DISTINCT * FROM my_table)")
-# or just use pyspark
-print(spark.table("my_table").distinct().count())
-
-# SELECT DISTINCT WITH ORDER
-# This code will produce an error:
-# spark.sql("SELECT DISTINCT Name FROM my_table ORDER BY Age")
-# so to select distinct names with order by age:
-spark.sql("SELECT Name FROM (SELECT Name, Age FROM my_table ORDER BY Age)")
-
-# SELECT EXCEPT
-spark.sql("SELECT * EXCEPT(Age) FROM my_table")
-
-# QUALIFY - Filters the results of window functions.
-spark.sql("""
-SELECT
-  Name
-FROM
-  my_table
-QUALIFY RANK() OVER (ORDER BY Age) = 1;
-""")
-
-# Create deterministic keys
-spark.sql("SELECT XXHASH64(Name || Age) AS deterministic_primary_key FROM my_table")
-
 # Insert values directly into table
 spark.sql("""
           INSERT INTO TABLE my_table VALUES 
@@ -279,7 +248,7 @@ spark.sql("""
 spark.sql("""
           CREATE OR REPLACE TEMP VIEW customers_updates AS
           SELECT * FROM json.`${dataset.bookstore}/customers-json-new`;
-          
+
           MERGE INTO customers c
           USING customers_updates u
           ON c.customer_id = u.customer_id
@@ -287,6 +256,42 @@ spark.sql("""
             UPDATE SET email = u.email, updated = u.updated
           WHEN NOT MATCHED THEN INSERT * 
           """)
+
+# COUNT DISTINCT
+# In case if we need to query data using one column, this works fine:
+spark.sql("SELECT COUNT(DISTINCT Name) FROM my_table")
+# If we need to query data using all columns this may provide inconsistent result:
+# spark.sql("SELECT COUNT(DISTINCT *) FROM my_table")
+# so it's better to use this code:
+spark.sql("SELECT COUNT(*) FROM (SELECT DISTINCT * FROM my_table)")
+# or just use pyspark
+print(spark.table("my_table").distinct().count())
+
+# SELECT DISTINCT WITH ORDER
+# This code will produce an error:
+# spark.sql("SELECT DISTINCT Name FROM my_table ORDER BY Age")
+# so to select distinct names with order by age:
+spark.sql("SELECT Name FROM (SELECT Name, Age FROM my_table ORDER BY Age)")
+
+# SELECT EXCEPT
+spark.sql("SELECT * EXCEPT(Age) FROM my_table")
+
+# QUALIFY - Filters the results of window functions.
+spark.sql("""
+SELECT
+  Name
+FROM
+  my_table
+QUALIFY RANK() OVER (ORDER BY Age) = 1;
+""")
+
+# Create deterministic keys
+spark.sql("SELECT XXHASH64(Name || Age) AS deterministic_primary_key FROM my_table")
+
+# Main SQL functions
+spark.sql("SELECT MAX(sale_amount) AS max_sale, MIN(sale_amount) AS min_sale, SUM(sale_amount) AS total_sales, "
+          "AVG(sale_amount) AS avg_sale, ROUND(AVG(sale_amount), 2) AS avg_sale_rounded, CAST(sale_amount AS INT) "
+          "AS sale_amount_int FROM sales_data")
 
 # CDC: Process of identifying changes made to data in the source and delivering those changes to the target
 # (Insert, Delete, Update), useful if streaming source table is not append only.
