@@ -30,3 +30,40 @@ else:
     # DF1 Columns: ['Name', 'Age']
     print("DF3 Columns:", df3.columns)
     # DF3 Columns: ['Name', 'Age', 'Salary']
+
+# 2. Compare Data
+# 2.1 Row Count
+if df1.count() == df2.count():
+    print("Row counts are identical")
+else:
+    print("Row counts differ")
+
+# 2.2 Data Differences
+# Rows in df1 but not in df2
+diff1 = df1.exceptAll(df2)
+# Rows in df2 but not in df1
+diff2 = df2.exceptAll(df1)
+
+if diff1.count() == 0 and diff2.count() == 0:
+    print("DataFrames are identical")
+else:
+    print("Differences found")
+    diff1.show()
+    # +------+-----+
+    # | Name | Age |
+    # +------+-----+
+    # +------+-----+
+    diff2.show()
+    # +------+-----+
+    # | Name | Age |
+    # +------+-----+
+    # | Alice | 22 |
+    # +-------+----+
+
+# 2.3 For Large DataFrames
+# For very large DataFrames, avoid .collect() or .show() with large numbers. Instead, you can check counts or sample
+# a few differences:
+print("Rows in df1 not in df2:", diff1.count())
+# Rows in df1 not in df2: 0
+print("Rows in df2 not in df1:", diff2.count())
+# Rows in df2 not in df1: 1
