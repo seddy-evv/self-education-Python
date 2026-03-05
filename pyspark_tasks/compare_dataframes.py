@@ -67,3 +67,20 @@ print("Rows in df1 not in df2:", diff1.count())
 # Rows in df1 not in df2: 0
 print("Rows in df2 not in df1:", diff2.count())
 # Rows in df2 not in df1: 1
+
+# 3. Optional: Hash-Based Comparison
+# For a quick check, you can compare hashes:
+
+def df_hash(df):
+    return df.withColumn("row_hash", sha2(concat_ws("||", *df.columns), 256))
+
+df1_hash = df_hash(df1)
+df2_hash = df_hash(df2)
+
+hash_diff1 = df1_hash.select("row_hash").exceptAll(df2_hash.select("row_hash"))
+hash_diff2 = df2_hash.select("row_hash").exceptAll(df1_hash.select("row_hash"))
+
+if hash_diff1.count() == 0 and hash_diff2.count() == 0:
+    print("DataFrames are identical by hash")
+else:
+    print("DataFrames differ by hash")
