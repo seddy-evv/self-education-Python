@@ -113,3 +113,21 @@ df4_id.show()
 # |   Bobb| 25|  1|
 # |Charlie| 30|  2|
 # +-------+---+---+
+
+# 4.2 Inner Join to Find Differences
+
+# Add source columns to identify origin
+df1_tagged = df1_id.withColumn("source", lit("df1"))
+df4_tagged = df4_id.withColumn("source", lit("df2"))
+
+print(df4_tagged.count())
+# 3
+
+joined = df1_tagged.join(
+    df4_tagged,
+    on="Name",
+    how="inner"
+)
+
+print(joined.count())
+# 2
