@@ -131,3 +131,41 @@ joined = df1_tagged.join(
 
 print(joined.count())
 # 2
+
+# 4.3 Without a Unique Key
+
+df1_hashed = df1_id.withColumn("row_hash", sha2(concat_ws("||", *df1.columns), 256))
+df4_hashed = df4_id.withColumn("row_hash", sha2(concat_ws("||", *df2.columns), 256))
+
+print(df4_hashed.count())
+# 3
+
+joined = df1_hashed.join(
+    df4_hashed,
+    on="row_hash",
+    how="inner"
+)
+
+print(joined.count())
+# 2
+
+# In case if we need to display columns with differences
+
+joined = df1_hashed.join(
+    df4_hashed,
+    on="row_hash",
+    how="left"
+)
+
+print(joined.count())
+
+diff = joined.select(df1_hashed["row_hash"], df4_hashed["Name"].alias("Name")).filter(
+    col("Name").isNull()
+)
+
+diff.show()
+# +--------------------+----+
+# |            row_hash|Name|
+# +--------------------+----+
+# |00c3bb08f4f3f84df...|NULL|
+# +--------------------+----+
