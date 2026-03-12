@@ -1,15 +1,16 @@
 # Python pandas is a powerful library for data manipulation, analysis, and visualization. It provides a range
 # of functions to work with data efficiently.
-#
+
 # Series – can be thought of as a column of a DataFrame
 # Index – can be not only a number
-#
+
 # Here's a description of the main pandas functions:
 
 import pandas as pd
+import numpy as np
 
 
-# Data Creation
+"""Data Creation"""
 print('\n', 'Data Creation', '\n')
 
 # 1. pd.DataFrame(data): Creates a DataFrame from a dictionary, list, or another structure. A DataFrame is
@@ -27,6 +28,11 @@ def get_pd_df():
 
 df = get_pd_df()
 print(df)
+#       Name  Age         City
+# 0    Alice   45     New York
+# 1      Bob   25  Los Angeles
+# 2  Charlie   33      Chicago
+# 3     Alex   36     New York
 
 # 2. pd.Series(data): Creates a one-dimensional labeled array (like a column in a DataFrame).
 
@@ -38,7 +44,10 @@ def get_age_series():
 
 age_series = get_age_series()
 print(age_series)
-
+# 0    25
+# 1    30
+# 2    35
+# Name: Age, dtype: int64
 
 # I/O Functions (Data Input/Output)
 print('\n', 'I/O Functions (Data Input/Output)', '\n')
@@ -52,7 +61,7 @@ print('\n', 'I/O Functions (Data Input/Output)', '\n')
 # 7. pd.read_html(url): Reads HTML tables from a webpage into a DataFrame.
 
 
-# Indexing and Selection
+"""Indexing and Selection"""
 print('\n', 'Indexing and Selection', '\n')
 
 df = get_pd_df()
@@ -63,121 +72,117 @@ df = get_pd_df()
 df_loc = pd.DataFrame([[1, 2,  3], [4, 5, 6], [7, 8, 9]],
                       index=['cobra', 'viper', 'sidewinder'],
                       columns=['max_speed', 'shield', 'wheel'])
-print(df)
+print(df_loc)
+#             max_speed  shield  wheel
+# cobra               1       2      3
+# viper               4       5      6
+# sidewinder          7       8      9
 
 # returns Series with specified index
-df_2 = df_loc.loc['viper']
-print(type(df_2))
-print(df_2)
+series_2 = df_loc.loc['viper']
+print(type(series_2))
+# <class 'pandas.core.series.Series'>
+print(series_2)
+# max_speed    4
+# shield       5
+# wheel        6
+# Name: viper, dtype: int64
 
 # returns DataFrame with specified indexes
 df_3 = df_loc.loc[['viper', 'sidewinder'], ['max_speed', 'wheel']]
 print(type(df_3))
+# <class 'pandas.core.frame.DataFrame'>
 print(df_3)
+#             max_speed  wheel
+# viper               4      6
+# sidewinder          7      9
 
 # returns Dataframe with specified columns
 df_4 = df_loc.loc[:, ['max_speed', 'wheel']]
 print(type(df_4))
+# <class 'pandas.core.frame.DataFrame'>
 print(df_4)
+#             max_speed  wheel
+# cobra               1      3
+# viper               4      6
+# sidewinder          7      9
 
 # returns value with specified column and index
 df_5 = df_loc.loc['cobra', 'shield']
 print(type(df_5))
+# <class 'numpy.int64'>
 print(df_5)
+# 2
 
-# returns Series with specified slice with labels for now and single label for column
+# returns Series with specified slice with labels for row and single label for column
 df_6 = df_loc.loc['cobra': 'viper', 'max_speed']
 print(type(df_6))
+# <class 'pandas.core.series.Series'>
 print(df_6)
+# cobra    1
+# viper    4
+# Name: max_speed, dtype: int64
 
 # 2. .iloc[]: Access rows/columns by integer positions.
 
 # Example:
 print(df.iloc[1])  # Second row as Series
+# Name            Bob
+# Age              25
+# City    Los Angeles
+# Name: 1, dtype: object
+
 print(df.iloc[0]['Name'])  # Access a single value in first row and Name column.
+# Alice
 
 # 3. .at[]: Access a single value by row/column labels.
 
 # Example:
 print(df.at[1, "Name"])
+# Bob
 
 # 4. .iat[]: Access a single value by integer positions.
 
 # Example:
 print(df.iat[1, 0])  # 1 - row, 0 - column
+# Bob
 
 # 5. df['column_name']: Selects a specific column as Series.
 
 # Example:
 print(df['Name'])
+# 0      Alice
+# 1        Bob
+# 2    Charlie
+# 3       Alex
+# Name: Name, dtype: object
 
 # 6. df[['column_name']]: Selects a specific column as Dataframe
 
 print(df[['Name']])
+#       Name
+# 0    Alice
+# 1      Bob
+# 2  Charlie
+# 3     Alex
 
 # 7. df.squeeze('columns'): Squeezes DataFrames with a single column or a single row to a Series
 
 # Example:
 print(df[['Name']].squeeze('columns'))
+# 0      Alice
+# 1        Bob
+# 2    Charlie
+# 3       Alex
+# Name: Name, dtype: object
 
 # 8. df.iloc[start:end]: Slice rows or columns.
 
 # Example:
 print(df.iloc[0:2])   # Returns row 0 and 1 as DataFrame
-
-
-# Data Exploration
-print('\n', 'Data Exploration', '\n')
-
-df = get_pd_df()
-
-# 1. df.head(n): Returns the first n rows of the DataFrame (default is 5 rows).
-
-# Example:
-print(df.head(1))
-
-# 2. df.tail(n): Returns the last n rows of the DataFrame (default is 5 rows).
-
-# Example:
-print(df.tail(1))
-
-# 3. df.info(): Provides an overview of the DataFrame, including schema, column types and non-null counts.
-
-# Example:
-print(df.info())
-
-# 4. df.describe(): Provides summary statistics for numeric columns.
-
-# Example:
-print(df.describe())
-
-# 5. df.shape: Returns the dimensions of the DataFrame (rows, columns).
-
-# Example:
-print(df.shape)
-
-# 6. df.columns: Lists all column names.
-
-# Example:
-print(df.columns)
-
-# 7. df.index: Displays the index (labels) of the DataFrame.
-
-# Example:
-print(df.index)
-
-# 8. df.dtypes: Lists the data types of each column.
-
-# Example:
-print(df.dtypes)
-
-# 9. df.empty: Checks that the dataframe is empty or not, and returns True or False
-
-print(df.empty)
-
-# 10. df.memory_usage(): Returns the memory usage of each column in bytes.
-
-print(df.memory_usage())
+#     Name  Age         City
+# 0  Alice   45     New York
+# 1    Bob   25  Los Angeles
 
 
 # Data Cleaning
