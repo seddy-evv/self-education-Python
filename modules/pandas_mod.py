@@ -185,53 +185,96 @@ print(df.iloc[0:2])   # Returns row 0 and 1 as DataFrame
 # 1    Bob   25  Los Angeles
 
 
-# Data Cleaning
-print('\n', 'Data Cleaning', '\n')
+"""Data Exploration"""
+print('\n', 'Data Exploration', '\n')
 
-df_with_na = pd.DataFrame({'Name': ['Alice', 'Bob', None], 'Age': [25, None, 35]})
+df = get_pd_df()
 
-# 1. df.dropna(): Removes rows or columns with missing values (None, NA, NULL).
-#    df.dropna(inplace=True) - whether to modify the DataFrame than creating a new one (you don't need a new variable)
-
-# Example:
-
-print(df_with_na.dropna())
-
-# 2. df.fillna(value): Fills missing values with a specified value.
+# 1. df.head(n): Returns the first n rows of the DataFrame (default is 5 rows).
 
 # Example:
-print(df_with_na.fillna('Unknown'))
+print(df.head(1))
+#     Name  Age      City
+# 0  Alice   45  New York
 
-# 3. df.isnull(): Returns a DataFrame of boolean values indicating missing data.
-
-# Example:
-print(df_with_na.isnull())
-
-# 4. df.notnull(): Returns a DataFrame of boolean values for non-missing data.
+# 2. df.tail(n): Returns the last n rows of the DataFrame (default is 5 rows).
 
 # Example:
-print(df_with_na.notnull())
+print(df.tail(1))
+#    Name  Age      City
+# 3  Alex   36  New York
 
-# 5. df.drop(columns='column_name'): Drops a specific column, in some cases we have to specify axis
-#    axis=0 - rows, axis=1 - columns
-
-# Example:
-print(df_with_na.drop(columns='Name'))
-print(df_with_na.drop(['Name'], axis=1))
-
-# 6. df.drop([0, 1]): drops a row by index
+# 3. df.info(): Provides an overview of the DataFrame, including schema, column types and non-null counts.
 
 # Example:
-print(df_with_na.drop([0]))
+print(df.info())
+# <class 'pandas.core.frame.DataFrame'>
+# RangeIndex: 4 entries, 0 to 3
+# Data columns (total 3 columns):
+#  #   Column  Non-Null Count  Dtype
+# ---  ------  --------------  -----
+#  0   Name    4 non-null      object
+#  1   Age     4 non-null      int64
+#  2   City    4 non-null      object
+# dtypes: int64(1), object(2)
+# memory usage: 224.0+ bytes
+# None
 
-# 7. df.rename(columns={'old_name': 'new_name'}): Renames one or more columns.
+# 4. df.describe(): Provides summary statistics for numeric columns.
 
 # Example:
-renamed_df = df_with_na.rename(columns={'Name': 'Full Name', 'Age': 'Years'})
-print(renamed_df)
-# Additional method how to change column names, the initial DataFrame has 2 columns:
-renamed_df.columns = ['Full Name New', 'Years New']
-print(renamed_df)
+print(df.describe())
+#              Age
+# count   4.000000
+# mean   34.750000
+# std     8.261356
+# min    25.000000
+# 25%    31.000000
+# 50%    34.500000
+# 75%    38.250000
+# max    45.000000
+
+# 5. df.shape: Returns the dimensions of the DataFrame (rows, columns).
+
+# Example:
+print(df.shape)
+# (4, 3)
+
+# 6. df.columns: Lists all column names.
+
+# Example:
+print(df.columns)
+# Index(['Name', 'Age', 'City'], dtype='object')
+
+# 7. df.index: Displays the index (labels) of the DataFrame.
+
+# Example:
+print(df.index)
+# RangeIndex(start=0, stop=4, step=1)
+
+# 8. df.dtypes: Lists the data types of each column.
+
+# Example:
+# print(df.dtypes)
+# Name    object
+# Age      int64
+# City    object
+# dtype: object
+# df.dtypes
+
+# 9. df.empty: Checks that the dataframe is empty or not, and returns True or False
+
+print(df.empty)
+# False
+
+# 10. df.memory_usage(): Returns the memory usage of each column in bytes.
+
+print(df.memory_usage())
+# Index    128
+# Name      32
+# Age       32
+# City      32
+# dtype: int64
 
 
 # Data Manipulation
