@@ -277,7 +277,7 @@ print(df.memory_usage())
 # dtype: int64
 
 
-# Data Manipulation
+"""Data Manipulation"""
 print('\n', 'Data Manipulation', '\n')
 
 df = get_pd_df()
@@ -286,13 +286,26 @@ df = get_pd_df()
 
 # Example:
 print(df.sort_values(by='Age'))
+#       Name  Age         City
+# 1      Bob   25  Los Angeles
+# 2  Charlie   33      Chicago
+# 3     Alex   36     New York
+# 0    Alice   45     New York
 
 # 2. df.groupby('column_name'): Groups data by a specific column for aggregation.
 # 3. df.agg({'column': 'function'}): Provides aggregate operations (e.g., sum, mean, max).
 
 # Example:
 grouped = df.groupby('City').agg({'Age': 'mean'})
+print(type(grouped))
+# <class 'pandas.core.frame.DataFrame'>
 print(grouped)
+
+#               Age
+# City
+# Chicago      33.0
+# Los Angeles  25.0
+# New York     40.5
 
 # Example:
 # In some cases we may encounter a situation where grouping from a dataframe creates a series,
@@ -308,8 +321,23 @@ series = df_gr.groupby(['City'])['Age'].sum()
 df_from_series = series.reset_index()
 
 print(df_group)
+#             Age
+#             sum
+# City
+# Chicago      33
+# Los Angeles  25
+# New York     81
 print(series)
+# City
+# Chicago        33
+# Los Angeles    25
+# New York       81
+# Name: Age, dtype: int64
 print(df_from_series)
+#           City  Age
+# 0      Chicago   33
+# 1  Los Angeles   25
+# 2     New York   81
 
 # 4. df.merge(other_df, on='key'): Merges two DataFrames on a specified key column.
 
@@ -317,12 +345,20 @@ print(df_from_series)
 df2 = pd.DataFrame({'Name': ['Alice', 'Bob'], 'Salary': [50000, 60000]})
 merged = df.merge(df2, on='Name')
 print(merged)
+#     Name  Age         City  Salary
+# 0  Alice   45     New York   50000
+# 1    Bob   25  Los Angeles   60000
 
 # Example2:
 # left merge (in this case, all columns from df2 will be in the result, except for those with matching names
 # you need to specify them in the merge condition)
 merged_left = df.merge(df2, on='Name', how='left')
 print(merged_left)
+#       Name  Age         City   Salary
+# 0    Alice   45     New York  50000.0
+# 1      Bob   25  Los Angeles  60000.0
+# 2  Charlie   33      Chicago      NaN
+# 3     Alex   36     New York      NaN
 
 # Example3:
 # if the column names for the merge are different, you can do as below and then drop the unnecessary ones and fill
@@ -332,6 +368,11 @@ merged_left = df.merge(df2, left_on=['Name'], right_on=['name_column'], how='lef
 merged_left = merged_left.drop(['name_column'], axis=1)
 merged_left['Salary'] = merged_left['Salary'].fillna(0)
 print(merged_left)
+#       Name  Age         City   Salary
+# 0    Alice   45     New York  50000.0
+# 1      Bob   25  Los Angeles  60000.0
+# 2  Charlie   33      Chicago      0.0
+# 3     Alex   36     New York      0.0
 
 # 5. df.join(other_df): Joins two DataFrames on their indexes (works like left join/merge by indexes).
 
@@ -339,18 +380,35 @@ print(merged_left)
 df3 = pd.DataFrame({'Salary': [50000, 60000, 70000]})
 joined = df.join(df3)
 print(joined)
+#       Name  Age         City   Salary
+# 0    Alice   45     New York  50000.0
+# 1      Bob   25  Los Angeles  60000.0
+# 2  Charlie   33      Chicago  70000.0
+# 3     Alex   36     New York      NaN
 
 # 6. pd.concat([df1, df2]): Concatenates two or more DataFrames along rows or columns.
 
 # Example:
 df_concat = pd.concat([df, df3], axis=1)  # works like join but instead NaN zero value (0)
 print(df_concat)
+#       Name  Age         City   Salary
+# 0    Alice   45     New York  50000.0
+# 1      Bob   25  Los Angeles  60000.0
+# 2  Charlie   33      Chicago  70000.0
+# 3     Alex   36     New York      NaN
 
 # 7. df._append(df2): Append rows of other to the end of caller, returning a new object.
 # Columns in other that are not in the caller are added as new columns, for existing rows values will be NULL.
 
 df_append = df._append(df2)
 print(df_append)
+#       Name   Age         City name_column   Salary
+# 0    Alice  45.0     New York         NaN      NaN
+# 1      Bob  25.0  Los Angeles         NaN      NaN
+# 2  Charlie  33.0      Chicago         NaN      NaN
+# 3     Alex  36.0     New York         NaN      NaN
+# 0      NaN   NaN          NaN       Alice  50000.0
+# 1      NaN   NaN          NaN         Bob  60000.0
 
 # 8. df.pivot_table(values, index, columns): Creates a pivot table for data summarization.
 
@@ -361,6 +419,10 @@ df4 = pd.DataFrame({'foo': ['one', 'one', 'one', 'two', 'two', 'two'],
                     'zoo': ['x', 'y', 'z', 'q', 'w', 't']})
 
 print(df4.pivot(index='foo', columns='bar', values='baz'))
+# bar  A  B  C
+# foo
+# one  1  2  3
+# two  4  5  6
 
 
 # Data Transformation
