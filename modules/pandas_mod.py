@@ -425,7 +425,7 @@ print(df4.pivot(index='foo', columns='bar', values='baz'))
 # two  4  5  6
 
 
-# Data Transformation
+"""Data Transformation"""
 print('\n', 'Data Transformation', '\n')
 
 df = get_pd_df()
@@ -436,6 +436,11 @@ age_series = get_age_series()
 # Example:
 df['Age in Months'] = df['Age'].apply(lambda x: x * 12)
 print(df)
+#       Name  Age         City  Age in Months
+# 0    Alice   45     New York            540
+# 1      Bob   25  Los Angeles            300
+# 2  Charlie   33      Chicago            396
+# 3     Alex   36     New York            432
 # df['Age in Months'] - adds a new column with calculated values
 
 # 2. df.map(function): Applies element-wise functions to a Series.
@@ -443,18 +448,30 @@ print(df)
 # Example:
 age_series = age_series.map(lambda x: x * 10)
 print(age_series)
+# 0    250
+# 1    300
+# 2    350
+# Name: Age, dtype: int64
 
 # 3. df.replace(to_replace, value): Replaces specific values in the DataFrame.
 
 # Example:
 df['City'] = df['City'].replace('New York', 'NYC')
 print(df)
+#       Name  Age         City  Age in Months
+# 0    Alice   45          NYC            540
+# 1      Bob   25  Los Angeles            300
+# 2  Charlie   33      Chicago            396
+# 3     Alex   36          NYC            432
 
 # 4. df.drop_duplicates(): Removes full duplicate rows.
 
 # Example:
 df_with_duplicates = pd.DataFrame({'Name': ['Alice', 'Bob', 'Alice'], 'Age': [25, 30, 25]})
 print(df_with_duplicates.drop_duplicates())
+#     Name  Age
+# 0  Alice   25
+# 1    Bob   30
 
 # 5. df.astype(dtype): Changes the data type of all columns.
 # 6. df.astype({'col1': dtype}): Changes the data type of the col1 column.
@@ -463,15 +480,29 @@ print(df_with_duplicates.drop_duplicates())
 # Example:
 
 print(df_with_duplicates.astype('string').dtypes)
+# Name    string[python]
+# Age     string[python]
+# dtype: object
 print(df_with_duplicates.astype({'Age': 'string'}).dtypes)
+# Name            object
+# Age     string[python]
+# dtype: object
 df_with_duplicates['Age'] = df_with_duplicates['Age'].astype('string')
 print(df_with_duplicates.dtypes)
+# Name            object
+# Age     string[python]
+# dtype: object
 
 # 8. df['new_column'] = 'const' - Creates a new column 'new_column' with the 'const' value for all rows.
 
 # Example:
 df['new_column'] = 'const'
 print(df)
+#       Name  Age         City  Age in Months new_column
+# 0    Alice   45          NYC            540      const
+# 1      Bob   25  Los Angeles            300      const
+# 2  Charlie   33      Chicago            396      const
+# 3     Alex   36          NYC            432      const
 
 # 9. df[['id', 'type']] = df['type_id'].str.split(“*”, expand=True) - Splits the column into two new ones.
 
@@ -481,6 +512,11 @@ data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex'],
 df = pd.DataFrame(data)
 df[['id', 'type']] = df['type_id'].str.split('*', expand=True)
 print(df)
+#       Name type_id id type
+# 0    Alice     A*1  A    1
+# 1      Bob     B*2  B    2
+# 2  Charlie     C*3  C    3
+# 3     Alex     D*4  D    4
 
 # 10. df['column_name'].round()
 
@@ -491,27 +527,61 @@ df = pd.DataFrame(data)
 
 df['salary'] = df['salary'].round()
 print(df)
+#     Name  salary
+# 0  Alice   100.0
+# 1    Bob   200.0
 
 # 11. df[df[column_name < value]] - filters df by values in the column column_name
 #     df[df[column_name].isin(['1', '2', '3'])]  - filters values in a column by inclusion in an array
 #     df.query("column_name not in ('', '4', '5')") - filters values with query
 #     df_with_na[df_with_na['Name'].isnull()] - selects only rows with null values in the particular column
+#     df[df["Age"].between(20,30)]
 
 # Example:
 data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex', 'Jimmy'],
         'Age': [45, 25, 33, 36, None],
         'City': ['New York', 'Los Angeles', 'Chicago', 'New York', 'Boston']}
 df = pd.DataFrame(data)
-df_age = df[df['Age'] < 35]
+
+# We need copy() to avoid issues with next operation since filter creates a view, and we can't modify this view, also
+# we can use .loc() to avoid this issue
+df_age = df[df['Age'] < 35].copy()
 print(df_age)
+#       Name   Age         City
+# 1      Bob  25.0  Los Angeles
+# 2  Charlie  33.0      Chicago
+
+df_age["Age"] = df_age["Age"] * 2
+print(df_age)
+#       Name   Age         City
+# 1      Bob  50.0  Los Angeles
+# 2  Charlie  66.0      Chicago
+
 df_age = df[(df['Age'] < 40) & (df['Name'] != 'Charlie')]
 print(df_age)
+#    Name   Age         City
+# 1   Bob  25.0  Los Angeles
+# 3  Alex  36.0     New York
+
 df_city = df[df['City'].isin(['New York', 'Los Angeles'])]
 print(df_city)
+#     Name   Age         City
+# 0  Alice  45.0     New York
+# 1    Bob  25.0  Los Angeles
+# 3   Alex  36.0     New York
+
 df_query = df.query("Name not in ('', 'Bob')")
 print(df_query)
+#       Name   Age      City
+# 0    Alice  45.0  New York
+# 2  Charlie  33.0   Chicago
+# 3     Alex  36.0  New York
+# 4    Jimmy   NaN    Boston
+
 df_nulls = df[df['Age'].isnull()]
 print(df_nulls)
+#     Name  Age    City
+# 4  Jimmy  NaN  Boston
 
 
 # Statistical Functions
