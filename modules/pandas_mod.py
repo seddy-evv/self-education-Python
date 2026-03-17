@@ -584,7 +584,7 @@ print(df_nulls)
 # 4  Jimmy  NaN  Boston
 
 
-# Statistical Functions
+"""Statistical Functions"""
 print('\n', 'Statistical Functions', '\n')
 
 df = get_pd_df()
@@ -594,27 +594,34 @@ age_series = get_age_series()
 
 # Example:
 print(df['Age'].mean())
+# 34.75
 
 # 2. df.median(): Calculates the median of each column, returns single value
 
 # Example:
 print(df['Age'].median())
+# 34.5
 
 # 3. df.sum(): Returns the sum of values in each column, returns single value
 
 # Example:
 print(df['Age'].sum())
+# 139
 
 # 4. df.min() / df.max(): Calculates the minimum/maximum value for each column, returns single value per function
 
 # Example:
 print(df['Age'].min(), df['Age'].max())
+# 25 45
 
 # 5. df.corr(): Returns the correlation between columns.
 
 # Example:
 df_stats = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
 print(df_stats.corr())
+#      A    B
+# A  1.0  1.0
+# B  1.0  1.0
 
 # 6. df.count(): Counts non-NA/null values for each column, result as Series
 # 7. df.shape[0]: Counts the number of df rows.
@@ -622,20 +629,32 @@ print(df_stats.corr())
 
 # Example:
 print(df.count())
+# Name    4
+# Age     4
+# City    4
+# dtype: int64
 print(df.shape[0])
+# 4
 print(age_series.shape[0])
+# 3
 
 # 9. df['column_name'].value_counts() - counts unique values in the column, result is Series so reset_index() for df
 
 # Example:
 counts = df['City'].value_counts()
 print(counts)
+# City
+# New York       2
+# Los Angeles    1
+# Chicago        1
+# Name: count, dtype: int64
 
 # 10. df['column_name'].unique() - returns unique values based on the column name, returns numpy.ndarray
 
 # Example:
 unique = df['City'].unique()
 print(unique)
+# ['New York' 'Los Angeles' 'Chicago']
 
 
 # Visualization
