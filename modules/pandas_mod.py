@@ -721,7 +721,7 @@ print(df_advanced['Score'].sample(n=2, random_state=1))
 # Name: Score, dtype: int64
 
 
-# Datetime Handling
+"""Datetime Handling"""
 print('\n', 'Datetime Handling', '\n')
 
 # 1. pd.to_datetime(series): Converts a column or Series to datetime format.
@@ -731,7 +731,13 @@ print('\n', 'Datetime Handling', '\n')
 df_date = pd.DataFrame({'Date': ['2023-01-01', '2023-02-01', '2023-03-01']})
 df_date['Date'] = pd.to_datetime(df_date['Date'])
 print(df_date)
+#         Date
+# 0 2023-01-01
+# 1 2023-02-01
+# 2 2023-03-01
 print(df_date.dtypes)
+# Date    datetime64[ns]
+# dtype: object
 
 # 2. df['date_column'].dt.year: Extracts the year from a datetime column.
 # 3. df['date_column'].dt.month: Extracts the month from a datetime column.
@@ -743,6 +749,10 @@ df_date['Year'] = df_date['Date'].dt.year
 df_date['Month'] = df_date['Date'].dt.month
 df_date['Day'] = df_date['Date'].dt.day
 print(df_date)
+#         Date  Year  Month  Day
+# 0 2023-01-01  2023      1    1
+# 1 2023-02-01  2023      2    1
+# 2 2023-03-01  2023      3    1
 
 # 5. df.resample(rule): Convenience method for frequency conversion and resampling of time series, asfreq() - is needed
 # to choose intervals, we can replace asfreq() with agregation function, fillna(0) - is needed to fill NaN
@@ -756,9 +766,23 @@ future['time'] = pd.to_datetime(future['time'])
 future = future.set_index('time')
 print('future before resample:')
 print(future)
+#             value
+# time
+# 2024-01-01      0
+# 2024-01-08      0
 future = future.resample('d').asfreq().fillna(0)
 print('future after resample:')
 print(future)
+#             value
+# time
+# 2024-01-01    0.0
+# 2024-01-02    0.0
+# 2024-01-03    0.0
+# 2024-01-04    0.0
+# 2024-01-05    0.0
+# 2024-01-06    0.0
+# 2024-01-07    0.0
+# 2024-01-08    0.0
 
 # Example2:
 # an example to create pandas DatetimeIndex
@@ -766,8 +790,16 @@ index = pd.date_range('1/1/2000', periods=9, freq='min')
 series = pd.Series(range(9), index=index)
 sum_series = series.resample('3min').sum().fillna(0)
 print(sum_series)
+# 2000-01-01 00:00:00     3
+# 2000-01-01 00:03:00    12
+# 2000-01-01 00:06:00    21
+# Freq: 3min, dtype: int64
 interval_series = series.resample('3min').asfreq()
 print(interval_series)
+# 2000-01-01 00:00:00    0
+# 2000-01-01 00:03:00    3
+# 2000-01-01 00:06:00    6
+# Freq: 3min, dtype: int64
 
 
 # Miscellaneous
