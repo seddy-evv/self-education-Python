@@ -802,7 +802,7 @@ print(interval_series)
 # Freq: 3min, dtype: int64
 
 
-# Miscellaneous
+"""Miscellaneous"""
 print('\n', 'Miscellaneous', '\n')
 
 df = get_pd_df()
@@ -814,12 +814,23 @@ series = pd.Series([1, 2, 3, 4], name='foo',
 # Example:
 df_dummy = pd.get_dummies(df['City'])
 print(df_dummy)
+#    Chicago  Los Angeles  New York
+# 0    False        False      True
+# 1    False         True     False
+# 2     True        False     False
+# 3    False        False      True
 
 # 2. df.set_index('column_name'): Sets one column as the index.
 
 # Example:
 df_indexed = df.set_index('Name')
 print(df_indexed)
+#          Age         City
+# Name
+# Alice     45     New York
+# Bob       25  Los Angeles
+# Charlie   33      Chicago
+# Alex      36     New York
 
 # 3. df.reset_index(): Resets the index to default integer numbering.
 #    df.reset_index(drop=True) - We can use the drop parameter to avoid the old index being added as column, default False
@@ -830,10 +841,25 @@ print(df_indexed)
 # Example:
 reset_df = df_indexed.reset_index()
 print(reset_df)
+#       Name  Age         City
+# 0    Alice   45     New York
+# 1      Bob   25  Los Angeles
+# 2  Charlie   33      Chicago
+# 3     Alex   36     New York
 reset_df_without_Name = df_indexed.reset_index(drop=True)
 print(reset_df_without_Name)
+#    Age         City
+# 0   45     New York
+# 1   25  Los Angeles
+# 2   33      Chicago
+# 3   36     New York
 reset_df_from_series = series.reset_index()
 print(reset_df_from_series)
+#   idx  foo
+# 0   a    1
+# 1   b    2
+# 2   c    3
+# 3   d    4
 
 
 # Categorical data
