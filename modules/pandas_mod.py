@@ -862,7 +862,7 @@ print(reset_df_from_series)
 # 3   d    4
 
 
-# Categorical data
+"""Categorical data"""
 print('\n', 'Categorical data', '\n')
 
 # Working with categorical data in pandas is highly efficient due to its Categorical data type. Categorical
@@ -880,11 +880,22 @@ df['Color'] = df['Color'].astype('category')
 
 grouped = df.groupby(['Color'], observed=True)['Value'].sum()
 print(grouped)
+# Color
+# blue     70
+# green    30
+# red      50
+# Name: Value, dtype: int64
 
 # Categorical data uses less memory compared to object types (strings). You can compare memory usage like this:
 df = pd.DataFrame({'Color': ['red', 'blue', 'green', 'red', 'blue']})
 
 print(df.memory_usage(deep=True))  # Memory usage with object type
+# Index    128
+# Color    304
+# dtype: int64
 
 df['Color'] = df['Color'].astype('category')
 print(df.memory_usage(deep=True))  # Memory usage after conversion to category
+# Index    128
+# Color    296
+# dtype: int64
