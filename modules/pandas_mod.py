@@ -277,6 +277,106 @@ print(df.memory_usage())
 # dtype: int64
 
 
+"""Data Cleaning"""
+print('\n', 'Data Cleaning', '\n')
+
+df_with_na = pd.DataFrame({'Name': ['Alice', 'Bob', None], 'Age': [25, None, 35]})
+print(df_with_na)
+#     Name   Age
+# 0  Alice  25.0
+# 1    Bob   NaN
+# 2   None  35.0
+
+# 1. df.dropna(): Removes rows or columns with missing values (None, NA, NULL).
+#    df.dropna(inplace=True) - whether to modify the DataFrame than creating a new one (you don't need a new variable)
+
+# Example:
+
+print(df_with_na.dropna())
+#     Name   Age
+# 0  Alice  25.0
+
+# 2.1 df.ffill() - method in pandas stands for forward fill, which replaces missing (NaN) values with the last observed
+# valid value from the previous row or column
+print(df_with_na.ffill())
+#     Name   Age
+# 0  Alice  25.0
+# 1    Bob  25.0
+# 2    Bob  35.0
+
+# 2.2. df.fillna(value): Fills missing values with a specified value.
+
+# Example:
+print(df_with_na.fillna('Unknown'))
+#       Name      Age
+# 0    Alice     25.0
+# 1      Bob  Unknown
+# 2  Unknown     35.0
+
+# 3. df.isnull(): Returns a DataFrame of boolean values indicating missing data.
+
+# Example:
+print(df_with_na.isnull())
+#     Name    Age
+# 0  False  False
+# 1  False   True
+# 2   True  False
+
+# 4. df.notnull(): Returns a DataFrame of boolean values for non-missing data.
+
+# Example:
+print(df_with_na.notnull())
+#     Name    Age
+# 0   True   True
+# 1   True  False
+# 2  False   True
+
+# 5. df.drop(columns='column_name'): Drops a specific column, in some cases we have to specify axis
+#    axis=0 - rows, axis=1 - columns
+
+# Example:
+print(df_with_na.drop(columns='Name'))
+#     Age
+# 0  25.0
+# 1   NaN
+# 2  35.0
+print(df_with_na.drop(['Name'], axis=1))
+#     Age
+# 0  25.0
+# 1   NaN
+# 2  35.0
+
+# 6. df.drop([0, 1]): drops a row by index
+
+# Example:
+print(df_with_na.drop([0]))
+#    Name   Age
+# 1   Bob   NaN
+# 2  None  35.0
+
+# 7. df.rename(columns={'old_name': 'new_name'}): Renames one or more columns.
+
+# Example:
+renamed_df = df_with_na.rename(columns={'Name': 'Full Name', 'Age': 'Years'})
+print(renamed_df)
+#   Full Name  Years
+# 0     Alice   25.0
+# 1       Bob    NaN
+# 2      None   35.0
+
+# Additional method how to change column names, the initial DataFrame has 2 columns:
+renamed_df.columns = ['Full Name New', 'Years New']
+print(renamed_df)
+#   Full Name New  Years New
+# 0         Alice       25.0
+# 1           Bob        NaN
+# 2          None       35.0
+
+# Add prefix
+df_with_prefix = renamed_df.add_prefix("test ")
+print(df_with_prefix.columns.tolist())
+
+
 """Data Manipulation"""
 print('\n', 'Data Manipulation', '\n')
 
@@ -657,7 +757,7 @@ print(unique)
 # ['New York' 'Los Angeles' 'Chicago']
 
 
-# Visualization
+"""Visualization"""
 print('\n', 'Visualization', '\n')
 
 # 1. df.plot(): Creates basic plots using matplotlib (line, bar, histogram, etc.).
@@ -719,7 +819,6 @@ print(df_advanced['Score'].sample(n=2, random_state=1))
 # 3    95
 # 2    80
 # Name: Score, dtype: int64
-
 
 """Datetime Handling"""
 print('\n', 'Datetime Handling', '\n')
@@ -846,6 +945,7 @@ print(reset_df)
 # 1      Bob   25  Los Angeles
 # 2  Charlie   33      Chicago
 # 3     Alex   36     New York
+
 reset_df_without_Name = df_indexed.reset_index(drop=True)
 print(reset_df_without_Name)
 #    Age         City
@@ -853,6 +953,7 @@ print(reset_df_without_Name)
 # 1   25  Los Angeles
 # 2   33      Chicago
 # 3   36     New York
+
 reset_df_from_series = series.reset_index()
 print(reset_df_from_series)
 #   idx  foo
@@ -899,3 +1000,36 @@ print(df.memory_usage(deep=True))  # Memory usage after conversion to category
 # Index    128
 # Color    296
 # dtype: int64
+
+
+"""Iteration"""
+
+# 1.Iteration through dataframe row by row
+# df.itertuples() - efficient method in pandas for iterating over DataFrame rows, returning each row as a  namedtuple.
+pd_df = get_pd_df()
+
+for row in pd_df.itertuples(index=True):
+    print(f"{row.Name}: {row.Age}")
+    # Alice: 45
+    # Bob: 25
+    # Charlie: 33
+    # Alex: 36
+
+# also we can use apply()
+def print_row(row):
+    print(row.Name)
+
+pd_df.apply(print_row, axis=1)
+# Alice
+# Bob
+# Charlie
+# Alex
+
+# the best solution is vectorization
+pd_df["level"] = np.where(pd_df["Age"].isna(), "unknown", np.where(pd_df["Age"] < 35, "young", "adult"))
+print(pd_df)
+#       Name  Age         City  level
+# 0    Alice   45     New York  adult
+# 1      Bob   25  Los Angeles  young
+# 2  Charlie   33      Chicago  young
+# 3     Alex   36     New York  adult
