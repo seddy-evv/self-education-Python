@@ -48,3 +48,18 @@ compare_schemas(df1, test_df)
 # Schema mismatch between input DataFrame and expected schema.
 compare_schemas(df2, test_df)
 # Schema is correct
+
+
+"""3. Check Particular Columns for Null Values"""
+
+def check_nulls(df, columns):
+    null_counts = {}
+    for column in columns:
+        count = df.filter(col(column).isNull()).count()
+        null_counts[column] = count
+    return null_counts
+
+columns_to_check = ['id', 'name']  # Specify columns to check
+nulls = check_nulls(df2, columns_to_check)
+print(nulls)
+# {'id': 0, 'name': 0}
