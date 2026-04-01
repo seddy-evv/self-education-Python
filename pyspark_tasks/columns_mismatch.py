@@ -19,3 +19,15 @@
 # 3. DataFrame Columns Have Different Data Types
 # Default Behavior:
 # If the column names match but the data types differ, you will get a schema mismatch error.
+
+# How to Handle Errors
+# 1. Enable Schema Evolution (for Append or Overwrite)
+# Schema Evolution:
+# If you want to allow the Delta table to accept new columns (i.e., schema evolution), you can use the mergeSchema option:
+# python
+
+df.write.format("delta").mode("append").option("mergeSchema", "true").save("/path/to/delta-table")
+
+# This will add new columns from the DataFrame to the Delta table.
+# Note: Schema evolution is only supported in append or overwrite modes, not in replace mode.
+# 2. Align DataFrame Schema with Delta Table
