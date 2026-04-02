@@ -31,3 +31,26 @@ df.write.format("delta").mode("append").option("mergeSchema", "true").save("/pat
 # This will add new columns from the DataFrame to the Delta table.
 # Note: Schema evolution is only supported in append or overwrite modes, not in replace mode.
 # 2. Align DataFrame Schema with Delta Table
+# Select Only Matching Columns:
+# If your DataFrame has extra columns, select only the columns that exist in the Delta table:
+
+
+delta_columns = spark.read.format("delta").load("/path/to/delta-table").columns
+df_aligned = df.select([col for col in delta_columns if col in df.columns])
+df_aligned.write.format("delta").mode("append").save("/path/to/delta-table")
+
+# Add Missing Columns with Nulls:
+# If your DataFrame is missing columns, add them with null values:
+
+from pyspark.sql.functions import lit
+
+delta_columns = spark.read.format("delta").load("/path/to/delta-table").columns
+for col in delta_columns:
+    if col not in df.columns:
+        df = df.withColumn(col, lit(None))
+df = df.select(delta_columns)
+df.write.format("delta").mode("append").save("/path/to/delta-table")
+
+# 3. Disable Schema Enforcement (Not Recommended)
+# Not Recommended:
+# You can disable schema enforcement, but this is not recommended as it can lead to data quality issues.
