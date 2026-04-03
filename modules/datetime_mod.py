@@ -11,7 +11,7 @@ def demo_datetime():
     today = datetime.date.today()
     print("Today's date:", today)
     # Today's date: 2025-11-29
-    
+
     """ Create a specific date """
     d = datetime.date(2025, 11, 4)
     print("Specific date:", d)
@@ -32,6 +32,19 @@ def demo_datetime():
     print("Parsed datetime:", dt_from_str)
     # Parsed datetime: 2025-11-04 14:30:15
 
+    """ Ensure that a provided string_date is a valid date in format YYYY-MM-DD"""
+    date_str_correct = '2025-10-01'
+    date_str_incorrect = '2025/10/02'
+    try:
+        datetime.datetime.strptime(date_str_correct, '%Y-%m-%d')
+    except:
+        print(f"Invalid date format for {date_str_correct}")
+    try:
+        datetime.datetime.strptime(date_str_incorrect, '%Y-%m-%d')
+    except:
+        print(f"Invalid date format for {date_str_incorrect}")
+        # Invalid date format for 2025/10/02
+        
     """ Format datetime as string, date -> str """
     formatted = now.strftime('%Y-%m-%d %H:%M:%S')
     print("Formatted datetime:", formatted)
