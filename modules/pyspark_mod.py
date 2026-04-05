@@ -381,6 +381,9 @@ print(df.schema)
 numeric_columns = [col for col in df.columns if df.schema[col].dataType in [IntegerType(), DoubleType(), FloatType(),
                                                                             LongType()]]
 
+print(numeric_columns)
+# ['Age']
+
 print(df.columns)
 # ['Name', 'Age']
 
@@ -397,8 +400,17 @@ df_selected.show()
 # |Charlie| 30|
 # +-------+---+
 
-print(numeric_columns)
-# ['Age']
+# Update all column names in a PySpark DataFrame to lowercase
+df_col = get_pyspark_df()
+df_col = df_col.toDF(*[c.lower() for c in df_col.columns])
+df_col.show()
+# +-------+---+
+# |   name|age|
+# +-------+---+
+# |  Alice| 28|
+# |    Bob| 25|
+# |Charlie| 30|
+# +-------+---+
 
 df.printSchema()
 # root
@@ -501,7 +513,7 @@ df.sort("Age", ascending=False).show()
 # |    Bob| 25|
 # +-------+---+
 
-# If we need to get a column value from the one row, we can use .Column
+# If we need to get a column value from the one row, we can use .Column_Name
 Name = df.sort("Age", ascending=False).first().Name
 print(Name)
 # Charlie
@@ -1959,6 +1971,7 @@ print(pandas_df)
 # 2  Charlie   30
 
 # 2. Pandas API on Spark
+# from Spark version 3.2.0
 # The pandas API on Spark allows users to run code written with the familiar pandas syntax in a distributed and
 # scalable manner on an Apache Spark cluster. It was developed to address the limitation of standard pandas, which
 # can only process data that fits into the memory of a single machine.
