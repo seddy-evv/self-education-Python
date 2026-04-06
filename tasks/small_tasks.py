@@ -333,4 +333,20 @@ print(http_error(400))
 
 
 """assert without unit tests"""
-assert 1 == 2, "error message"
+# assert 1 == 2, "error message"
+# AssertionError: error message
+
+# for i in range(1.5, 2.5, 0.5):
+#     print(i)
+#     TypeError: 'float' object cannot be interpreted as an integer
+
+for i in range(1):
+    print(i)
+
+
+def func(**kwargs):
+    print(kwargs)
+    # {'c': 3, 'a': 4}
+
+kwargs = {'c': 3, 'a': 4}
+func(**kwargs)
