@@ -38,3 +38,19 @@ Build the source and wheel package for distribution.
 
 - poetry publish
 Publish the package to PyPI or another repository."""
+
+
+# Poetry Files Description
+"""
+- pyproject.toml
+The main configuration file for Poetry projects. It contains project metadata (name, version, description, authors),
+dependencies, development dependencies, and build system requirements.
+
+- poetry.lock
+This file records the exact versions of all dependencies (including sub-dependencies) that were installed. It ensures
+that all contributors and deployment environments use the same dependency versions, providing reproducibility.
+
+- .venv/ (optional, local virtual environment)
+If enabled, Poetry creates a .venv directory in the project root to isolate dependencies from the global
+Python environment."""
+
