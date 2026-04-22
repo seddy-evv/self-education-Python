@@ -54,3 +54,29 @@ that all contributors and deployment environments use the same dependency versio
 If enabled, Poetry creates a .venv directory in the project root to isolate dependencies from the global
 Python environment."""
 
+
+# Example pyproject.toml for a Typical Data Engineering Project:
+"""
+[tool.poetry]
+name = "my-data-engineering-project"
+version = "0.1.0"
+description = "A sample data engineering project using Poetry"
+authors = ["Your Name <your.email@example.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^2.2.0"
+sqlalchemy = "^2.0.0"
+pyarrow = "^15.0.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^8.0.0"
+black = "^24.0.0"
+mypy = "^1.8.0"
+isort = "^5.13.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+"""
