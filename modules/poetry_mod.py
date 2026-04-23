@@ -80,3 +80,65 @@ isort = "^5.13.0"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 """
+
+
+# Description of the main blocks you’ll find in the pyproject.toml
+"""
+[tool.poetry]
+This is the main section for Poetry-specific project metadata.
+Contains:
+name: The project/package name.
+version: The current version of the project.
+description: A short description of the project.
+authors: List of authors (name and email).
+license: The license type (e.g., MIT, Apache-2.0).
+readme: (Optional) Path to the README file.
+homepage, repository, documentation: (Optional) URLs for project resources.
+keywords: (Optional) List of keywords for the project.
+classifiers: (Optional) List of PyPI classifiers.
+
+[tool.poetry.dependencies]
+Lists all the main (runtime) dependencies required for your project to run.
+Format:
+Each key is a package name, and the value is the version constraint (e.g., pandas = "^2.2.0").
+You can specify Python version constraints here as well (e.g., python = "^3.10").
+
+[tool.poetry.dev-dependencies]
+Lists development dependencies—packages needed only for development and testing, not for production use.
+Examples:
+pytest, black, mypy, isort, etc.
+
+[build-system]
+Specifies the build backend and requirements for building the project.
+Required fields:
+requires: List of packages needed to build the project (usually ["poetry-core"]).
+build-backend: The build backend to use (for Poetry, typically "poetry.core.masonry.api").
+
+
+Other Common Blocks in pyproject.toml
+
+[tool.poetry.scripts]
+Defines CLI entry points for your project.
+Example(toml):
+[tool.poetry.scripts]
+mycli = "my_package.cli:main"
+
+This allows users to run mycli as a command after installing your package.
+
+[tool.poetry.plugins]
+Used to define plugin entry points for extensibility (e.g., for pytest plugins or other frameworks).
+
+[tool.poetry.extras]
+Defines optional dependency groups (extras) that users can install with pip install .[extra_name].
+Example(toml):
+[tool.poetry.extras]
+docs = ["sphinx", "mkdocs"]
+
+[tool.<other-tool>]
+Other tools (like black, isort, pytest, etc.) can store their configuration in the same pyproject.toml under 
+their own [tool.<tool-name>] section.
+Examples:
+[tool.black] for Black code formatter settings
+[tool.isort] for isort import sorting settings
+[tool.pytest.ini_options] for pytest configuration
+"""
