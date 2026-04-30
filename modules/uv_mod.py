@@ -16,3 +16,17 @@ bash
 
 uv pip install -r requirements.txt
 Installs all packages listed in requirements.txt.[1]
+
+2. Create a virtual environment
+bash
+
+
+uv venv .venv
+Creates a new virtual environment in the .venv directory.[1]
+
+3. Compile requirements (lock dependencies)
+bash
+
+
+uv pip compile requirements.in
+Generates a requirements.txt file from requirements.in, resolving and locking dependencies.[1]
