@@ -30,3 +30,17 @@ bash
 
 uv pip compile requirements.in
 Generates a requirements.txt file from requirements.in, resolving and locking dependencies.[1]
+
+4. Upgrade a package
+bash
+
+
+uv pip install --upgrade <package-name>
+Upgrades the specified package to the latest version.[1]
+
+5. List installed packages
+bash
+
+
+uv pip list
+Displays all installed packages in the current environment.[1]
