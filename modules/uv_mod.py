@@ -44,3 +44,17 @@ bash
 
 uv pip list
 Displays all installed packages in the current environment.[1]
+
+6. Remove a package
+bash
+
+
+uv pip uninstall <package-name>
+Uninstalls the specified package.[1]
+
+Getting Started
+Install uv
+Download the latest release from the official GitHub repository or use a package manager if available.[1]
+Initialize your project
+Use uv venv to create a virtual environment, then install dependencies with uv pip install.
+"""
