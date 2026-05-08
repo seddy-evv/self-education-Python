@@ -308,8 +308,10 @@ spark.sql("""
 # AUTO CDC: The AUTO CDC APIs replace the APPLY CHANGES APIs, and have the same syntax.
 
 # When to APPLY CHANGES INTO AND AUTO CDC vs. MERGE INTO
-# APPLY CHANGES INTO / AUTO CDC: Recommended for streaming CDC in DLT, handles complexity (duplicates, out-of-order data) automatically.
-# MERGE INTO: More flexible for batch, but requires manual logic for streaming CDC, error handling, and deduplication, leading to higher complexity and potential errors.
+# APPLY CHANGES INTO / AUTO CDC: Recommended for streaming CDC in DLT, handles complexity 
+# (duplicates, out-of-order data) automatically.
+# MERGE INTO: More flexible for batch, but requires manual logic for streaming CDC, error handling, and deduplication, 
+# leading to higher complexity and potential errors.
 
 # Incremental Data Ingestion - loading new data files encountered since the last ingestion
 # 1. COPY INTO - Copy new data into Delta table (with idempotent retries), COPY INTO command is better suited for
@@ -556,11 +558,15 @@ from databricks.sdk.runtime import dbutils
 
 # Widgets (dbutils.widgets):
 
-# dbutils.widgets.combobox(name, defaultValue, choices, label): Creates a combobox widget allowing free-form text entry or selection from a provided list.
-# dbutils.widgets.dropdown(name, defaultValue, choices, label): Creates a dropdown widget with a list of selectable values.
+# dbutils.widgets.combobox(name, defaultValue, choices, label): Creates a combobox widget allowing free-form text 
+# entry or selection from a provided list.
+# dbutils.widgets.dropdown(name, defaultValue, choices, label): Creates a dropdown widget with a list of 
+# selectable values.
 # dbutils.widgets.get(name): Retrieves the current value of a widget.
-# dbutils.widgets.getArgument(name, optional=False): Retrieves the value of a widget, with an option to specify if it's optional.
-# dbutils.widgets.multiselect(name, defaultValue, choices, label): Creates a widget that allows for the selection of multiple values from a list.
+# dbutils.widgets.getArgument(name, optional=False): Retrieves the value of a widget, with an option to specify if 
+# it's optional.
+# dbutils.widgets.multiselect(name, defaultValue, choices, label): Creates a widget that allows for the selection of 
+# multiple values from a list.
 # dbutils.widgets.remove(name): Removes a specific widget from the notebook.
 # dbutils.widgets.removeAll(): Removes all widgets from the notebook.
 # dbutils.widgets.text(name, defaultValue="", label=""): Creates a text input widget.
@@ -574,21 +580,25 @@ from databricks.sdk.runtime import dbutils
 # Jobs (dbutils.jobs):
 
 # dbutils.jobs.taskValues.set(key, value): Sets a value that can be retrieved by downstream tasks in the same job.
-# dbutils.jobs.taskValues.get(taskKey, key, default=None, debugValue=None): Retrieves a value that was set by an upstream task in the same job.
+# dbutils.jobs.taskValues.get(taskKey, key, default=None, debugValue=None): Retrieves a value that was set by an 
+# upstream task in the same job.
 
 # Data (dbutils.data):
 
-# dbutils.data.summarize(data, precise=False): Calculates and displays summary statistics for a Spark or pandas DataFrame.
+# dbutils.data.summarize(data, precise=False): Calculates and displays summary statistics for a Spark or 
+# pandas DataFrame.
 
 # Credentials (dbutils.credentials):
 
 # dbutils.credentials.assumeRole(role): Sets the AWS IAM role to assume for accessing S3 data.
-# dbutils.credentials.getServiceCredentialsProvider(credentialName): Returns a credentials provider for a given service credential.
+# dbutils.credentials.getServiceCredentialsProvider(credentialName): Returns a credentials provider for a given 
+# service credential.
 # dbutils.credentials.showCurrentRole(): Displays the currently assumed AWS IAM role.
 
 # Library (dbutils.library):
 
-# dbutils.library.installPyPI(pypiName, version=None, repo=None, extras=None): Installs a Python package from PyPI on the cluster.
+# dbutils.library.installPyPI(pypiName, version=None, repo=None, extras=None): Installs a Python package from PyPI 
+# on the cluster.
 # dbutils.library.install(path): Installs a library from a specified path.
 # dbutils.library.list(): Lists all libraries installed on the cluster.
 # dbutils.library.restartPython(): Restarts the Python process for the current notebook session.
