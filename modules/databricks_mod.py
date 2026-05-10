@@ -4,7 +4,8 @@ from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.appName("Databricks Examples").master("local").getOrCreate()
 
-# READ AND WRITE TO DELTA TABLE (for Databricks we can omit delta format option):
+
+# 1. READ AND WRITE TO DELTA TABLE (for Databricks we can omit delta format option):
 # Create df
 data = [
   ("Alice", 28, 1990),
@@ -146,7 +147,7 @@ df.writeStream.format("delta") \
  .trigger(once=True).table("my_table")
 
 
-# CONVERT PARQUET TO DELTA LAKE
+# 2. CONVERT PARQUET TO DELTA LAKE
 # Convert Parquet table to Delta Lake format in place
 delta_table = DeltaTable.convertToDelta(spark, "parquet.`/path/to/parquet_table`")
 partitioned_delta_table = DeltaTable.convertToDelta(spark, "parquet.`/path/to/parquet_table`", "part int")
@@ -308,9 +309,9 @@ spark.sql("""
 # AUTO CDC: The AUTO CDC APIs replace the APPLY CHANGES APIs, and have the same syntax.
 
 # When to APPLY CHANGES INTO AND AUTO CDC vs. MERGE INTO
-# APPLY CHANGES INTO / AUTO CDC: Recommended for streaming CDC in DLT, handles complexity 
+# APPLY CHANGES INTO / AUTO CDC: Recommended for streaming CDC in DLT, handles complexity
 # (duplicates, out-of-order data) automatically.
-# MERGE INTO: More flexible for batch, but requires manual logic for streaming CDC, error handling, and deduplication, 
+# MERGE INTO: More flexible for batch, but requires manual logic for streaming CDC, error handling, and deduplication,
 # leading to higher complexity and potential errors.
 
 # Incremental Data Ingestion - loading new data files encountered since the last ingestion
@@ -415,7 +416,7 @@ spark.sql("""ALTER TABLE my_table SET TBLPROPERTIES (
 spark.sql("SHOW TBLPROPERTIES my_table").show()
 
 
-# CREATE AND QUERY DELTA TABLES
+# 4. CREATE AND QUERY DELTA TABLES
 # Create and use managed database
 # Managed database is saved in the Hive metastore
 # Default database is named "default"
@@ -449,7 +450,8 @@ spark.sql("""
           [LOCATION `path/to/table`] -- for external tables, path might be cloud storage url
           """)
 
-# UTILITY METHODS
+
+# 5. UTILITY METHODS
 # View table details
 spark.sql("DESCRIBE DETAIL my_table")
 spark.sql("DESCRIBE FORMATTED my_table")
@@ -482,7 +484,7 @@ spark.sql("CREATE TABLE target_table [SHALLOW | DEEP] CLONE source_table [VERSIO
 df = delta_table.toDF()
 
 
-# PERFORMANCE OPTIMIZATIONS
+# 6. PERFORMANCE OPTIMIZATIONS
 # Compact small data files with Optimize and Z-Order
 spark.sql("OPTIMIZE my_table [ZORDER BY (colA, colB)]")
 
@@ -509,12 +511,12 @@ spark.sql("CREATE TABLE my_table TBLPROPERTIES ('delta.enableDeletionVectors' = 
 spark.sql("ALTER TABLE my_table SET TBLPROPERTIES ('delta.enableDeletionVectors' = true);")
 
 
-# UNITY CATALOG
+# 7. UNITY CATALOG
 # Grant privileges
 spark.sql("GRANT privilege_type ON securable_object TO principal")
 
 
-# NOTEBOOK WIDGETS
+# 8. NOTEBOOK WIDGETS
 # Create widgets:
 dbutils.widgets.text("start_date", "")
 dbutils.widgets.dropdown("register_ml_model", "True", ["True", "False"])
@@ -531,7 +533,7 @@ dbutils.widgets.text("age", "")
 spark.sql("SELECT * FROM my_table WHERE age = ${age}")
 
 
-# DBUTILS
+# 9. DBUTILS
 from databricks.sdk.runtime import dbutils
 
 # File System (dbutils.fs):
@@ -558,14 +560,14 @@ from databricks.sdk.runtime import dbutils
 
 # Widgets (dbutils.widgets):
 
-# dbutils.widgets.combobox(name, defaultValue, choices, label): Creates a combobox widget allowing free-form text 
+# dbutils.widgets.combobox(name, defaultValue, choices, label): Creates a combobox widget allowing free-form text
 # entry or selection from a provided list.
-# dbutils.widgets.dropdown(name, defaultValue, choices, label): Creates a dropdown widget with a list of 
+# dbutils.widgets.dropdown(name, defaultValue, choices, label): Creates a dropdown widget with a list of
 # selectable values.
 # dbutils.widgets.get(name): Retrieves the current value of a widget.
-# dbutils.widgets.getArgument(name, optional=False): Retrieves the value of a widget, with an option to specify if 
+# dbutils.widgets.getArgument(name, optional=False): Retrieves the value of a widget, with an option to specify if
 # it's optional.
-# dbutils.widgets.multiselect(name, defaultValue, choices, label): Creates a widget that allows for the selection of 
+# dbutils.widgets.multiselect(name, defaultValue, choices, label): Creates a widget that allows for the selection of
 # multiple values from a list.
 # dbutils.widgets.remove(name): Removes a specific widget from the notebook.
 # dbutils.widgets.removeAll(): Removes all widgets from the notebook.
@@ -580,24 +582,24 @@ from databricks.sdk.runtime import dbutils
 # Jobs (dbutils.jobs):
 
 # dbutils.jobs.taskValues.set(key, value): Sets a value that can be retrieved by downstream tasks in the same job.
-# dbutils.jobs.taskValues.get(taskKey, key, default=None, debugValue=None): Retrieves a value that was set by an 
+# dbutils.jobs.taskValues.get(taskKey, key, default=None, debugValue=None): Retrieves a value that was set by an
 # upstream task in the same job.
 
 # Data (dbutils.data):
 
-# dbutils.data.summarize(data, precise=False): Calculates and displays summary statistics for a Spark or 
+# dbutils.data.summarize(data, precise=False): Calculates and displays summary statistics for a Spark or
 # pandas DataFrame.
 
 # Credentials (dbutils.credentials):
 
 # dbutils.credentials.assumeRole(role): Sets the AWS IAM role to assume for accessing S3 data.
-# dbutils.credentials.getServiceCredentialsProvider(credentialName): Returns a credentials provider for a given 
+# dbutils.credentials.getServiceCredentialsProvider(credentialName): Returns a credentials provider for a given
 # service credential.
 # dbutils.credentials.showCurrentRole(): Displays the currently assumed AWS IAM role.
 
 # Library (dbutils.library):
 
-# dbutils.library.installPyPI(pypiName, version=None, repo=None, extras=None): Installs a Python package from PyPI 
+# dbutils.library.installPyPI(pypiName, version=None, repo=None, extras=None): Installs a Python package from PyPI
 # on the cluster.
 # dbutils.library.install(path): Installs a library from a specified path.
 # dbutils.library.list(): Lists all libraries installed on the cluster.
