@@ -439,7 +439,7 @@ print(df_from_series)
 # 1  Los Angeles   25
 # 2     New York   81
 
-# 4. df.merge(other_df, on='key'): Merges two DataFrames on a specified key column.
+# 4. df.merge(other_df, on='key'): Merges (Join) two DataFrames on a specified key column.
 
 # Example1:
 df2 = pd.DataFrame({'Name': ['Alice', 'Bob'], 'Salary': [50000, 60000]})
