@@ -55,3 +55,22 @@ bash
 uv pip uninstall <package-name>
 
 Uninstalls the specified package.
+
+7. Example: Creating and Managing a Project
+
+bash
+
+# Create a new virtual environment
+uv venv venv
+
+# Activate the virtual environment (Linux/macOS)
+source venv/bin/activate
+
+# Activate the virtual environment (Windows)
+venv\Scripts\activate
+
+# Install packages
+uv pip install fastapi uvicorn
+
+# Freeze dependencies
+uv pip freeze > requirements.txt
