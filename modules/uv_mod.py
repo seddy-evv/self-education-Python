@@ -74,3 +74,16 @@ uv pip install fastapi uvicorn
 
 # Freeze dependencies
 uv pip freeze > requirements.txt
+
+
+8. Basic Usage
+Suppose you have a script called main.py and you want to run it with dependencies specified in requirements.txt (or pyproject.toml):
+
+bash
+
+uv run python main.py
+This command will:
+
+Automatically install dependencies (if not already installed in the environment).
+Run your script in an isolated environment.
+"""
