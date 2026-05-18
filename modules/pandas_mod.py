@@ -564,7 +564,7 @@ print(df)
 # 2  Charlie   33      Chicago            396
 # 3     Alex   36          NYC            432
 
-# 4. df.drop_duplicates(): Removes full duplicate rows.
+# 4. df.drop_duplicates(): Removes full duplicate rows to get distinct values
 
 # Example:
 df_with_duplicates = pd.DataFrame({'Name': ['Alice', 'Bob', 'Alice'], 'Age': [25, 30, 25]})
