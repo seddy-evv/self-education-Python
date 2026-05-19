@@ -1999,6 +1999,9 @@ print(psdf.describe())
 # 75%    5.000000  500.000000
 # max    6.000000  600.000000
 
+# cache pyspark.pandas df
+psdf.spark.cache()
+
 # 3.mapInPandas() - Maps an iterator of batches in the current DataFrame using a Python native function that is
 # performed on pandas DataFrames both as input and output, and returns the result as a DataFrame. This can be useful
 # if we need to pass a pandas dataframe to a specific library. Processing will be performed for each partition.
