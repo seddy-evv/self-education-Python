@@ -166,6 +166,10 @@ print(df[['Name']])
 # 2  Charlie
 # 3     Alex
 
+# 6.1 df[['column_name']]: Selects a specific set of column from Dataframe
+columns = ["Age", "Name"]
+print(df[columns])
+
 # 7. df.squeeze('columns'): Squeezes DataFrames with a single column or a single row to a Series
 
 # Example:
