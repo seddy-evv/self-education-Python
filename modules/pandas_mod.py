@@ -169,6 +169,11 @@ print(df[['Name']])
 # 6.1 df[['column_name']]: Selects a specific set of column from Dataframe
 columns = ["Age", "Name"]
 print(df[columns])
+#    Age     Name
+# 0   45    Alice
+# 1   25      Bob
+# 2   33  Charlie
+# 3   36     Alex
 
 # 7. df.squeeze('columns'): Squeezes DataFrames with a single column or a single row to a Series
 
@@ -640,6 +645,8 @@ print(df)
 #     df.query("column_name not in ('', '4', '5')") - filters values with query
 #     df_with_na[df_with_na['Name'].isnull()] - selects only rows with null values in the particular column
 #     df[df["Age"].between(20,30)]
+#     .filter() - The pandas .filter() method is used for filtering columns or index labels, not for filtering rows 
+#     based on values.
 
 # Example:
 data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex', 'Jimmy'],
@@ -647,13 +654,17 @@ data = {'Name': ['Alice', 'Bob', 'Charlie', 'Alex', 'Jimmy'],
         'City': ['New York', 'Los Angeles', 'Chicago', 'New York', 'Boston']}
 df = pd.DataFrame(data)
 
-# We need copy() to avoid issues with next operation since filter creates a view, and we can't modify this view, also
-# we can use .loc() to avoid this issue
+# By default, pandas operations like .filter() or [[]] return a view or a reference to the original DataFrame when possible.
+# If you plan to modify the filtered DataFrame and do not want those changes to affect the original DataFrame,
+# you should use the copy() method
 df_age = df[df['Age'] < 35].copy()
 print(df_age)
 #       Name   Age         City
 # 1      Bob  25.0  Los Angeles
 # 2  Charlie  33.0      Chicago
+
+filtered_df = df.filter(items=['Name', 'Age'])
+print(filtered_df)
 
 df_age["Age"] = df_age["Age"] * 2
 print(df_age)
