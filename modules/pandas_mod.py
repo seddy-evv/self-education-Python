@@ -540,7 +540,8 @@ print('\n', 'Data Transformation', '\n')
 df = get_pd_df()
 age_series = get_age_series()
 
-# 1. df.apply(function): Applies a function to rows or columns.
+# 1. df.apply(function): Applies a function to rows or columns, can return outputs of different shapes.
+#    df.transform(function): Is similar to apply(), but returns an output with the same shape as the input!
 
 # Example:
 df['Age in Months'] = df['Age'].apply(lambda x: x * 12)
@@ -551,6 +552,14 @@ print(df)
 # 2  Charlie   33      Chicago            396
 # 3     Alex   36     New York            432
 # df['Age in Months'] - adds a new column with calculated values
+
+df['Age in Months'] = df['Age'].transform(lambda x: x * 12)
+print(df)
+#       Name  Age         City  Age in Months
+# 0    Alice   45     New York            540
+# 1      Bob   25  Los Angeles            300
+# 2  Charlie   33      Chicago            396
+# 3     Alex   36     New York            432
 
 # 2. df.map(function): Applies element-wise functions to a Series.
 
@@ -645,7 +654,7 @@ print(df)
 #     df.query("column_name not in ('', '4', '5')") - filters values with query
 #     df_with_na[df_with_na['Name'].isnull()] - selects only rows with null values in the particular column
 #     df[df["Age"].between(20,30)]
-#     .filter() - The pandas .filter() method is used for filtering columns or index labels, not for filtering rows 
+#     .filter() - The pandas .filter() method is used for filtering columns or index labels, not for filtering rows
 #     based on values.
 
 # Example:
