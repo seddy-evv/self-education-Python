@@ -925,6 +925,18 @@ print(interval_series)
 # Freq: 3min, dtype: int64
 
 
+# 6. df.first(offset) - Select first periods of time series data based on a date offset.
+# The first() function is typically used with time-indexed DataFrames to return the first n periods.
+df_date_index = df_date.set_index('Date')
+# Use first() to get the first 2 months
+res = df_date_index.first("2M")
+print(res)
+#             Year  Month  Day
+# Date
+# 2023-01-01  2023      1    1
+# 2023-02-01  2023      2    1
+
+
 """Miscellaneous"""
 print('\n', 'Miscellaneous', '\n')
 
