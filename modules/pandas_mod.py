@@ -707,6 +707,16 @@ print(df_nulls)
 #     Name  Age    City
 # 4  Jimmy  NaN  Boston
 
+# 12. df.shift(periods) - the shift() function moves the values in the df/columns down by periods rows
+df['Age_shifted'] = df['Age'].shift(1)
+print(df)
+#       Name   Age         City  Age_shifted
+# 0    Alice  45.0     New York          NaN
+# 1      Bob  25.0  Los Angeles         45.0
+# 2  Charlie  33.0      Chicago         25.0
+# 3     Alex  36.0     New York         33.0
+# 4    Jimmy   NaN       Boston         36.0
+
 
 """Statistical Functions"""
 print('\n', 'Statistical Functions', '\n')
@@ -843,6 +853,7 @@ print(df_advanced['Score'].sample(n=2, random_state=1))
 # 3    95
 # 2    80
 # Name: Score, dtype: int64
+
 
 """Datetime Handling"""
 print('\n', 'Datetime Handling', '\n')
