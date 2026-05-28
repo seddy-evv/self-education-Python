@@ -4,7 +4,20 @@
 # Series – can be thought of as a column of a DataFrame
 # Index – can be not only a number
 
-# Here's a description of the main pandas functions:
+# SECTIONS:
+# Data Creation
+# Indexing and Selection
+# Data Exploration
+# Data Cleaning (None, NA, NULL)
+# Data Manipulation
+# Data Transformation
+# Statistical Functions
+# Visualization
+# Advanced Functions
+# Datetime Handling
+# Miscellaneous
+# Categorical data
+
 
 import pandas as pd
 import numpy as np
@@ -286,7 +299,7 @@ print(df.memory_usage())
 # dtype: int64
 
 
-"""Data Cleaning"""
+"""Data Cleaning (None, NA, NULL)"""
 print('\n', 'Data Cleaning', '\n')
 
 df_with_na = pd.DataFrame({'Name': ['Alice', 'Bob', None], 'Age': [25, None, 35]})
