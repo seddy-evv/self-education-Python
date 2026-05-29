@@ -376,7 +376,17 @@ print(df_with_na.drop([0]))
 # 1   Bob   NaN
 # 2  None  35.0
 
-# 7. df.rename(columns={'old_name': 'new_name'}): Renames one or more columns.
+# 7. df[column_name].interpolate() - function is typically used to fill missing values (NaN) in numerical columns by
+# interpolating between existing values.
+
+df_with_na["Age"] = df_with_na['Age'].interpolate()
+print(df_with_na)
+#     Name   Age
+# 0  Alice  25.0
+# 1    Bob  30.0
+# 2   None  35.0
+
+# 8. df.rename(columns={'old_name': 'new_name'}): Renames one or more columns.
 
 # Example:
 renamed_df = df_with_na.rename(columns={'Name': 'Full Name', 'Age': 'Years'})
