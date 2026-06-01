@@ -741,6 +741,35 @@ print(df)
 # 4    Jimmy   NaN       Boston         36.0
 
 
+# 13. df.stack() -The stack() function “compresses” columns into a single column, creating a MultiIndex (row, column)
+# for each value. This is useful for reshaping DataFrames from wide to long format.
+
+df = get_pd_df()
+print("AAAAAAAA")
+print(df)
+#       Name  Age         City
+# 0    Alice   45     New York
+# 1      Bob   25  Los Angeles
+# 2  Charlie   33      Chicago
+# 3     Alex   36     New York
+
+df_stack = df.stack()
+print(df_stack)
+# 0  Name          Alice
+#    Age              45
+#    City       New York
+# 1  Name            Bob
+#    Age              25
+#    City    Los Angeles
+# 2  Name        Charlie
+#    Age              33
+#    City        Chicago
+# 3  Name           Alex
+#    Age              36
+#    City       New York
+# dtype: object
+
+
 """Statistical Functions"""
 print('\n', 'Statistical Functions', '\n')
 
