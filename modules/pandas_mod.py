@@ -407,6 +407,7 @@ print(renamed_df)
 # Add prefix
 df_with_prefix = renamed_df.add_prefix("test ")
 print(df_with_prefix.columns.tolist())
+# ['test Full Name New', 'test Years New']
 
 
 """Data Manipulation"""
