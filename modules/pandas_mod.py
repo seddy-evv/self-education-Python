@@ -409,6 +409,26 @@ df_with_prefix = renamed_df.add_prefix("test ")
 print(df_with_prefix.columns.tolist())
 # ['test Full Name New', 'test Years New']
 
+# 9 df.mask() - The mask() function replaces values where the condition is True (here, Age < 35) with NaN by default.
+# You can also specify a custom value to replace with using the second argument.
+df_with_na = pd.DataFrame({'Name': ['Alice', 'Bob', None], 'Age': [25, None, 35]})
+df_mask = df_with_na.mask(df_with_na["Age"].isna(), 0)
+print("AAAAA")
+print(df_mask)
+#     Name   Age
+# 0  Alice  25.0
+# 1      0   0.0
+# 2   None  35.0
+
+# also we can use as where but np.where faster!!!!
+df_mask["group"] = "middle age"
+df_mask["group"] = df_mask["group"].mask(df_mask["Age"] < 30, "young")
+print(df_mask)
+#     Name   Age       group
+# 0  Alice  25.0       young
+# 1      0   0.0       young
+# 2   None  35.0  middle age
+
 
 """Data Manipulation"""
 print('\n', 'Data Manipulation', '\n')
