@@ -206,6 +206,20 @@ print(df.iloc[0:2])   # Returns row 0 and 1 as DataFrame
 # 0  Alice   45     New York
 # 1    Bob   25  Los Angeles
 
+# 9. df.reindex() - Conform DataFrame to new index with optional filling logic.
+print(df)
+#       Name  Age         City
+# 0    Alice   45     New York
+# 1      Bob   25  Los Angeles
+# 2  Charlie   33      Chicago
+# 3     Alex   36     New York
+print(df.reindex([2, 0, 3, 1]))
+#       Name  Age         City
+# 2  Charlie   33      Chicago
+# 0    Alice   45     New York
+# 3     Alex   36     New York
+# 1      Bob   25  Los Angeles
+
 
 """Data Exploration"""
 print('\n', 'Data Exploration', '\n')
