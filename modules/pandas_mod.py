@@ -427,7 +427,6 @@ print(df_with_prefix.columns.tolist())
 # You can also specify a custom value to replace with using the second argument.
 df_with_na = pd.DataFrame({'Name': ['Alice', 'Bob', None], 'Age': [25, None, 35]})
 df_mask = df_with_na.mask(df_with_na["Age"].isna(), 0)
-print("AAAAA")
 print(df_mask)
 #     Name   Age
 # 0  Alice  25.0
@@ -780,7 +779,6 @@ print(df)
 # for each value. This is useful for reshaping DataFrames from wide to long format.
 
 df = get_pd_df()
-print("AAAAAAAA")
 print(df)
 #       Name  Age         City
 # 0    Alice   45     New York
@@ -959,6 +957,23 @@ print(df_date)
 print(df_date.dtypes)
 # Date    datetime64[ns]
 # dtype: object
+
+# 1.1 pd.to_timedelta(): is used to convert the Timedelta column to a pandas Timedelta type, though in this case, 
+# the subtraction already produces a Timedelta. to_timedelta() is especially useful when converting strings like 
+# '2 days' or numbers representing durations into Timedelta objects. 
+
+ref_date = pd.Timestamp('2023-01-01')
+# Calculate timedelta
+df_time_delta = df_date.copy()
+df_time_delta['Timedelta'] = df_time_delta['Date'] - ref_date
+# If you want to use to_timedelta explicitly (e.g., from a string or number)
+df_time_delta['Timedelta_str'] = pd.to_timedelta(df_time_delta['Timedelta'])
+
+print(df_time_delta)
+#         Date Timedelta Timedelta_str
+# 0 2023-01-01    0 days        0 days
+# 1 2023-02-01   31 days       31 days
+# 2 2023-03-01   59 days       59 days
 
 # 2. df['date_column'].dt.year: Extracts the year from a datetime column.
 # 3. df['date_column'].dt.month: Extracts the month from a datetime column.
