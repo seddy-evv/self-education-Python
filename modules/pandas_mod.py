@@ -505,7 +505,15 @@ print(df_from_series)
 # 1  Los Angeles   25
 # 2     New York   81
 
-# 4. df.merge(other_df, on='key'): Merges (Join) two DataFrames on a specified key column.
+# 4. df.get_group() - Construct DataFrame from group with provided name.
+grouped = df_gr.groupby('City')
+new_york_group = grouped.get_group('New York')
+print(new_york_group)
+#    Age      City
+# 0   45  New York
+# 3   36  New York
+
+# 5. df.merge(other_df, on='key'): Merges (Join) two DataFrames on a specified key column.
 
 # Example1:
 df2 = pd.DataFrame({'Name': ['Alice', 'Bob'], 'Salary': [50000, 60000]})
@@ -540,7 +548,7 @@ print(merged_left)
 # 2  Charlie   33      Chicago      0.0
 # 3     Alex   36     New York      0.0
 
-# 5. df.join(other_df): Joins two DataFrames on their indexes (works like left join/merge by indexes).
+# 6. df.join(other_df): Joins two DataFrames on their indexes (works like left join/merge by indexes).
 
 # Example:
 df3 = pd.DataFrame({'Salary': [50000, 60000, 70000]})
@@ -552,7 +560,7 @@ print(joined)
 # 2  Charlie   33      Chicago  70000.0
 # 3     Alex   36     New York      NaN
 
-# 6. pd.concat([df1, df2]): Concatenates two or more DataFrames along rows or columns.
+# 7. pd.concat([df1, df2]): Concatenates two or more DataFrames along rows or columns.
 
 # Example:
 df_concat = pd.concat([df, df3], axis=1)  # works like join but instead NaN zero value (0)
@@ -563,7 +571,7 @@ print(df_concat)
 # 2  Charlie   33      Chicago  70000.0
 # 3     Alex   36     New York      NaN
 
-# 7. df._append(df2): Append rows of other to the end of caller, returning a new object.
+# 8. df._append(df2): Append rows of other to the end of caller, returning a new object.
 # Columns in other that are not in the caller are added as new columns, for existing rows values will be NULL.
 
 df_append = df._append(df2)
@@ -576,7 +584,7 @@ print(df_append)
 # 0      NaN   NaN          NaN       Alice  50000.0
 # 1      NaN   NaN          NaN         Bob  60000.0
 
-# 8. df.pivot_table(values, index, columns): Creates a pivot table for data summarization.
+# 9. df.pivot_table(values, index, columns): Creates a pivot table for data summarization.
 
 # Example:
 df4 = pd.DataFrame({'foo': ['one', 'one', 'one', 'two', 'two', 'two'],
@@ -958,9 +966,9 @@ print(df_date.dtypes)
 # Date    datetime64[ns]
 # dtype: object
 
-# 1.1 pd.to_timedelta(): is used to convert the Timedelta column to a pandas Timedelta type, though in this case, 
-# the subtraction already produces a Timedelta. to_timedelta() is especially useful when converting strings like 
-# '2 days' or numbers representing durations into Timedelta objects. 
+# 1.1 pd.to_timedelta(): is used to convert the Timedelta column to a pandas Timedelta type, though in this case,
+# the subtraction already produces a Timedelta. to_timedelta() is especially useful when converting strings like
+# '2 days' or numbers representing durations into Timedelta objects.
 
 ref_date = pd.Timestamp('2023-01-01')
 # Calculate timedelta
