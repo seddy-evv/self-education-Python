@@ -656,6 +656,12 @@ print(df_with_duplicates.drop_duplicates())
 # 0  Alice   25
 # 1    Bob   30
 
+# 4.1 - df.duplicated() - Return boolean Series denoting duplicate rows.
+print(df_with_duplicates.duplicated())
+# 0    False
+# 1    False
+# 2     True
+
 # 5. df.astype(dtype): Changes the data type of all columns.
 # 6. df.astype({'col1': dtype}): Changes the data type of the col1 column.
 # 7. df['col1] = df['col1'].astype(dtype): The additional way to change the data type of the col1 column.
