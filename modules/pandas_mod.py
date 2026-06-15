@@ -39,6 +39,11 @@ def get_pd_df():
     return df
 
 
+def get_pd_na_df():
+    df = pd.DataFrame({'Name': ['Alice', 'Bob', None], 'Age': [25, None, 35]})
+
+    return df
+
 df = get_pd_df()
 print(df)
 #       Name  Age         City
@@ -316,7 +321,7 @@ print(df.memory_usage())
 """Data Cleaning (None, NA, NULL)"""
 print('\n', 'Data Cleaning', '\n')
 
-df_with_na = pd.DataFrame({'Name': ['Alice', 'Bob', None], 'Age': [25, None, 35]})
+df_with_na = get_pd_na_df()
 print(df_with_na)
 #     Name   Age
 # 0  Alice  25.0
@@ -425,7 +430,7 @@ print(df_with_prefix.columns.tolist())
 
 # 9 df.mask() - The mask() function replaces values where the condition is True (here, Age < 35) with NaN by default.
 # You can also specify a custom value to replace with using the second argument.
-df_with_na = pd.DataFrame({'Name': ['Alice', 'Bob', None], 'Age': [25, None, 35]})
+df_with_na = get_pd_na_df()
 df_mask = df_with_na.mask(df_with_na["Age"].isna(), 0)
 print(df_mask)
 #     Name   Age
@@ -441,6 +446,7 @@ print(df_mask)
 # 0  Alice  25.0       young
 # 1      0   0.0       young
 # 2   None  35.0  middle age
+
 
 
 """Data Manipulation"""
