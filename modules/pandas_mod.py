@@ -447,7 +447,20 @@ print(df_mask)
 # 1      0   0.0       young
 # 2   None  35.0  middle age
 
+# 10. df.combine_first(other_df) - Combine two DataFrame objects by filling null values in one DataFrame with
+# non-null values from other DataFrame.
+df_with_na = get_pd_na_df()
+other_df = pd.DataFrame({
+    'Name': [None, 'Robert', 'Charlie'],
+    'Age': [26, 30, None]
+})
 
+result_df = df_with_na.combine_first(other_df)
+print(result_df)
+#       Name   Age
+# 0    Alice  25.0
+# 1      Bob  30.0
+# 2  Charlie  35.0
 
 """Data Manipulation"""
 print('\n', 'Data Manipulation', '\n')
