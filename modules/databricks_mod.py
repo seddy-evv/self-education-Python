@@ -42,6 +42,8 @@ spark.sql("""
 
 # Create a table using CTAS and the existing table
 # CTAS do not support manual schema declaration, instead TABLE might be VIEW, TEMP VIEW, GLOBAL TEMP VIEW
+# TEMP VIEW - shared across SparkSession
+# GLOBAL TEMP VIEW - shared across all users in the same cluster
 # The my_table table was MANAGED, the my_table_new is EXTERNAL due to LOCATION declaration
 spark.sql("""
     CREATE TABLE my_table_new
