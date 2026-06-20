@@ -300,7 +300,7 @@ df.show()
 # reduceByKey() (RDD, shuffle less data unlike groupByKey()), orderBy() / sort(), aggregateByKey()
 
 df = get_pyspark_df()
-# Show: Display the DataFrame
+# show(): Display the DataFrame
 df.show()
 # +-------+---+
 # |   Name|Age|
@@ -310,12 +310,27 @@ df.show()
 # |Charlie| 30|
 # +-------+---+
 
-# Collect: Retrieve all data
+# In case if a df has a lot of columns(Important moment locally you can see only 3 rows due to vertical format limitation):
+# show(n=5, truncate=False, vertical=True)
+# how to fix limitation:
+# 1. Convert to Pandas:
+# df.limit(10).toPandas().T
+# 2. Use only necessary columns
+# df.to_spark().select("id").show(n=10, truncate=False, vertical=False)
+# 3. Use cycle (works fine!)
+# for row in df.limit(10).collect():
+#     spark.createDataFrame([row], df.schema).show(truncate=False, vertical=True)
+
+# collect(): Retrieve all data
 data = df.collect()
 print(data)
 # [Row(Name='Alice', Age=28), Row(Name='Bob', Age=25), Row(Name='Charlie', Age=30)]
 
-# Count: Count the number of rows
+# collect()[0][0] if we need get the aggregated value for print
+# result = df.agg(sum(col(col_to_sum))).collect()
+# volume = result[0][0] if result and result[0][0] is not None else 0
+
+# count(): Count the number of rows
 count_res = df.count()
 print(count_res)
 # 3
@@ -887,6 +902,16 @@ inner_join.show()
 # |Alice| 28|     F|
 # |  Bob| 25|     M|
 # +-----+---+------+
+# OR
+unique_df2_cols = [col for col in df2.columns if col not in df1.columns]
+inner_join = df1.join(df2, df1.Name == df2.Name, how="inner").select(df1["*"], *unique_df2_cols)
+inner_join.show()
+# +-----+---+------+
+# | Name|Age|Gender|
+# +-----+---+------+
+# |Alice| 28|     F|
+# |  Bob| 25|     M|
+# +-----+---+------+
 
 # Left Join
 left_join = df2.join(df1, on="Name", how="left")
@@ -1123,7 +1148,7 @@ df.select(substring_index(col("Name"), "_", 1).alias("name_substring"),
 # |    Charlie3 |           Charlie | CHARLIE3 |          9|   Cha| Charlie3|                  0|[Charlie3 ]| Charlie3 |
 # +-------------+-------------------+----------+-----------+------+---------+-------------------+-----------+----------+
 
-# struct() - Creates a new struct column.
+# struct() - Creates a new struct column. Structs are like rows in a table with predefined fields
 struct_df = df.select(struct("Name", "Age").alias("person_info"))
 struct_df.show(truncate=False)
 # +-------------+
@@ -1255,6 +1280,7 @@ df.show()
 # +---+------------+---------+---------+---------------+
 
 # collect_list(): Collects the values from a column into a list, with duplicates, and returns this list of objects.
+# collect_set(): Collects without duplicates.
 df_collect = get_pyspark_df3()
 df_collect.show()
 # +-------+------+
