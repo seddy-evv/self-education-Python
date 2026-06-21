@@ -348,6 +348,7 @@ df.describe().show()
 # +-------+-------+------------------+
 
 # explain() - Prints the (logical and physical) plans to the console for debugging purposes.
+# we can use after the job execution when we get the df, or adfter a set of transformations
 # We can also use EXPLAIN within spark.sql() and get the same result
 df.explain(extended=True)
 # == Parsed Logical Plan ==
