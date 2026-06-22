@@ -8,7 +8,7 @@ from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
     current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format, substring_index, \
     regexp_replace, upper, length, substring, trim, instr, split, array_contains, arrays_overlap, arrays_zip, element_at, \
-    transform, posexplode, array_union, collect_list, struct, round, sequence
+    transform, posexplode, array_union, collect_list, struct, round, sequence, lpad
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType, LongType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -1148,6 +1148,18 @@ df.select(substring_index(col("Name"), "_", 1).alias("name_substring"),
 # |          Bob|               Bob_|     BOB_2|          5|   Bob|    Bob_2|                  4|   [Bob, 2]|       Bob|
 # |    Charlie3 |           Charlie | CHARLIE3 |          9|   Cha| Charlie3|                  0|[Charlie3 ]| Charlie3 |
 # +-------------+-------------------+----------+-----------+------+---------+-------------------+-----------+----------+
+
+# lpad() - Left-pad the string column to width len with pad.
+df.select(
+          lpad(col("Name"), 10, '#').alias("pad_name")
+          ).show()
+# +----------+
+# |  pad_name|
+# +----------+
+# |#####Alice|
+# |#######Bob|
+# |###Charlie|
+# +----------+
 
 # struct() - Creates a new struct column. Structs are like rows in a table with predefined fields
 struct_df = df.select(struct("Name", "Age").alias("person_info"))
