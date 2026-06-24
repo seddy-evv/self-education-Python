@@ -1154,15 +1154,16 @@ df.select(substring_index(col("Name"), "_", 1).alias("name_substring"),
 # removed.
 df.select(
           lpad(col("Name"), 10, '#').alias("pad_name"),
-          mask(col("Name").alias("masked_name"))
+          mask(col("Name").alias("masked_name")),
+          expr("uuid()").alias("uuid")
           ).show()
-# +----------+-----------+
-# |  pad_name|masked_name|
-# +----------+-----------+
-# |#####Alice|      Xxxxx|
-# |#######Bob|        Xxx|
-# |###Charlie|    Xxxxxxx|
-# +----------+-----------+
+# +----------+-----------+--------------------+
+# |  pad_name|masked_name|                uuid|
+# +----------+-----------+--------------------+
+# |#####Alice|      Xxxxx|370ec93e-7b01-4fa...|
+# |#######Bob|        Xxx|6e448a03-2b1f-459...|
+# |###Charlie|    Xxxxxxx|853ab75b-a5a4-488...|
+# +----------+-----------+--------------------+
 
 # struct() - Creates a new struct column. Structs are like rows in a table with predefined fields
 struct_df = df.select(struct("Name", "Age").alias("person_info"))
