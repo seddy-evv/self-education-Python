@@ -293,7 +293,7 @@ print(df.columns)
 print(df.index)
 # RangeIndex(start=0, stop=4, step=1)
 
-# 8. df.dtypes: Lists the data types of each column.
+# 8. df.dtypes: Lists the data types of each column (schema).
 
 # Example:
 # print(df.dtypes)
@@ -316,6 +316,19 @@ print(df.memory_usage())
 # Age       32
 # City      32
 # dtype: int64
+
+# 11. how to print(display) a df with a lot of columns locally in the readable format:
+# Option 1:
+pd.set_option('display.max_column', None)
+pd.set_option('display.max_rows', None)
+# if we have a couple of columns:
+print(df.T.head(df.shape[1]))
+# if we have a lof of columns:
+for x, row in df.iterrows():
+    df = row.to_frame().T
+    print(df.T.head(df.shape[1]), "\n") # in the head we can specify number of columns
+# Option 2: create a html locally to inspect in the browser
+df.to_html('temp_table.html')
 
 
 """Data Cleaning (None, NA, NULL)"""
