@@ -311,15 +311,29 @@ df.show()
 # +-------+---+
 
 # In case if a df has a lot of columns(Important moment locally you can see only 3 rows due to vertical format limitation):
-# show(n=5, truncate=False, vertical=True)
+# df.show(n=5, truncate=False, vertical=True)
 # how to fix limitation:
 # 1. Convert to Pandas:
 # df.limit(10).toPandas().T
 # 2. Use only necessary columns
 # df.to_spark().select("id").show(n=10, truncate=False, vertical=False)
 # 3. Use cycle (works fine!)
-# for row in df.limit(10).collect():
-#     spark.createDataFrame([row], df.schema).show(truncate=False, vertical=True)
+for row in df.limit(10).collect():
+    spark.createDataFrame([row], df.schema).show(truncate=False, vertical=True)
+    # -RECORD
+    # 0 - ----
+    # Name | Alice
+    # Age | 28
+    # 
+    # -RECORD
+    # 0 - --
+    # Name | Bob
+    # Age | 25
+    # 
+    # -RECORD
+    # 0 - ------
+    # Name | Charlie
+    # Age | 30
 
 # collect(): Retrieve all data
 data = df.collect()
