@@ -311,7 +311,16 @@ df.show()
 # +-------+---+
 
 # In case if a df has a lot of columns(Important moment locally you can see only 3 rows due to vertical format limitation):
-# df.show(n=5, truncate=False, vertical=True)
+df.show(n=5, truncate=False, vertical=True)
+# -RECORD 0-------
+#  Name | Alice   
+#  Age  | 28      
+# -RECORD 1-------
+#  Name | Bob     
+#  Age  | 25      
+# -RECORD 2-------
+#  Name | Charlie 
+#  Age  | 30  
 # how to fix limitation:
 # 1. Convert to Pandas:
 # df.limit(10).toPandas().T
@@ -324,12 +333,10 @@ for row in df.limit(10).collect():
     # 0 - ----
     # Name | Alice
     # Age | 28
-    # 
     # -RECORD
     # 0 - --
     # Name | Bob
     # Age | 25
-    # 
     # -RECORD
     # 0 - ------
     # Name | Charlie
