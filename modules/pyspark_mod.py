@@ -8,7 +8,7 @@ from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
     current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format, substring_index, \
     regexp_replace, upper, length, substring, trim, instr, split, array_contains, arrays_overlap, arrays_zip, element_at, \
-    transform, posexplode, array_union, collect_list, struct, round, sequence, lpad, mask
+    transform, posexplode, array_union, collect_list, struct, round, sequence, lpad, mask, from_json
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType, LongType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -313,14 +313,14 @@ df.show()
 # In case if a df has a lot of columns(Important moment locally you can see only 3 rows due to vertical format limitation):
 df.show(n=5, truncate=False, vertical=True)
 # -RECORD 0-------
-#  Name | Alice   
-#  Age  | 28      
+#  Name | Alice
+#  Age  | 28
 # -RECORD 1-------
-#  Name | Bob     
-#  Age  | 25      
+#  Name | Bob
+#  Age  | 25
 # -RECORD 2-------
-#  Name | Charlie 
-#  Age  | 30  
+#  Name | Charlie
+#  Age  | 30
 # how to fix limitation:
 # 1. Convert to Pandas:
 # df.limit(10).toPandas().T
