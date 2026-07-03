@@ -1,0 +1,83 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, from_json, schema_of_json
+
+# 1. Initialize Spark Session
+spark = SparkSession.builder \
+    .appName("JSON to Struct Example") \
+    .getOrCreate()
+
+# 2. Create sample DataFrame with a JSON string column
+data = [
+    (1, '{"name": "Alice", "age": 30, "address": {"city": "New York", "zip": "10001"}}'),
+    (2, '{"name": "Bob", "age": 25, "address": {"city": "San Francisco", "zip": "94105"}}')
+]
+
+df = spark.createDataFrame(data, ["id", "json_data"])
+
+print("Original DataFrame Schema:")
+df.printSchema()
+# Original DataFrame Schema:
+# root
+#  |-- id: long (nullable = true)
+#  |-- json_data: string (nullable = true)
+df.show(truncate=False)
+# +---+--------------------------------------------------------------------------------+
+# |id |json_data                                                                       |
+# +---+--------------------------------------------------------------------------------+
+# |1  |{"name": "Alice", "age": 30, "address": {"city": "New York", "zip": "10001"}}   |
+# |2  |{"name": "Bob", "age": 25, "address": {"city": "San Francisco", "zip": "94105"}}|
+# +---+--------------------------------------------------------------------------------+
+
+# 3. Derive the schema dynamically using schema_of_json.
+# We fetch a sample JSON string from our data to automatically infer the schema.
+# Note: schema_of_json expects a literal string, so we extract the first record's value.
+sample_json_string = df.select("json_data").first()[0]
+inferred_schema_ddl = schema_of_json(sample_json_string)
+
+# Alternatively, you can pass a hardcoded sample string directly:
+# inferred_schema_ddl = schema_of_json('{"name": "string", "age": 1, "address": {"city": "string", "zip": "string"}}')
+
+print(f"Inferred Schema DDL String: {inferred_schema_ddl}\n")
+# Inferred Schema DDL String: Column<'schema_of_json({"name": "Alice", "age": 30, "address": {"city": "New York", "zip": "10001"}})'>
+
+# 4. Convert the JSON string column to a Struct column using from_json
+parsed_df = df.withColumn("parsed_struct", from_json(col("json_data"), inferred_schema_ddl))
+
+print("Parsed DataFrame Schema (showing the new Struct field):")
+parsed_df.printSchema()
+# Parsed DataFrame Schema (showing the new Struct field):
+# root
+#  |-- id: long (nullable = true)
+#  |-- json_data: string (nullable = true)
+#  |-- parsed_struct: struct (nullable = true)
+#  |    |-- address: struct (nullable = true)
+#  |    |    |-- city: string (nullable = true)
+#  |    |    |-- zip: string (nullable = true)
+#  |    |-- age: long (nullable = true)
+#  |    |-- name: string (nullable = true)
+
+parsed_df.show(truncate=False)
+# +---+--------------------------------------------------------------------------------+---------------------------------+
+# |id |json_data                                                                       |parsed_struct                    |
+# +---+--------------------------------------------------------------------------------+---------------------------------+
+# |1  |{"name": "Alice", "age": 30, "address": {"city": "New York", "zip": "10001"}}   |{{New York, 10001}, 30, Alice}   |
+# |2  |{"name": "Bob", "age": 25, "address": {"city": "San Francisco", "zip": "94105"}}|{{San Francisco, 94105}, 25, Bob}|
+# +---+--------------------------------------------------------------------------------+---------------------------------+
+
+# 5. Interacting with the parsed Struct column (e.g., extracting fields)
+flattened_df = parsed_df.select(
+    col("id"),
+    col("parsed_struct.name").alias("name"),
+    col("parsed_struct.age").alias("age"),
+    col("parsed_struct.address.city").alias("city")
+)
+
+print("Flattened DataFrame:")
+flattened_df.show()
+# Flattened DataFrame:
+# +---+-----+---+-------------+
+# | id| name|age|         city|
+# +---+-----+---+-------------+
+# |  1|Alice| 30|     New York|
+# |  2|  Bob| 25|San Francisco|
+# +---+-----+---+-------------+
