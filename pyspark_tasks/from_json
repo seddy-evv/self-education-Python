@@ -32,10 +32,10 @@ df.show(truncate=False)
 # We fetch a sample JSON string from our data to automatically infer the schema.
 # Note: schema_of_json expects a literal string, so we extract the first record's value.
 sample_json_string = df.select("json_data").first()[0]
-inferred_schema_ddl = schema_of_json(sample_json_string)
 
-# Alternatively, you can pass a hardcoded sample string directly:
-# inferred_schema_ddl = schema_of_json('{"name": "string", "age": 1, "address": {"city": "string", "zip": "string"}}')
+inferred_schema_ddl = schema_of_json(sample_json_string)
+# OR
+inferred_schema_ddl = schema_of_json('{"name": "string", "age": 1, "address": {"city": "string", "zip": "string"}}')
 
 print(f"Inferred Schema DDL String: {inferred_schema_ddl}\n")
 # Inferred Schema DDL String: Column<'schema_of_json({"name": "Alice", "age": 30, "address": {"city": "New York", "zip": "10001"}})'>
