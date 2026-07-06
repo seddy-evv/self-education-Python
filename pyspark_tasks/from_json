@@ -1,6 +1,11 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, from_json, schema_of_json
 
+
+# from_json() - Parses a column containing a JSON string into a MapType with StringType as keys type, StructType or
+# ArrayType with the specified schema. Returns null, in the case of an unparsable string.
+# schema_of_json() - Parses a JSON string and infers its schema in DDL format.
+
 # 1. Initialize Spark Session
 spark = SparkSession.builder \
     .appName("JSON to Struct Example") \
