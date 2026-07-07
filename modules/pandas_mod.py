@@ -580,6 +580,16 @@ print(merged_left)
 # 2  Charlie   33      Chicago      0.0
 # 3     Alex   36     New York      0.0
 
+# Example4:
+# In case if we have identical columns in the two dfs but we don't use them in the merge condition, we'll get two
+# columns with _x and _y
+df3 = pd.DataFrame({'Name': ['Alice', 'Bob'], 'Age': [45, 25], 'Salary': [50000, 60000]})
+merged = df.merge(df3, on='Name')
+print(merged)
+#     Name  Age_x         City  Age_y  Salary
+# 0  Alice     45     New York     45   50000
+# 1    Bob     25  Los Angeles     25   60000
+
 # 6. df.join(other_df): Joins two DataFrames on their indexes (works like left join/merge by indexes).
 
 # Example:
