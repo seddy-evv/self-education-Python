@@ -8,7 +8,7 @@ from pyspark.sql.functions import col, when, sum, max, concat, lit, expr, create
     concat_ws, coalesce, row_number, rank, dense_rank, percent_rank, ntile, cume_dist, lag, lead, avg, min, udf, \
     current_date, floor, rand, count, array, explode, count_distinct, broadcast, desc, date_format, substring_index, \
     regexp_replace, upper, length, substring, trim, instr, split, array_contains, arrays_overlap, arrays_zip, element_at, \
-    transform, posexplode, array_union, collect_list, struct, round, sequence, lpad, mask
+    transform, posexplode, array_union, collect_list, struct, round, sequence, lpad, mask, array_distinct, flatten
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, FloatType, LongType
 from pyspark.sql.window import Window
 import pandas as pd
@@ -1015,6 +1015,9 @@ df.write.csv(f"/output-{current_time}.csv", header=True)
 df = spark.read.csv(f"/output-{current_time}.csv", header=True, inferSchema=True)
 # or
 df = spark.read.format("csv").options(header=True, inferSchema=True).load(f"/output-{current_time}.csv")
+# or we can use predefined  schema to read csv, parquet, json files
+# with header=True we skip first row
+df = spark.read.format("csv").options(header=True).schema(schema).load(f"/output-{current_time}.csv")
 df.show()
 
 # Read CSV file without the schema, schema is StructType([StructField...])
@@ -1307,18 +1310,23 @@ df.select("id", "numbers", transform("numbers", lambda x: x * 10).alias("transfo
 # +---+------------+-------------------------+
 
 # array_union(): Returns a new array containing the union of elements in col1 and col2, without duplicates.
-df = df.withColumn("union_array", array_union(col("numbers"), col("numbers1")))
+# flatten():  creates a single array from an array of arrays. If a structure of nested arrays is deeper than two
+# levels, only one level of nesting is removed.
+# array_distinct(): removes duplicate values from the array
+df = df.withColumn("union_array", array_union(col("numbers"), col("numbers1")))\
+    .withColumn("collect_arrays", array(col("numbers"), col("numbers1")))\
+    .withColumn("flatten_distinct", array_distinct(flatten(col("collect_arrays"))))
 df.show()
-# +---+------------+---------+---------+---------------+
-# | id|     numbers| numbers1|  letters|    union_array|
-# +---+------------+---------+---------+---------------+
-# |  1|[1, 2, 3, 4]|[3, 4, 5]|[a, b, c]|[1, 2, 3, 4, 5]|
-# |  2|   [5, 6, 7]|   [7, 8]|   [x, y]|   [5, 6, 7, 8]|
-# |  3|          []|   [2, 3]|       []|         [2, 3]|
-# +---+------------+---------+---------+---------------+
+# +---+------------+---------+---------+---------------+--------------------+----------------+
+# | id|     numbers| numbers1|  letters|    union_array|      collect_arrays|flatten_distinct|
+# +---+------------+---------+---------+---------------+--------------------+----------------+
+# |  1|[1, 2, 3, 4]|[3, 4, 5]|[a, b, c]|[1, 2, 3, 4, 5]|[[1, 2, 3, 4], [3...| [1, 2, 3, 4, 5]|
+# |  2|   [5, 6, 7]|   [7, 8]|   [x, y]|   [5, 6, 7, 8]| [[5, 6, 7], [7, 8]]|    [5, 6, 7, 8]|
+# |  3|          []|   [2, 3]|       []|         [2, 3]|        [[], [2, 3]]|          [2, 3]|
+# +---+------------+---------+---------+---------------+--------------------+----------------+
 
 # collect_list(): Collects the values from a column into a list, with duplicates, and returns this list of objects.
-# collect_set(): Collects without duplicates.
+# collect_set(): Collects without duplicates, also we can use array_distinct()
 df_collect = get_pyspark_df3()
 df_collect.show()
 # +-------+------+
