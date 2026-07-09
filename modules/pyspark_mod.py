@@ -213,22 +213,6 @@ df.show()
 # |Charlie| 30|
 # +-------+---+
 
-# Create DataFrame from Python List of dicts
-data = [
-  {"Name": "Alice", "Age": 28},
-  {"Name": "Bob", "Age": 25},
-  {"Name": "Charlie", "Age": 30}
-  ]
-df = spark.createDataFrame(data)
-df.show()
-# +---+-------+
-# |Age|   Name|
-# +---+-------+
-# | 28|  Alice|
-# | 25|    Bob|
-# | 30|Charlie|
-# +---+-------+
-
 # Create DataFrame from schema with types
 schema = StructType([
     StructField("Name", StringType(), True),
@@ -244,6 +228,35 @@ df.show()
 # |    Bob| 25|
 # |Charlie| 30|
 # +-------+---+
+
+# Create an empty df with the additional method to define the ddl schema
+ddl_schema = "name STRING NOT NULL, age INTEGER"
+empty_df = spark.createDataFrame([], ddl_schema)
+empty_df.show()
+empty_df.printSchema()
+# +----+---+
+# |name|age|
+# +----+---+
+# +----+---+
+# root
+#  |-- name: string (nullable = false)
+#  |-- age: integer (nullable = true)
+
+# Create DataFrame from Python List of dicts
+data = [
+  {"Name": "Alice", "Age": 28},
+  {"Name": "Bob", "Age": 25},
+  {"Name": "Charlie", "Age": 30}
+  ]
+df = spark.createDataFrame(data)
+df.show()
+# +---+-------+
+# |Age|   Name|
+# +---+-------+
+# | 28|  Alice|
+# | 25|    Bob|
+# | 30|Charlie|
+# +---+-------+
 
 # Additional methods to create DataFrame
 # from a Pandas DataFrame
@@ -1020,9 +1033,6 @@ df = spark.read.format("csv").options(header=True, inferSchema=True).load(f"/out
 df = spark.read.format("csv").options(header=True).schema(schema).load(f"/output-{current_time}.csv")
 df.show()
 
-# Read CSV file without the schema, schema is StructType([StructField...])
-# df = spark.read.csv(f"/output-{current_time}.csv", header=False, schema=schema)
-
 # Read and Write Parquet
 df.write.parquet(f"/output-{current_time}.parquet")
 # or
@@ -1175,19 +1185,21 @@ df.select(substring_index(col("Name"), "_", 1).alias("name_substring"),
 
 # lpad() - Left-pad the string column to width len with pad.
 # mask() - Masks the given string value. This can be useful for creating copies of tables with sensitive information
+# contains() - Returns a boolean. The value is True if right is found inside left.
 # removed.
 df.select(
           lpad(col("Name"), 10, '#').alias("pad_name"),
-          mask(col("Name").alias("masked_name")),
-          expr("uuid()").alias("uuid")
+          mask(col("Name")).alias("masked_name"),
+          expr("uuid()").alias("uuid"),
+          col("Name").contains("Alice").alias("contains")
           ).show()
-# +----------+-----------+--------------------+
-# |  pad_name|masked_name|                uuid|
-# +----------+-----------+--------------------+
-# |#####Alice|      Xxxxx|370ec93e-7b01-4fa...|
-# |#######Bob|        Xxx|6e448a03-2b1f-459...|
-# |###Charlie|    Xxxxxxx|853ab75b-a5a4-488...|
-# +----------+-----------+--------------------+
+# +----------+-----------+--------------------+--------+
+# |  pad_name|masked_name|                uuid|contains|
+# +----------+-----------+--------------------+--------+
+# |#####Alice|      Xxxxx|0f92acf4-3bad-49c...|    true|
+# |#######Bob|        Xxx|62edc260-6f4e-438...|   false|
+# |###Charlie|    Xxxxxxx|3facc405-d72b-4da...|   false|
+# +----------+-----------+--------------------+--------+
 
 # struct() - Creates a new struct column. Structs are like rows in a table with predefined fields
 struct_df = df.select(struct("Name", "Age").alias("person_info"))
