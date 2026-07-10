@@ -18,6 +18,26 @@ import time
 # Create SparkSession
 spark = SparkSession.builder.appName("PySpark Examples").master("local").getOrCreate()
 
+# SECTIONS:
+# PySpark RDD Operations
+# DataFrame Creation
+# PySpark File I/O
+# Basic PySpark DataFrame Operations
+# Select Columns
+# DataFrame Transformations
+# Handle NULL/NONE
+# DataFrame Set Operations
+# PySpark SQL
+# PySpark DataFrame Joins
+# PySpark Functions Module
+# Array operations
+# Window Functions
+# Salt implementation
+# bucketBy and partitionBy
+# DataFrameWriterV2
+# Pandas API and Pandas DataFrames with pyspark
+
+
 def get_pyspark_df():
     data = [("Alice", 28), ("Bob", 25), ("Charlie", 30)]
     df = spark.createDataFrame(data, schema=["Name", "Age"])
@@ -119,7 +139,8 @@ def get_array_split():
 
     return df_split
 
-# PySpark RDD Operations
+
+"""PySpark RDD Operations"""
 
 # Create RDD
 # Create SparkContext
@@ -199,7 +220,7 @@ join_rdd = rdd10.join(rdd11)
 print(join_rdd.collect())  # [("a", (1, 2)), ("a", (1, 3))]
 
 
-# Create DataFrame
+"""DataFrame Creation"""
 
 # Create DataFrame from Python List of Tuples
 data = [("Alice", 28), ("Bob", 25), ("Charlie", 30)]
@@ -307,10 +328,98 @@ df.show()
 # +---+
 
 
-# Basic PySpark DataFrame Operations
-# Narrow Transformations: filter(), map(), flatMap(), withColumn(), select(), drop(), limit(), coalesce()
-# Wide Transformations: groupBy(), groupByKey(), join(), distinct(), union(), repartition(),
-# reduceByKey() (RDD, shuffle less data unlike groupByKey()), orderBy() / sort(), aggregateByKey()
+"""PySpark File I/O"""
+
+# A typical write operation:
+# 1. In Databricks we can omit the format option, since delta format is default.
+# 2. Mode:
+# - append: Append contents of this DataFrame to existing data.
+# - overwrite: Overwrite existing data. The schema of the df does not need to be the same as that of the existing table.
+# - error or errorifexists(default): Throw an exception if data already exists.
+# - ignore: Silently ignore this operation if data already exists.
+# 3. partitionBy and bucketBy - the separate section below.
+# 4. saveAsTable() - creates a table in the Hive metastore within default metastore location.
+# 5. save() - saves the df to the specified path.
+# Example:
+output_path = "/tmp/partitioned_data"
+df.write \
+  .partitionBy("department") \
+  .format("parquet") \
+  .mode("overwrite") \
+  .save(output_path)
+# OR
+partitioned_table = "partitioned_table"
+df.write \
+  .mode("append") \
+  .format("parquet") \
+  .saveAsTable(partitioned_table)
+
+# When table is created we can use df.write.insertInto("table_name", overwrite=False) to append data and overwrite
+# the data in the table with overwrite=True
+
+current_time = time.time()
+df = get_pyspark_df()
+
+# Write DataFrame as CSV
+df.write.csv(f"/output-{current_time}.csv", header=True)
+
+# Read CSV File with the schema
+df = spark.read.csv(f"/output-{current_time}.csv", header=True, inferSchema=True)
+# or
+df = spark.read.format("csv").options(header=True, inferSchema=True).load(f"/output-{current_time}.csv")
+# or we can use predefined  schema to read csv, parquet, json files
+# with header=True we skip first row
+df = spark.read.format("csv").options(header=True).schema(schema).load(f"/output-{current_time}.csv")
+df.show()
+
+# Read and Write Parquet
+df.write.parquet(f"/output-{current_time}.parquet")
+# or
+df.write.format("parquet").save(f"/output-{current_time}.parquet")
+
+df_parquet = spark.read.parquet(f"/output-{current_time}.parquet")
+# or
+# path might be directly to the storage account/container/folder
+# abfss://curated-container@testaccount123.dfs.core.windows.net/data/
+df_parquet = spark.read.format("parquet").load(f"/output-{current_time}.parquet")
+df_parquet.show()
+
+# Read and write JSON (set multiline option to true to read JSON records on file from multiple lines)
+df.write.format("json").save(f"/output-{current_time}.json")
+df_json = spark.read.format("json").load(f"/output-{current_time}.json")
+df_json.show()
+
+# Read and write AVRO
+df.write.format("avro").save(f"/output-{current_time}.avro")
+df_avro = spark.read.format("avro").load(f"/output-{current_time}.avro")
+df_avro.show()
+
+# Read and write XML (need to ensure spark-xml package is available)
+df.write.format("com.databricks.spark.xml").options(rowTag='book').save(f"/output-{current_time}.xml")
+df_xml = spark.read.format("com.databricks.spark.xml").options(rowTag='book').load(f"/output-{current_time}.xml")
+df_xml.show()
+
+# Read and write jdbc
+jdbc_url = "jdbc:mysql://hostname:3306/database"
+jdbc_properties = {
+    "user": "your_username",
+    "password": "your_password",
+    "driver": "com.mysql.cj.jdbc.Driver"
+}
+
+rdbms_data = spark.read.format("jdbc") \
+    .option("url", jdbc_url) \
+    .option("dbtable", "source_table") \
+    .options(**jdbc_properties) \
+    .load()
+rdbms_data.write.format("jdbc") \
+    .option("url", jdbc_url) \
+    .option("dbtable", "target_table") \
+    .options(**jdbc_properties) \
+    .mode("overwrite") \
+    .save()
+
+"""Basic PySpark DataFrame Operations"""
 
 df = get_pyspark_df()
 # show(): Display the DataFrame
@@ -407,7 +516,6 @@ df.explain(extended=True)
 # Reference node:
 # 	LocalTableScan [Name#13243, Age#13244L]
 
-
 # summary() - Computes specified statistics for numeric and string columns.
 df.summary().show()
 # +-------+-------+------------------+
@@ -478,7 +586,9 @@ print(schema_string)
 df.isEmpty()
 # False
 
-# Select Columns
+
+"""Select Columns"""
+
 # We can specify the colum name in two ways (strings are case-insensitive e.g. namE)
 df.select("Name").show()
 # or
@@ -515,6 +625,13 @@ df.select("Name").distinct().show()
 # |    Bob|
 # |Charlie|
 # +-------+
+
+
+"""DataFrame Transformations"""
+
+# Narrow Transformations: filter(), map(), flatMap(), withColumn(), select(), drop(), limit(), coalesce()
+# Wide Transformations: groupBy(), groupByKey(), join(), distinct(), union(), repartition(),
+# reduceByKey() (RDD, shuffle less data unlike groupByKey()), orderBy() / sort(), aggregateByKey()
 
 # Filter Rows, & - and, | - or, ~ - not, don't forget brackets!
 # where() is an alias for filter()
@@ -680,6 +797,57 @@ df1.limit(1).show()
 # |Alice| 28| Amazon|
 # +-----+---+-------+
 
+# Repartition and coalesce
+# repartition() - Returns a new DataFrame partitioned by the given partitioning expressions (number or/and column).
+# The resulting DataFrame is hash partitioned. The size of partitions can be greater or less than the original.
+# coalesce() - Returns a new DataFrame that has exactly numPartitions partitions. If a larger number of partitions
+# is requested, it will stay at the current number of partitions.
+print(df.repartition(3).rdd.getNumPartitions())  # 3
+print(df.coalesce(1).rdd.getNumPartitions())  # 1
+print(df.repartition('Name').rdd.getNumPartitions())  # 1
+print(df.repartition(3, 'Name').rdd.getNumPartitions())  # 3 Repartition the data into 3 partitions by ‘Name’ column
+
+# randomSplit(), randomly splits this DataFrame with the provided weights, seed - to control the randomness.
+df_split = get_array_split()
+df1, df2 = df_split.randomSplit([0.3, 0.7], 42)
+df1.show()
+# +-------------+----------+------+
+# |employee_name|department|salary|
+# +-------------+----------+------+
+# |        Scott|   Finance|  3300|
+# |         Saif|     Sales|  4100|
+# |         Mike|        HR|  1900|
+# +-------------+----------+------+
+df2.show()
+# +-------------+----------+------+
+# |employee_name|department|salary|
+# +-------------+----------+------+
+# |        James|     Sales|  3000|
+# |      Michael|     Sales|  4600|
+# |        Maria|   Finance|  3000|
+# |          Jen|   Finance|  3300|
+# |         Alex|     Sales|  4000|
+# |          Bob|   Finance|  3900|
+# |      Michael|     Sales|  4900|
+# +-------------+----------+------+
+
+# cache() and persist()
+# Every action (like show() or count()) triggers a computation pipeline that might include re-reading data from
+# disk if it's not cached or persisted.
+# Caching saves the data in memory or on disk (depending on the persistence level), so subsequent actions on
+# the same DataFrame or RDD do not require reading the data again from the disk.
+# With cache(), we can use only the default storage level:
+# - MEMORY_ONLY for RDD
+# - MEMORY_AND_DISK for DataFrame
+# With persist(), we can specify which storage level we want for RDD and DataFrame, such as MEMORY_ONLY, DISK_ONLY, etc.
+df.cache()
+print(df.count())  # Now we can use `df` in more transformations and actions without reading the data from disk again
+df.persist(StorageLevel.MEMORY_AND_DISK)  # Equivalent to df.cache()
+# Unpersisting: If you no longer need the cached or persisted data, call df.unpersist()
+
+
+"""Handle NULL/NONE"""
+
 # Drop rows with null values
 df_null = get_pyspark_df_null()
 df_null.show()
@@ -763,18 +931,12 @@ df_null.replace("1", "2", subset=["a"]).show()
 # |   3|   3|
 # +----+----+
 
-# Repartition and coalesce
-# repartition() - Returns a new DataFrame partitioned by the given partitioning expressions (number or/and column).
-# The resulting DataFrame is hash partitioned. The size of partitions can be greater or less than the original.
-# coalesce() - Returns a new DataFrame that has exactly numPartitions partitions. If a larger number of partitions
-# is requested, it will stay at the current number of partitions.
-print(df.repartition(3).rdd.getNumPartitions())  # 3
-print(df.coalesce(1).rdd.getNumPartitions())  # 1
-print(df.repartition('Name').rdd.getNumPartitions())  # 1
-print(df.repartition(3, 'Name').rdd.getNumPartitions())  # 3 Repartition the data into 3 partitions by ‘Name’ column
 
-# Union, how to add new rows to existing Dataframe, column positions should be the same
+"""DataFrame Set Operations"""
+
+# union(), how to add new rows to existing Dataframe, column positions should be the same
 # To perform union by column names use unionByName, if allowMissingColumns=True, missing columns will be filled with null.
+df1 = get_pyspark_df1()
 df2 = get_pyspark_df2()
 df1.union(df2).show()
 # +-------+---+---------+
@@ -792,46 +954,26 @@ df1.union(df2).show()
 # from functools import reduce
 # result_df = reduce(lambda df1, df2: df1.union(df2), dfs)
 
-# randomSplit(), randomly splits this DataFrame with the provided weights, seed - to control the randomness.
-df_split = get_array_split()
-df1, df2 = df_split.randomSplit([0.3, 0.7], 42)
-df1.show()
-# +-------------+----------+------+
-# |employee_name|department|salary|
-# +-------------+----------+------+
-# |        Scott|   Finance|  3300|
-# |         Saif|     Sales|  4100|
-# |         Mike|        HR|  1900|
-# +-------------+----------+------+
-df2.show()
-# +-------------+----------+------+
-# |employee_name|department|salary|
-# +-------------+----------+------+
-# |        James|     Sales|  3000|
-# |      Michael|     Sales|  4600|
-# |        Maria|   Finance|  3000|
-# |          Jen|   Finance|  3300|
-# |         Alex|     Sales|  4000|
-# |          Bob|   Finance|  3900|
-# |      Michael|     Sales|  4900|
-# +-------------+----------+------+
+# intersect() - Returns only rows present in both DataFrames
+df1.intersect(df2).show()
+# +----+---+-------+
+# |Name|Age|Company|
+# +----+---+-------+
+# +----+---+-------+
 
-# cache() and persist()
-# Every action (like show() or count()) triggers a computation pipeline that might include re-reading data from
-# disk if it's not cached or persisted.
-# Caching saves the data in memory or on disk (depending on the persistence level), so subsequent actions on
-# the same DataFrame or RDD do not require reading the data again from the disk.
-# With cache(), we can use only the default storage level:
-# - MEMORY_ONLY for RDD
-# - MEMORY_AND_DISK for DataFrame
-# With persist(), we can specify which storage level we want for RDD and DataFrame, such as MEMORY_ONLY, DISK_ONLY, etc.
-df.cache()
-print(df.count())  # Now we can use `df` in more transformations and actions without reading the data from disk again
-df.persist(StorageLevel.MEMORY_AND_DISK)  # Equivalent to df.cache()
-# Unpersisting: If you no longer need the cached or persisted data, call df.unpersist()
+# subtract() - Returns rows in first DataFrame but not in second
+df1.subtract(df2).show()
+# +-------+---+-------+
+# |   Name|Age|Company|
+# +-------+---+-------+
+# |  Alice| 28| Amazon|
+# |    Bob| 25| Google|
+# |Charlie| 30| Oracle|
+# +-------+---+-------+
 
 
-# PySpark SQL
+"""PySpark SQL"""
+
 df_my_table = spark.table("my_table")
 # is similar to
 df_my_table = spark.sql("SELECT * FROM my_table")
@@ -881,7 +1023,7 @@ spark.sql("SELECT * FROM people WHERE Age > (SELECT AVG(AGE) FROM people)").show
 spark.sql("SELECT * FROM delta.`/path/to/delta_table`").show()
 
 
-# PySpark DataFrame Joins
+"""PySpark DataFrame Joins"""
 
 df1 = get_pyspark_df_join1()
 df1.show()
@@ -990,98 +1132,8 @@ df2.exceptAll(df3).show()
 # +-------+------+
 
 
-# PySpark File I/O
-# A typical write operation:
-# 1. In Databricks we can omit the format option, since delta format is default.
-# 2. Mode:
-# - append: Append contents of this DataFrame to existing data.
-# - overwrite: Overwrite existing data. The schema of the df does not need to be the same as that of the existing table.
-# - error or errorifexists(default): Throw an exception if data already exists.
-# - ignore: Silently ignore this operation if data already exists.
-# 3. partitionBy and bucketBy - the separate section below.
-# 4. saveAsTable() - creates a table in the Hive metastore within default metastore location.
-# 5. save() - saves the df to the specified path.
-# Example:
-output_path = "/tmp/partitioned_data"
-df.write \
-  .partitionBy("department") \
-  .format("parquet") \
-  .mode("overwrite") \
-  .save(output_path)
-# OR
-partitioned_table = "partitioned_table"
-df.write \
-  .mode("append") \
-  .format("parquet") \
-  .saveAsTable(partitioned_table)
+"""PySpark Functions Module"""
 
-# When table is created we can use df.write.insertInto("table_name", overwrite=False) to append data and overwrite
-# the data in the table with overwrite=True
-
-current_time = time.time()
-df = get_pyspark_df()
-
-# Write DataFrame as CSV
-df.write.csv(f"/output-{current_time}.csv", header=True)
-
-# Read CSV File with the schema
-df = spark.read.csv(f"/output-{current_time}.csv", header=True, inferSchema=True)
-# or
-df = spark.read.format("csv").options(header=True, inferSchema=True).load(f"/output-{current_time}.csv")
-# or we can use predefined  schema to read csv, parquet, json files
-# with header=True we skip first row
-df = spark.read.format("csv").options(header=True).schema(schema).load(f"/output-{current_time}.csv")
-df.show()
-
-# Read and Write Parquet
-df.write.parquet(f"/output-{current_time}.parquet")
-# or
-df.write.format("parquet").save(f"/output-{current_time}.parquet")
-
-df_parquet = spark.read.parquet(f"/output-{current_time}.parquet")
-# or
-# path might be directly to the storage account/container/folder
-# abfss://curated-container@testaccount123.dfs.core.windows.net/data/
-df_parquet = spark.read.format("parquet").load(f"/output-{current_time}.parquet")
-df_parquet.show()
-
-# Read and write JSON (set multiline option to true to read JSON records on file from multiple lines)
-df.write.format("json").save(f"/output-{current_time}.json")
-df_json = spark.read.format("json").load(f"/output-{current_time}.json")
-df_json.show()
-
-# Read and write AVRO
-df.write.format("avro").save(f"/output-{current_time}.avro")
-df_avro = spark.read.format("avro").load(f"/output-{current_time}.avro")
-df_avro.show()
-
-# Read and write XML (need to ensure spark-xml package is available)
-df.write.format("com.databricks.spark.xml").options(rowTag='book').save(f"/output-{current_time}.xml")
-df_xml = spark.read.format("com.databricks.spark.xml").options(rowTag='book').load(f"/output-{current_time}.xml")
-df_xml.show()
-
-# Read and write jdbc
-jdbc_url = "jdbc:mysql://hostname:3306/database"
-jdbc_properties = {
-    "user": "your_username",
-    "password": "your_password",
-    "driver": "com.mysql.cj.jdbc.Driver"
-}
-
-rdbms_data = spark.read.format("jdbc") \
-    .option("url", jdbc_url) \
-    .option("dbtable", "source_table") \
-    .options(**jdbc_properties) \
-    .load()
-rdbms_data.write.format("jdbc") \
-    .option("url", jdbc_url) \
-    .option("dbtable", "target_table") \
-    .options(**jdbc_properties) \
-    .mode("overwrite") \
-    .save()
-
-
-# PySpark Functions Module
 # We can use these functions within select and withColumn methods.
 df = get_pyspark_df()
 df.show()
@@ -1220,7 +1272,59 @@ struct_df.select("person_info.Age").show()
 # | 30|
 # +---+
 
-# Array operations:
+# coalesce() - Returns the first column that is not null or the default value
+# from Spark version 3.5.0
+# ifnull() - Returns col2 if col1 is null, or col1 otherwise.
+# nullif() - Returns null if col1 equals to col2, or col1 otherwise.
+df_null = get_pyspark_df_null()
+df_null.show()
+# +----+----+
+# |   a|   b|
+# +----+----+
+# |null|null|
+# |   1|null|
+# |null|   2|
+# |   3|   3|
+# +----+----+
+df_null.select(coalesce(df_null["a"], df_null["b"])).show()
+# +--------------+
+# |coalesce(a, b)|
+# +--------------+
+# |          null|
+# |             1|
+# |             2|
+# |             3|
+# +--------------+
+
+df_null.select('*', coalesce(df_null["a"], lit(0.0))).show()
+# +----+----+----------------+
+# |   a|   b|coalesce(a, 0.0)|
+# +----+----+----------------+
+# |null|null|             0.0|
+# |   1|null|               1|
+# |null|   2|             0.0|
+# |   3|   3|               3|
+# +----+----+----------------+
+
+
+# udf() - create and use an udf, user memory is in use, IntegerType() - return type
+def increment_age(age):
+    return age + 1
+
+increment_age_udf = udf(increment_age, IntegerType())
+
+df.withColumn("IncrementAge", increment_age_udf(df["Age"])).show()
+# +-------+---+------------+
+# |   Name|Age|IncrementAge|
+# +-------+---+------------+
+# |  Alice| 28|          29|
+# |    Bob| 25|          26|
+# |Charlie| 30|          31|
+# +-------+---+------------+
+
+
+"""Array operations"""
+
 df = get_array_df()
 df.show()
 # +---+------------+---------+---------+
@@ -1360,58 +1464,9 @@ df_collect.show()
 # |Charlie|      [4000]|
 # +-------+------------+
 
-# coalesce() - Returns the first column that is not null or the default value
-# from Spark version 3.5.0
-# ifnull() - Returns col2 if col1 is null, or col1 otherwise.
-# nullif() - Returns null if col1 equals to col2, or col1 otherwise.
-df_null = get_pyspark_df_null()
-df_null.show()
-# +----+----+
-# |   a|   b|
-# +----+----+
-# |null|null|
-# |   1|null|
-# |null|   2|
-# |   3|   3|
-# +----+----+
-df_null.select(coalesce(df_null["a"], df_null["b"])).show()
-# +--------------+
-# |coalesce(a, b)|
-# +--------------+
-# |          null|
-# |             1|
-# |             2|
-# |             3|
-# +--------------+
 
-df_null.select('*', coalesce(df_null["a"], lit(0.0))).show()
-# +----+----+----------------+
-# |   a|   b|coalesce(a, 0.0)|
-# +----+----+----------------+
-# |null|null|             0.0|
-# |   1|null|               1|
-# |null|   2|             0.0|
-# |   3|   3|               3|
-# +----+----+----------------+
+"""Window Functions"""
 
-
-# udf() - create and use an udf, user memory is in use, IntegerType() - return type
-def increment_age(age):
-    return age + 1
-
-increment_age_udf = udf(increment_age, IntegerType())
-
-df.withColumn("IncrementAge", increment_age_udf(df["Age"])).show()
-# +-------+---+------------+
-# |   Name|Age|IncrementAge|
-# +-------+---+------------+
-# |  Alice| 28|          29|
-# |    Bob| 25|          26|
-# |Charlie| 30|          31|
-# +-------+---+------------+
-
-
-# Window Functions
 df_window = get_pyspark_df_window()
 df_window.show()
 # +-------------+----------+------+
@@ -1560,7 +1615,8 @@ df.withColumn("avg", avg(col("salary")).over(window_spec_agg)) \
 # +----------+------+-----+----+----+
 
 
-# Salt implementation
+"""Salt implementation"""
+
 # Salt in PySpark is commonly used for handling skewed data during joins/agg or to distribute keys more
 # uniformly across partitions. When you have a dataset that heavily skews toward certain key values
 # (e.g., in a join operation), the computation may become unbalanced as some partitions have a much larger workload
@@ -1849,7 +1905,7 @@ result.show()
 # +--------+------+------------+
 
 
-# bucketBy and partitionBy
+"""bucketBy and partitionBy"""
 
 # Bucketing (Bucketing is not supported for Delta tables!!!)
 # When you bucket a DataFrame, Spark uses a hash function on the specified column(s) to distribute the rows across a
@@ -1935,7 +1991,7 @@ print("Reading partitioned DataFrame:")
 partitioned_df.show()
 
 
-# DataFrameWriterV2
+"""DataFrameWriterV2"""
 # from Spark version 3.5.0
 
 data = [("John", 30), ("Jane", 25), ("Sam", 35)]
@@ -2041,7 +2097,7 @@ spark.sql(f"SHOW TBLPROPERTIES my_table").show()
 # +--------------------+----------------+
 
 
-# Pandas API and Pandas DataFrames with pyspark
+"""Pandas API and Pandas DataFrames with pyspark"""
 
 # 1 .toPandas() - Returns the contents of this DataFrame as Pandas pandas.DataFrame. This method should only be used
 # if the resulting Pandas pandas.DataFrame is expected to be small, as all the data is loaded into the driver’s memory.
