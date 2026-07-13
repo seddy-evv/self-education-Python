@@ -612,3 +612,33 @@ from databricks.sdk.runtime import dbutils
 # %
 # %run - The %run command executes another notebook in the SAME session context as the parent notebook, making all
 # variables and functions from the parent available in the child, and vice versa.
+
+# 10. DLT
+# The main rule in the python and SQL code below that if we create a streaming live table, the source should be
+# also a streaming or join streaming with static live table. In this situation Spark Structured Streaming reads only
+# new rows from the source.
+# If we create a static live table we should read the source table as static (even this is a streaming table), since
+# dlt engine will read the whole table add overwrite the results with new aggregation. Thus, the gold table will be
+# recalculated from scratch every time
+
+# Python version
+
+# ==========================================
+# 1. BRONZE LAYER: Raw Data Ingestion
+# ==========================================
+@dlt.table(
+    name="bronze_instruments",
+    comment="Raw streaming ingestion from landing zone, filtering structural failures."
+)
+@dlt.expect_or_drop("valid_landing_payload", "raw_payload IS NOT NULL")
+def bronze_instruments():
+    return (
+        spark.readStream
+        .format("cloudFiles")
+        .option("cloudFiles.format", "json")
+        .option("cloudFiles.inferColumnTypes", "true")
+        .load("abfss://landing@yourstorage.dfs.core.windows.net/raw/instruments/")
+        # Inject Provenance Metadata
+        .withColumn("prov_source_file", input_file_name())
+        .withColumn("prov_ingestion_time", current_timestamp())
+    )
