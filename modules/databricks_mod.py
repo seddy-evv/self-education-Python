@@ -642,3 +642,20 @@ def bronze_instruments():
         .withColumn("prov_source_file", input_file_name())
         .withColumn("prov_ingestion_time", current_timestamp())
     )
+
+# ==========================================
+# 2. SILVER LAYER: Cleaning & Business Rules
+# ==========================================
+@dlt.table(
+    name="silver_instruments",
+    comment="Cleaned corporate assets. Logs bad prices, drops invalid activation dates."
+)
+@dlt.expect("valid_price_metric", "price > 0") # Soft Check (Logs anomaly in Event Log)
+@dlt.expect_or_drop("valid_effective_date", "effective_date >= '2020-01-01'") # Hard Row Check
+def silver_instruments():
+    return (
+        dlt.read_stream("bronze_instruments")
+        .withColumn("price", col("price").cast("double"))
+        .withColumn("effective_date", col("effective_date").cast("date"))
+        .filter("instrument_id IS NOT NULL")
+    )
