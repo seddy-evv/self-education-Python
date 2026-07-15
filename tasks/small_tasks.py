@@ -350,3 +350,17 @@ def func(**kwargs):
 
 kwargs = {'c': 3, 'a': 4}
 func(**kwargs)
+
+
+""""pprint"""
+import pprint
+data = {'user': 'jdoe', 'posts': [{'id': 1, 'content': 'Hello!'}, {'id': 2, 'content': 'Bye!'}], 'active': True}
+pprint.pprint(data)
+# {'active': True,
+#  'posts': [{'content': 'Hello!', 'id': 1}, {'content': 'Bye!', 'id': 2}],
+#  'user': 'jdoe'}
+
+
+""""sum of empty list"""
+print(sum([]))
+# 0
