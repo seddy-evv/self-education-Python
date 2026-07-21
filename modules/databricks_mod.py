@@ -659,3 +659,23 @@ def silver_instruments():
         .withColumn("effective_date", col("effective_date").cast("date"))
         .filter("instrument_id IS NOT NULL")
     )
+
+# ==========================================
+# 3. GOLD LAYER: Aggregations & Distribution
+# ==========================================
+@dlt.table(
+    name="gold_asset_pricing_summary",
+    comment="Aggregated, high-integrity presentation layer ready for downstream API consumption."
+)
+@dlt.expect_or_fail("absolute_semantic_integrity", "total_asset_value IS NOT NULL") # Halts pipeline if violated
+def gold_asset_pricing_summary():
+    return (
+        dlt.read("silver_instruments") # Batch read over streaming state
+        .groupBy("asset_classification")
+        .agg(
+            sum("price").alias("total_asset_value"),
+            count("instrument_id").alias("total_active_assets"),
+            max("prov_ingestion_time").alias("last_calculated_timestamp")
+        )
+    )
+
