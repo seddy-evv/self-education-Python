@@ -42,4 +42,7 @@ for element in it:
 
 # Call the iterator from the standard collection:
 a = [1, 2, 3].__iter__()
+# or
+a = iter([1, 2, 3]))
 print(next(a))
+# 1
