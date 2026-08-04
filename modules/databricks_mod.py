@@ -679,3 +679,22 @@ def gold_asset_pricing_summary():
         )
     )
 
+# SQL
+
+# ==========================================
+# 1. BRONZE LAYER: Raw Data Ingestion
+# ==========================================
+# orders_raw
+"""
+CREATE OR REFRESH STREAMING LIVE TABLE orders_raw
+COMMENT 'The raw books orders, ingested from orders-raw'
+AS SELECT * FROM cloud_files('${datasets.path}/orders-json-raw', 'json', map('cloudFiles.inferColumnTypes', 'true'))
+"""
+
+# customers
+"""
+CREATE OR REFRESH LIVE TABLE customers
+COMMENT 'The customers lookup table, ingested from customers-json'
+AS SELECT * FROM json.`${datasets.path}/customers-json`
+"""
+
