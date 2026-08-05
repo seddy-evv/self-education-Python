@@ -698,3 +698,20 @@ COMMENT 'The customers lookup table, ingested from customers-json'
 AS SELECT * FROM json.`${datasets.path}/customers-json`
 """
 
+# ==========================================
+# 2. SILVER LAYER: Cleaning & Business Rules
+# ==========================================
+"""
+CREATE OR REFRESH STREAMING LIVE TABLE orders_cleaned(
+    CONSTRAINT valid_order_number EXPECT (order_id IS NOT NILL) ON VIOLATION DROP ROW
+)
+COMMENT 'The cleaned books orders with valid order_id'
+AS
+    SELECT order_id, quantity, o.customer_id, c.profile:first_name AS f_name, c.profile:last_name AS l_name,
+           cast(from_unixtime(order_timestamp, 'yyyy-MM-dd HH:mm:ss') AS timestamp) AS order_timestamp, o.books,
+           c.profile:address:country AS country
+    FROM STREAM(LIVE.orders_raw) o
+    LEFT JOIN LIVE.customers c
+      ON o.customer_id = c.customer_id
+"""
+
