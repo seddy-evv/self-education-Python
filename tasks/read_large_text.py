@@ -31,6 +31,26 @@ def read_in_chunks(file_path, size_in_bytes, search_string):
         print(exp)
         return 0
 
+# Some theory regarding iter():
+# If you don't use iter(), reading a file in chunks usually requires a clunky while True loop with a manual break condition:
+
+# with open(filepath, 'rb') as f:
+#     while True:
+#         chunk = f.read(size_in_bytes)
+#         if chunk == b"":  # When EOF (End of File) is reached, f.read() returns an empty byte string
+#             break
+
+# Python's built-in iter() function has a special, lesser-known form that takes two arguments:
+# 1. A Callable: A function or lambda that takes no arguments and returns a value on every call.
+# 2. A Sentinel: A specific value that signals the end of the iteration.
+# When you pass these two arguments, iter() creates an iterator object. Every time the loop asks for the next item, Python automatically 
+# executes the lambda (f.read(65536)).
+# The moment the lambda returns the sentinel value (b""), the iterator raises a StopIteration exception behind the scenes, which cleanly 
+# and automatically terminates the for loop.
+# Modern Pythonic Approach (Using iter):
+
+# for chunk in iter(lambda: f.read(65536), b""):
+#     hasher.update(chunk)
 
 # 2
 def read_in_lines(file_path, search_string):
