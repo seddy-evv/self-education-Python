@@ -47,10 +47,12 @@ def read_in_chunks(file_path, size_in_bytes, search_string):
 # executes the lambda (f.read(65536)).
 # The moment the lambda returns the sentinel value (b""), the iterator raises a StopIteration exception behind the scenes, which cleanly 
 # and automatically terminates the for loop.
+
 # Modern Pythonic Approach (Using iter):
 
 # for chunk in iter(lambda: f.read(65536), b""):
 #     hasher.update(chunk)
+
 
 # 2
 def read_in_lines(file_path, search_string):
