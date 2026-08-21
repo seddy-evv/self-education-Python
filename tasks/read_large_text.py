@@ -71,3 +71,4 @@ def read_in_lines(file_path, search_string):
 if __name__ == '__main__':
     print(read_in_chunks('data.txt', 100, "The search phrase"))
     print(read_in_lines('data.txt', "The search phrase"))
+
