@@ -250,6 +250,37 @@ df.show()
 # |Charlie| 30|
 # +-------+---+
 
+# Create DataFrame from json schema
+schema = StructType.fromJson(
+    {
+        "type": "struct",
+        "fields": [
+            {
+                "name": "Name",
+                "type": "string",
+                "nullable": True,
+                "metadata": {},
+            },
+            {
+                "name": "Age",
+                "type": "integer",
+                "nullable": True,
+                "metadata": {},
+            },
+        ],
+    }
+)
+data = [("Alice", 28), ("Bob", 25), ("Charlie", 30)]
+df = spark.createDataFrame(data, schema=schema)
+df.show()
+# +-------+---+
+# |   Name|Age|
+# +-------+---+
+# |  Alice| 28|
+# |    Bob| 25|
+# |Charlie| 30|
+# +-------+---+
+
 # Create an empty df with the additional method to define the ddl schema
 ddl_schema = "name STRING NOT NULL, age INTEGER"
 empty_df = spark.createDataFrame([], ddl_schema)
