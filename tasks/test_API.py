@@ -32,7 +32,7 @@ try:
         except json.JSONDecodeError:
             print("Response received, but it is not valid JSON (could be an error page).")
         else:
-            print(f"🔴 Server Error: Responded with status code {response.status_code}")
+            print(f"Server Error: Responded with status code {response.status_code}")
             print("Raw response text:", response.text)
 
 except requests.exceptions.Timeout:
@@ -50,7 +50,7 @@ except requests.exceptions.ConnectionError as e:
     # 2. Catch physical network, DNS, or VPN connectivity issues
     elif "Failed to establish a new connection" in error_message or "Connection refused" in error_message:
         print("Failed to physically establish a connection to the host.")
-        print( "Ensure your corporate VPN is connected, the proxy settings are correct, and your IP is whitelisted.")
+        print("Ensure your corporate VPN is connected, the proxy settings are correct, and your IP is whitelisted.")
 
     # 3. Fallback for any other type of ConnectionError
     else:
