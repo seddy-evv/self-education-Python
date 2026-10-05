@@ -2202,3 +2202,17 @@ df.mapInPandas(filter_func, df.schema).show()
 #         yield pd.Series(model.predict(pdf))
 #
 # df.select(predict("features")).show()
+
+# The main differences between pandas_udf and regular udf:
+# 1. At a high level, these UDFs operate similarly: Spark splits the DataFrame into partitions and executes the functions
+# in parallel across the cluster, assigning one function instance per partition. However, with a standard UDF,
+# the function is instantiated for every single row within the partition — created, destroyed, and recreated repeatedly.
+# Consequently, if the function involves a model or API call, a connection is established for each new row—
+# potentially 10,000 times over.
+# In contrast, a Pandas UDF instantiates the function once per partition and then iterates through the rows sequentially;
+# as a result, the model or API connection is initialized only once for the entire function execution.
+# 2. PySpark runs inside a Java Virtual Machine (JVM). Dataframes are kept in JVM memory.
+# Regular UDF: For every single row, Spark must convert the row data from Java objects to Python objects, send it to
+# the Python worker process, execute the function, convert the results back to Java, and send it back to the JVM.
+# Pandas UDF (Arrow): Apoache Arrow streams whole chunks od data into Python memory at once via zero-copy serialization,
+# bypassing this massive per-row communication tax.
