@@ -2216,3 +2216,6 @@ df.mapInPandas(filter_func, df.schema).show()
 # the Python worker process, execute the function, convert the results back to Java, and send it back to the JVM.
 # Pandas UDF (Arrow): Apoache Arrow streams whole chunks od data into Python memory at once via zero-copy serialization,
 # bypassing this massive per-row communication tax.
+
+# We can control the size of batch (features in the example) by:
+spark.conf.set("spark.sql.execution.arrow.maxRecordsPerBatch", "500")
