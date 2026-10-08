@@ -5,7 +5,21 @@ def demo_datetime():
     """ Current date and time"""
     now = datetime.datetime.now()
     print("Current datetime:", now)
-    # Current datetime: 2025-11-29 10:00:36.204181
+    # Current datetime: 2026-10-08 16:56:13.382628
+    print(now.year)
+    # 2026
+    print(now.month)
+    # 10
+    print(now.day)
+    # 8
+    
+    # Format to 08
+    print(str(now.day).zfill(2))
+    # 08
+    
+    # UTC date time
+    print(datetime.datetime.now(datetime.timezone.utc))
+    # 2026-10-08 14:56:13.382628+00:00
 
     """ Current date """
     today = datetime.date.today()
