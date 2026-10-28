@@ -1,6 +1,7 @@
 from delta.tables import DeltaTable
-from pyspark.sql.functions import col, lit
+from pyspark.sql.functions import col, lit, input_file_name, current_timestamp, sum, count, max
 from pyspark.sql import SparkSession
+import dlt
 
 spark = SparkSession.builder.appName("Databricks Examples").master("local").getOrCreate()
 
@@ -130,6 +131,9 @@ df = spark.read.format("delta").load("path/to/delta_table")
 # or
 df = spark.table("my_table")
 
+# In the Databricks we also can read Excel files:
+df = spark.read.format("excel").option("headerRows", 1).option("inferSchema", "true").load("path/to/excel_file")
+
 # Delta table as a streaming source
 df = spark.readStream \
       .format("delta") \
@@ -142,7 +146,7 @@ df = spark.readStream \
       .load("/delta/events")
 
 # Delta table as a streaming sink
-# outputMode and trigger check pyspark_mod.py
+# outputMode and trigger check pyspark_streaming_mod.py
 df.writeStream.format("delta") \
  .outputMode("append") \
  .option("checkpopintLocation", "path/to/checkpoints") \
@@ -613,6 +617,7 @@ from databricks.sdk.runtime import dbutils
 # %run - The %run command executes another notebook in the SAME session context as the parent notebook, making all
 # variables and functions from the parent available in the child, and vice versa.
 
+
 # 10. DLT
 # The main rule in the python and SQL code below that if we create a streaming live table, the source should be
 # also a streaming or join streaming with static live table. In this situation Spark Structured Streaming reads only
@@ -715,3 +720,24 @@ AS
       ON o.customer_id = c.customer_id
 """
 
+# ==========================================
+# 3. GOLD LAYER: Aggregations & Distribution
+# ==========================================
+"""
+CREATE OD REFRESH LIVE TABLE cn_daily_customer_books
+COMMENT 'Daily number of books per customer in China'
+AS
+    SELECT customer_id, f_name, l_name, date_trunc('DD', order_timestamp) AS order_date, sum(quantity) AS books_counts
+    FROM LIVE.orders_cleaned
+    WHERE country = 'China'
+    GROUP BY customer_id, f_name, l_name, date_trunc('DD', order_timestamp)
+"""
+
+
+# 11. UDF
+"""
+CREATE OR REPLACE FUNCTION get_url(email STRING)
+RETURNS STRING
+
+RETURN concat('https://www.', split(email, '@')[1])
+"""
