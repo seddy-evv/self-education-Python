@@ -1243,7 +1243,7 @@ print(pd_df)
 
 
 """Write operations"""
-data = {'Name': ['Anna', 'Boris'], 'Age':}
+data = {'Name': ['Anna', 'Boris'], 'Age': [20, 25]}
 df = pd.DataFrame(data)
 
 # Option A: Get JSON as a string
