@@ -17,6 +17,8 @@
 # Datetime Handling
 # Miscellaneous
 # Categorical data
+# Iteration
+# Write operations
 
 
 import pandas as pd
@@ -1238,3 +1240,31 @@ print(pd_df)
 # 1      Bob   25  Los Angeles  young
 # 2  Charlie   33      Chicago  young
 # 3     Alex   36     New York  adult
+
+
+"""Write operations"""
+data = {'Name': ['Anna', 'Boris'], 'Age':}
+df = pd.DataFrame(data)
+
+# Option A: Get JSON as a string
+json_string = df.to_json(force_ascii=False)
+print(json_string)
+# Output: {"Name":{"0":"Anna","1":"Boris"},"Age":{"0":28,"1":34}}
+
+# Option B: Save directly to a file
+df.to_json('output.json', force_ascii=False)
+
+# orient='records' - Converts each row into an individual JSON object. Row indices are dropped.
+df.to_json(orient='records', force_ascii=False)
+# Output: [{"Name":"Anna","Age":28},{"Name":"Boris","Age":34}]
+
+# orient='columns' - Groups data by columns, using column names as top-level keys.
+df.to_json(orient='columns', force_ascii=False)
+# Output: {"Name":{"0":"Anna","1":"Boris"},"Age":{"0":28,"1":34}}
+
+# indent=4: Generates human-readable, pretty-printed JSON with proper indentation.
+# lines=True — used in conjunction with orient='records'. It creates a JSON Lines (NDJSON) format, where each object
+# is written on a new line, without enclosing square brackets [].
+# compression="gzip" - it reduces the file size on your disk, which is beneficial when dealing with massive datasets.
+df.to_json('beautiful_output.json', orient='records', indent=4, lines=True, compression="gzip")
+
