@@ -337,6 +337,9 @@ spark.sql("""
           COPY_OPTIONS ('mergeSchema' = 'true’)
 """)
 # 2. Auto Loader - more efficient than COPY INTO, support near real-time ingestion of millions of files per hour
+# In Databricks, Auto Loader supports two primary file discovery modes for incrementally loading data from cloud storage:
+# - Directory Listing (default)
+# - File Notification. (.option("cloudFiles.useNotifications", "true"))
 spark.readStream \
     .format("cloudFiles") \
     .option("cloudFiles.format", "<source_format>") \
