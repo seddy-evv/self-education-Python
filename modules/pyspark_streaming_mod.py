@@ -66,7 +66,7 @@ agg_df = rate_df.groupBy("value").agg(count("value").alias("Count"))
 
 # Deduplication
 # Without watermark using guid column
-rate_df.dropDuplicates("timestamp")
+rate_df.dropDuplicates("guid")
 
 # With watermark using the timestamp column
 rate_df \
@@ -124,7 +124,7 @@ df = spark.sql("select count(*) from updates")  # returns another streaming DF
 # using the writeStream method.
 #
 # Supported Output Modes:
-# - Append Mode: Only newly added rows are written to the sink.
+# - Append Mode: Only newly added rows are written to the sink. (The default, suitable for streams without aggregations)
 # - Complete Mode: The entire output, including all rows, is updated in the sink.
 # - Update Mode: Only rows updated since the last batch are written to the sink.
 #
