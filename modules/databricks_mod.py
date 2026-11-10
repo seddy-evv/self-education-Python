@@ -337,9 +337,34 @@ spark.sql("""
           COPY_OPTIONS ('mergeSchema' = 'true’)
 """)
 # 2. Auto Loader - more efficient than COPY INTO, support near real-time ingestion of millions of files per hour
+# Auto Loader (spark.readStream.format("cloudFiles")) acts as an input source for Spark Structured Streaming. It reads
+# files incrementally as they land in cloud storage and returns a Streaming DataFrame (DataFrame where isStreaming == true).
+# Because it is a standard Spark Structured Streaming DataFrame, you can apply all the exact same transformations,
+# manipulations, watermarks, and streaming operations that you would with any other streaming source (like Kafka,
+# Event Hubs, or socket streams):
+# - Column Transformations: withColumn, select, filter, parsing JSON strings using from_json(), exploding arrays, etc.
+# - Stateful Operations: Watermarking (withWatermark), windowed aggregations (groupBy(window(...))), and deduplication
+#                        (dropDuplicatesWithinWatermark).
+# - Streaming Joins: Joining the stream with static or other streaming DataFrames.
+# - Multiple Senders/Outputs: Taking that same manipulated stream and writing it to multiple targets.
+#   Native Structured Streaming Sinks:
+#   - Delta Lake (.format("delta"))
+#   - Kafka (.format("kafka"))
+#   - Files (.format("parquet" / "orc" / "json"))
 # In Databricks, Auto Loader supports two primary file discovery modes for incrementally loading data from cloud storage:
 # - Directory Listing (default)
 # - File Notification. (.option("cloudFiles.useNotifications", "true"))
+# In addition to file discovery, selecting the mode for handling changes to the data structure—configured via
+# the `cloudFiles.schemaEvolutionMode` parameter—is a critical aspect of Auto Loader:
+# - `addNewColumns` (default): When new columns appear in files, they are automatically added to the target table.
+#    The streaming session is automatically restarted in the process.
+# - `failOnNewColumns`: The stream fails with an error upon detecting a schema change, requiring an engineer
+#    to manually review the changes.
+# - `rescue`: Any unknown columns or columns with changed data types are automatically placed into a special hidden
+#    column called `_rescued_data_column` to prevent data loss.
+# - `none`: New columns are completely ignored, and the schema remains strictly fixed.
+
+
 spark.readStream \
     .format("cloudFiles") \
     .option("cloudFiles.format", "<source_format>") \
