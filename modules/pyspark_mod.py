@@ -1697,65 +1697,68 @@ df.show()
 
 # Step 1: Add a salt column
 # For the skewed keys, add a random salt value to redistribute the data
-salt_range = 3  # Adjust based on the skewed nature of the data
-df_salted = df.withColumn("salt", floor(rand() * salt_range)) \
-              .withColumn("salted_key", concat(col("key"), lit("_"), col("salt")))
+salt_range = 10  # Adjust based on the skewed nature of the data
+df_salted = df.withColumn("salt", floor(rand() * salt_range))
 
 # Show the salted data
 print("Salted Dataset:")
 df_salted.show()
-# +---+-----+----+----------+
-# |key|value|salt|salted_key|
-# +---+-----+----+----------+
-# |  A|  100|   1|       A_1|
-# |  A|  200|   1|       A_1|
-# |  A|  300|   0|       A_0|
-# |  A|  400|   1|       A_1|
-# |  B|   50|   2|       B_2|
-# |  B|   60|   0|       B_0|
-# |  C|   30|   1|       C_1|
-# |  C|   40|   0|       C_0|
-# |  C|   50|   2|       C_2|
-# +---+-----+----+----------+
+Salted Dataset:
+# +---+-----+----+
+# |key|value|salt|
+# +---+-----+----+
+# |  A|  100|   3|
+# |  A|  200|   3|
+# |  A|  300|   4|
+# |  A|  400|   1|
+# |  B|   50|   1|
+# |  B|   60|   2|
+# |  C|   30|   5|
+# |  C|   40|   8|
+# |  C|   50|   9|
+# +---+-----+----+
 
 # Step 2: Perform the aggregation on the salted data
 # Example: Calculate the sum of values for each salted key
-aggregated_salted = df_salted.groupBy("salted_key").agg(sum("value").alias("sum_value"),
+aggregated_salted = df_salted.groupBy("salt", "key").agg(sum("value").alias("sum_value"),
                                                         max("value").alias("max_value"),
                                                         count("*").alias("count"))
 
 # Show the aggregated result for salted keys
 print("Aggregated Dataset with Salted Keys:")
 aggregated_salted.show()
-# +----------+---------+---------+-----+
-# |salted_key|sum_value|max_value|count|
-# +----------+---------+---------+-----+
-# |       A_1|      700|      400|    3|
-# |       A_0|      300|      300|    1|
-# |       B_2|       50|       50|    1|
-# |       B_0|       60|       60|    1|
-# |       C_1|       30|       30|    1|
-# |       C_2|       50|       50|    1|
-# |       C_0|       40|       40|    1|
-# +----------+---------+---------+-----+
+# Aggregated Dataset with Salted Keys:
+# +----+---+---------+---------+-----+
+# |salt|key|sum_value|max_value|count|
+# +----+---+---------+---------+-----+
+# |   3|  A|      300|      200|    2|
+# |   4|  A|      300|      300|    1|
+# |   1|  A|      400|      400|    1|
+# |   1|  B|       50|       50|    1|
+# |   2|  B|       60|       60|    1|
+# |   5|  C|       30|       30|    1|
+# |   8|  C|       40|       40|    1|
+# |   9|  C|       50|       50|    1|
+# +----+---+---------+---------+-----+
 
 # Step 3: Recombine the results by removing the salt
 # Extract the original key by splitting the salted key
-final_result = aggregated_salted.withColumn("original_key", substring_index(col("salted_key"), "_", 1))\
-                                .groupBy("original_key").agg(sum("sum_value").alias("total_sum"),
+final_result = aggregated_salted.groupBy("key").agg(sum("sum_value").alias("total_sum"),
                                                              max("max_value").alias("max_value"),
                                                              (sum("sum_value") / sum("count")).alias("avg"))
 
 # Show the final aggregated result
 print("Final Aggregated Dataset (De-salted):")
 final_result.show()
-# +------------+---------+---------+-----+
-# |original_key|total_sum|max_value|  avg|
-# +------------+---------+---------+-----+
-# |           B|      110|       60| 55.0|
-# |           C|      120|       50| 40.0|
-# |           A|     1000|      400|250.0|
-# +------------+---------+---------+-----+
+# Final Aggregated Dataset (De-salted):
+# +---+---------+---------+-----+
+# |key|total_sum|max_value|  avg|
+# +---+---------+---------+-----+
+# |  A|     1000|      400|250.0|
+# |  B|      110|       60| 55.0|
+# |  C|      120|       50| 40.0|
+# +---+---------+---------+-----+
+
 
 # Example with the single key:
 # Sample skewed dataset
@@ -2214,7 +2217,7 @@ df.mapInPandas(filter_func, df.schema).show()
 # 2. PySpark runs inside a Java Virtual Machine (JVM). Dataframes are kept in JVM memory.
 # Regular UDF: For every single row, Spark must convert the row data from Java objects to Python objects, send it to
 # the Python worker process, execute the function, convert the results back to Java, and send it back to the JVM.
-# Pandas UDF (Arrow): Apoache Arrow streams whole chunks od data into Python memory at once via zero-copy serialization,
+# Pandas UDF (Arrow): Apache Arrow streams whole chunks od data into Python memory at once via zero-copy serialization,
 # bypassing this massive per-row communication tax.
 
 # We can control the size of batch (features in the example) by:
