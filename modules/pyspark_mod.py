@@ -1703,7 +1703,7 @@ df_salted = df.withColumn("salt", floor(rand() * salt_range))
 # Show the salted data
 print("Salted Dataset:")
 df_salted.show()
-Salted Dataset:
+# Salted Dataset:
 # +---+-----+----+
 # |key|value|salt|
 # +---+-----+----+
